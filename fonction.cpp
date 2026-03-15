@@ -1,6 +1,7 @@
+#include <iostream>
 #include "fonction.h"
 
-void hello(){
-    std::cout<<"helloworld\n";
-    std::cout<<"test modify\n";
+void hello()
+{
+    std::cout << "helloworld\n";
 }
