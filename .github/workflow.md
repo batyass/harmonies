@@ -22,7 +22,7 @@ git add .
 git commit -m "feat: ajout de Player"
 
 4. Envoyer sur GitHub
-git push origin feature/nom-feature
+git push origin votrebranche
 
 5. Créer une Pull Request
 Aller sur GitHub
