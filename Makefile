@@ -6,6 +6,7 @@ CXXFLAGS = -Wall -Wextra -std=c++11 -Iinclude
 # --- Target and Folders ---
 TARGET = prog
 SRC_DIR = src
+TEST_DIR = tests
 
 # --- File Discovery (Windows Compatible) ---
 # We manually specify the subfolders to avoid the 'find' command conflict on Windows
@@ -19,6 +20,11 @@ SRCS = $(wildcard $(SRC_DIR)/*.cpp) \
 
 # Convert the list of .cpp files into a list of .o (object) files
 OBJS = $(SRCS:.cpp=.o)
+
+TEST_HEXCOORD = $(TEST_DIR)/testHexCoord
+TEST_BOARDCELL = $(TEST_DIR)/testBoardCell
+TEST_PERSONALBOARD = $(TEST_DIR)/testPersonalBoard
+TESTS = $(TEST_HEXCOORD) $(TEST_BOARDCELL) $(TEST_PERSONALBOARD)
 
 # --- Build Rules ---
 
@@ -47,9 +53,29 @@ clean:
 	-del /q $(TARGET).exe
 
 # Prevent conflicts with files named 'all' or 'clean'
-.PHONY: all clean
+.PHONY: all clean test
 
 
 # Run the application
 run: $(TARGET)
 	./$(TARGET)
+
+# --- Tests ---
+
+$(TEST_HEXCOORD): $(TEST_DIR)/testHexCoord.cpp $(SRC_DIR)/utils/HexCoord.cpp
+	@echo "Building $@..."
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
+$(TEST_BOARDCELL): $(TEST_DIR)/testBoardCell.cpp $(SRC_DIR)/model/BoardCell.cpp $(SRC_DIR)/utils/HexCoord.cpp
+	@echo "Building $@..."
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
+$(TEST_PERSONALBOARD): $(TEST_DIR)/testPersonalBoard.cpp $(SRC_DIR)/model/PersonalBoard.cpp $(SRC_DIR)/model/BoardCell.cpp $(SRC_DIR)/utils/HexCoord.cpp
+	@echo "Building $@..."
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
+test: $(TESTS)
+	@echo "Running tests..."
+	./$(TEST_HEXCOORD)
+	./$(TEST_BOARDCELL)
+	./$(TEST_PERSONALBOARD)

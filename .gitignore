@@ -15,3 +15,8 @@ compile_commands.json
 
 # Design files (Optional: remove if you want to share with teammates)
 model.puml
+
+# test files
+/tests/testHexCoord
+/tests/testBoardCell
+/tests/testPersonalBoard

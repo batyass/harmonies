@@ -3,31 +3,38 @@
 
 #include "utils/HexCoord.h"
 #include "model/TokenType.h"
+#include <cstddef> // size_t
 #include <vector>
 
-namespace harmonies {
-namespace model {
+namespace harmonies
+{
+    namespace model
+    {
 
-class BoardCell {
-private:
-    utils::HexCoord coordinate;
-    std::vector<TokenType> tokenStack; // Max 3 tokens
-    bool hasAnimalCube;                // "au plus 1 cube" per rules
-    
-public:
-    BoardCell(utils::HexCoord coord);
-    
-    // Getters
-    utils::HexCoord getCoordinate() const { return coordinate; }
-    bool isOccupiedByCube() const { return hasAnimalCube; }
-    int getHeight() const { return tokenStack.size(); }
-    
-    // Logic for stacking
-    bool addToken(TokenType type);
-    void placeAnimalCube();
-};
+        class BoardCell
+        {
+        private:
+            utils::HexCoord coordinate;
+            std::vector<TokenType> tokenStack; // Max 3 tokens
+            bool cubePresent = false;
 
-} // namespace model
+        public:
+            explicit BoardCell(utils::HexCoord coord);
+
+            // Getters
+            const utils::HexCoord &getCoordinate() const { return coordinate; }
+            std::size_t getHeight() const { return tokenStack.size(); }
+
+            // Logic for stacking
+            bool hasCube() const;
+            bool canReceiveToken(TokenType type) const;
+            bool addToken(TokenType type);
+
+            bool canPlaceCube() const;
+            bool placeCube();
+        };
+
+    } // namespace model
 } // namespace harmonies
 
 #endif

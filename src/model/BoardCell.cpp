@@ -1,28 +1,58 @@
 #include "model/BoardCell.h"
 
-namespace harmonies {
-namespace model {
+namespace harmonies
+{
+    namespace model
+    {
 
-BoardCell::BoardCell(utils::HexCoord coord) 
-    : coordinate(coord), hasAnimalCube(false) {}
+        BoardCell::BoardCell(utils::HexCoord coord) : coordinate(coord) {}
 
-bool BoardCell::addToken(TokenType type) {
-    // Teammate's rule: Max 3 tokens
-    if (tokenStack.size() >= 3) return false;
-    
-    // Teammate's rule: Cannot stack if there is already an animal cube
-    if (hasAnimalCube) return false;
+        bool BoardCell::hasCube() const
+        {
+            return cubePresent;
+        }
 
-    // TODO: Add StackRule logic here later (e.g., Water cannot be stacked)
-    tokenStack.push_back(type);
-    return true;
-}
+        bool BoardCell::canReceiveToken(TokenType type) const
+        {
+            if (type == TokenType::None)
+            {
+                return false;
+            }
 
-void BoardCell::placeAnimalCube() {
-    if (!hasAnimalCube) {
-        hasAnimalCube = true;
-    }
-}
+            if (cubePresent)
+            {
+                return false;
+            }
 
-} // namespace model
+            return tokenStack.size() < 3;
+        }
+
+        bool BoardCell::addToken(TokenType type)
+        {
+            if (!canReceiveToken(type))
+            {
+                return false;
+            }
+
+            tokenStack.push_back(type);
+            return true;
+        }
+
+        bool BoardCell::canPlaceCube() const
+        {
+            return !cubePresent;
+        }
+
+        bool BoardCell::placeCube()
+        {
+            if (!canPlaceCube())
+            {
+                return false;
+            }
+
+            cubePresent = true;
+            return true;
+        }
+
+    } // namespace model
 } // namespace harmonies
