@@ -1,8 +1,10 @@
 #ifndef CENTRALBOARD_H
 #define CENTRALBOARD_H
 
+#include <cstddef>
 #include <vector>
-#include "TokenSlot.h"
+
+#include "model/TokenSlot.h"
 
 namespace harmonies
 {
@@ -12,14 +14,13 @@ namespace harmonies
         class CentralBoard
         {
         private:
-            std::vector<TokenSlot *> slots;
-            int nbSlots;
+            std::vector<TokenSlot> slots;
 
         public:
-            CentralBoard(int nbPlayers);
-            ~CentralBoard();
-            int getNbSlots() const { return nbSlots; }
-            TokenSlot *getSlot(int index) { return slots[index]; }
+            explicit CentralBoard(int nbPlayers);
+            std::size_t getNbSlots() const;
+            TokenSlot *getSlot(std::size_t index);
+            const TokenSlot *getSlot(std::size_t index) const;
         };
 
     }

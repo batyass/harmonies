@@ -5,20 +5,26 @@ namespace harmonies
     namespace model
     {
 
-        TokenSlot::TokenSlot() : available(false) {}
-
-        void TokenSlot::fill(const std::vector<Token *> &newTokens)
+        bool TokenSlot::isEmpty() const
         {
-            tokens = newTokens;
-            available = true;
+            return tokens.empty();
         }
 
-        std::vector<Token *> TokenSlot::takeAll()
+        void TokenSlot::fill(const std::vector<TokenType> &newTokens)
         {
-            std::vector<Token *> toReturn = tokens;
+            tokens = newTokens;
+        }
+
+        std::vector<TokenType> TokenSlot::takeAll()
+        {
+            std::vector<TokenType> toReturn = tokens;
             tokens.clear();
-            available = false;
             return toReturn;
+        }
+
+        const std::vector<TokenType> &TokenSlot::getTokens() const
+        {
+            return tokens;
         }
 
     }

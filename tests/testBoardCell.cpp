@@ -38,9 +38,6 @@ int main()
     check(cell.canPlaceCube(),
           "A new cell should allow cube placement",
           failures);
-    check(!cell.canReceiveToken(TokenType::None),
-          "TokenType::None should be rejected",
-          failures);
 
     check(cell.addToken(TokenType::BlueWater),
           "First token should be accepted",

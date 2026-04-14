@@ -7,17 +7,33 @@ namespace harmonies
 
         CentralBoard::CentralBoard(int nbPlayers)
         {
-            nbSlots = (nbPlayers == 1) ? 3 : 5;
-            for (int i = 0; i < nbSlots; ++i)
-            {
-                slots.push_back(new TokenSlot());
-            }
+            std::size_t nbSlots = (nbPlayers == 1) ? 3 : 5;
+            slots.resize(nbSlots);
         }
 
-        CentralBoard::~CentralBoard()
+        std::size_t CentralBoard::getNbSlots() const
         {
-            for (auto s : slots)
-                delete s;
+            return slots.size();
+        }
+
+        TokenSlot *CentralBoard::getSlot(std::size_t index)
+        {
+            if (index >= slots.size())
+            {
+                return nullptr;
+            }
+
+            return &slots[index];
+        }
+
+        const TokenSlot *CentralBoard::getSlot(std::size_t index) const
+        {
+            if (index >= slots.size())
+            {
+                return nullptr;
+            }
+
+            return &slots[index];
         }
 
     }

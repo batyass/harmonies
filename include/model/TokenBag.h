@@ -1,29 +1,30 @@
 #ifndef TOKENBAG_H
 #define TOKENBAG_H
 
+#include <cstddef>
 #include <vector>
-#include <algorithm>
-#include <random>
-#include <ctime>
-#include "model/Token.h"
 
-namespace harmonies {
-namespace model {
+#include "model/TokenType.h"
 
-class TokenBag {
-private:
-    std::vector<Token*> tokens;
+namespace harmonies
+{
+    namespace model
+    {
 
-public:
-    TokenBag();
-    ~TokenBag();
-    void shuffle();
-    std::vector<Token*> drawTokens(int count);
-    bool isEmpty() const { return tokens.empty(); }
-    int getRemainingCount() const { return tokens.size(); }
-};
+        class TokenBag
+        {
+        private:
+            std::vector<TokenType> tokens;
 
-} 
-} 
+        public:
+            TokenBag();
+            void shuffle();
+            std::vector<TokenType> drawTokens(std::size_t count);
+            bool isEmpty() const;
+            std::size_t getRemainingCount() const;
+        };
+
+    }
+}
 
 #endif

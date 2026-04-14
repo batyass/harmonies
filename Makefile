@@ -24,7 +24,10 @@ OBJS = $(SRCS:.cpp=.o)
 TEST_HEXCOORD = $(TEST_DIR)/testHexCoord
 TEST_BOARDCELL = $(TEST_DIR)/testBoardCell
 TEST_PERSONALBOARD = $(TEST_DIR)/testPersonalBoard
-TESTS = $(TEST_HEXCOORD) $(TEST_BOARDCELL) $(TEST_PERSONALBOARD)
+TEST_TOKENBAG = $(TEST_DIR)/testTokenBag
+TEST_TOKENSLOT = $(TEST_DIR)/testTokenSlot
+TEST_CENTRALBOARD = $(TEST_DIR)/testCentralBoard
+TESTS = $(TEST_HEXCOORD) $(TEST_BOARDCELL) $(TEST_PERSONALBOARD) $(TEST_TOKENBAG) $(TEST_TOKENSLOT) $(TEST_CENTRALBOARD)
 
 # --- Build Rules ---
 
@@ -46,11 +49,11 @@ $(TARGET): $(OBJS)
 # --- Utility Rules ---
 
 # Clean up build artifacts
-# Use 'del' for Windows or 'rm' if using MinGW/Git Bash
+# Use 'rm' on macOS/Linux
 clean:
 	@echo "Cleaning up..."
-	-del /s /q *.o
-	-del /q $(TARGET).exe
+	rm -f $(OBJS) $(TARGET)
+	rm -f $(TEST_HEXCOORD) $(TEST_BOARDCELL) $(TEST_PERSONALBOARD) $(TEST_TOKENBAG) $(TEST_TOKENSLOT) $(TEST_CENTRALBOARD)
 
 # Prevent conflicts with files named 'all' or 'clean'
 .PHONY: all clean test
@@ -74,8 +77,23 @@ $(TEST_PERSONALBOARD): $(TEST_DIR)/testPersonalBoard.cpp $(SRC_DIR)/model/Person
 	@echo "Building $@..."
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
+$(TEST_TOKENBAG): $(TEST_DIR)/testTokenBag.cpp $(SRC_DIR)/model/TokenBag.cpp
+	@echo "Building $@..."
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
+$(TEST_TOKENSLOT): $(TEST_DIR)/testTokenSlot.cpp $(SRC_DIR)/model/TokenSlot.cpp
+	@echo "Building $@..."
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
+$(TEST_CENTRALBOARD): $(TEST_DIR)/testCentralBoard.cpp $(SRC_DIR)/model/CentralBoard.cpp $(SRC_DIR)/model/TokenSlot.cpp
+	@echo "Building $@..."
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
 test: $(TESTS)
 	@echo "Running tests..."
 	./$(TEST_HEXCOORD)
 	./$(TEST_BOARDCELL)
 	./$(TEST_PERSONALBOARD)
+	./$(TEST_TOKENBAG)
+	./$(TEST_TOKENSLOT)
+	./$(TEST_CENTRALBOARD)

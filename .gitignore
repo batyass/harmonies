@@ -20,3 +20,6 @@ model.puml
 /tests/testHexCoord
 /tests/testBoardCell
 /tests/testPersonalBoard
+/tests/testCentralBoard
+/tests/testTokenBag
+/tests/testTokenSlot

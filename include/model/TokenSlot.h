@@ -1,8 +1,9 @@
 #ifndef TOKENSLOT_H
 #define TOKENSLOT_H
 
+#include <cstddef>
 #include <vector>
-#include "model/Token.h"
+#include "model/TokenType.h"
 
 namespace harmonies
 {
@@ -12,14 +13,13 @@ namespace harmonies
         class TokenSlot
         {
         private:
-            std::vector<Token *> tokens;
-            bool available;
+            std::vector<TokenType> tokens;
 
         public:
-            TokenSlot();
-            void fill(const std::vector<Token *> &newTokens);
-            std::vector<Token *> takeAll();
-            bool isAvailable() const { return available; }
+            bool isEmpty() const;
+            void fill(const std::vector<TokenType> &newTokens);
+            std::vector<TokenType> takeAll();
+            const std::vector<TokenType> &getTokens() const;
         };
 
     }

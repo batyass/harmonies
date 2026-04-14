@@ -12,13 +12,8 @@ namespace harmonies
             return cubePresent;
         }
 
-        bool BoardCell::canReceiveToken(TokenType type) const
+        bool BoardCell::canReceiveToken(TokenType /*type*/) const
         {
-            if (type == TokenType::None)
-            {
-                return false;
-            }
-
             if (cubePresent)
             {
                 return false;
