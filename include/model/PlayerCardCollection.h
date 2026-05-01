@@ -1,25 +1,23 @@
 #ifndef PLAYERCARDCOLLECTION_H
 #define PLAYERCARDCOLLECTION_H
 
-#include <vector>
 #include <cstddef>
+#include <vector>
+
+#include "model/AnimalCard.h"
 
 namespace harmonies {
 namespace model {
 
-class AnimalCard; 
-
 class PlayerCardCollection {
 private:
-    std::vector<AnimalCard*> cards;
+    std::vector<AnimalCard> cards;
 
 public:
-    PlayerCardCollection();
-    ~PlayerCardCollection();
-
-    void addCard(AnimalCard* card);
-    void removeCard(AnimalCard* card);
+    void addCard(const AnimalCard& card);
+    void removeCard(std::size_t index);
     std::size_t getCardCount() const;
+    const std::vector<AnimalCard>& getCards() const;
 };
 
 }

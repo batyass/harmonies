@@ -5,17 +5,9 @@ namespace harmonies
     namespace model
     {
 
-        Player::Player(const std::string &playerName, BoardSide side) : name(playerName), score(0)
-        {
-            board = new PersonalBoard(side);
-        }
+        Player::Player(const std::string &playerName, BoardSide side) : name(playerName), board(side), score(0) {}
 
-        Player::~Player()
-        {
-            delete board;
-        }
-
-        std::string Player::getName() const
+        const std::string &Player::getName() const
         {
             return name;
         }
@@ -27,7 +19,12 @@ namespace harmonies
 
         PersonalBoard *Player::getBoard()
         {
-            return board;
+            return &board;
+        }
+
+        const PersonalBoard *Player::getBoard() const
+        {
+            return &board;
         }
 
         void Player::addPoints(int points)
