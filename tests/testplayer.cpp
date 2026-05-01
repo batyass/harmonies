@@ -2,11 +2,9 @@
 #include <string>
 
 #include "model/Player.h"
-#include "model/PlayerCardCollection.h"
 
-using harmonies::model::AnimalCard;
+using harmonies::model::BoardSide;
 using harmonies::model::Player;
-using harmonies::model::PlayerCardCollection;
 
 namespace
 {
@@ -28,26 +26,30 @@ int main()
 {
     int failures = 0;
 
-    Player player("Yassir", static_cast<harmonies::model::BoardSide>(0));
-    check(player.getName() == "Yassir", "Le nom du joueur doit etre Yassir", failures);
-    check(player.getScore() == 0, "Le score initial doit etre 0", failures);
-    check(player.getBoard() != nullptr, "Le plateau personnel doit etre cree", failures);
+    Player player("Yassir", BoardSide::A);
+
+    check(player.getName() == "Yassir",
+          "A player should expose its name",
+          failures);
+    check(player.getScore() == 0,
+          "A new player should start with a score of 0",
+          failures);
+    check(player.getBoard() != nullptr,
+          "A player should own a personal board",
+          failures);
+    check(player.getBoard()->getSide() == BoardSide::A,
+          "The personal board should keep the side used at construction",
+          failures);
 
     player.addPoints(15);
-    check(player.getScore() == 15, "Le score doit etre de 15", failures);
+    check(player.getScore() == 15,
+          "Adding positive points should increase the score",
+          failures);
 
-    PlayerCardCollection collection;
-    check(collection.getCardCount() == 0, "La collection doit etre vide au depart", failures);
-
-    AnimalCard *dummyCard1 = reinterpret_cast<AnimalCard *>(1);
-    AnimalCard *dummyCard2 = reinterpret_cast<AnimalCard *>(2);
-
-    collection.addCard(dummyCard1);
-    collection.addCard(dummyCard2);
-    check(collection.getCardCount() == 2, "La collection doit avoir 2 cartes", failures);
-
-    collection.removeCard(dummyCard1);
-    check(collection.getCardCount() == 1, "La collection doit avoir 1 carte apres suppression", failures);
+    player.addPoints(-4);
+    check(player.getScore() == 15,
+          "Adding negative points should not decrease the score",
+          failures);
 
     std::cout << "\nFailures: " << failures << '\n';
     return failures == 0 ? 0 : 1;

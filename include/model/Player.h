@@ -13,16 +13,16 @@ namespace harmonies
         {
         private:
             std::string name;
-            PersonalBoard *board;
+            PersonalBoard board;
             int score;
 
         public:
             Player(const std::string &playerName, BoardSide side);
-            ~Player();
 
-            std::string getName() const;
+            const std::string &getName() const;
             int getScore() const;
             PersonalBoard *getBoard();
+            const PersonalBoard *getBoard() const;
             void addPoints(int points);
         };
 
