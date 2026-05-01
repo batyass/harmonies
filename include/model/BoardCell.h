@@ -1,7 +1,7 @@
 #ifndef BOARDCELL_H
 #define BOARDCELL_H
 
-#include "utils/HexCoord.h"
+#include "utils/hexCoord.h"
 #include "model/TokenType.h"
 #include <cstddef> // size_t
 #include <vector>

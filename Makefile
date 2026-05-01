@@ -27,7 +27,9 @@ TEST_PERSONALBOARD = $(TEST_DIR)/testPersonalBoard
 TEST_TOKENBAG = $(TEST_DIR)/testTokenBag
 TEST_TOKENSLOT = $(TEST_DIR)/testTokenSlot
 TEST_CENTRALBOARD = $(TEST_DIR)/testCentralBoard
-TESTS = $(TEST_HEXCOORD) $(TEST_BOARDCELL) $(TEST_PERSONALBOARD) $(TEST_TOKENBAG) $(TEST_TOKENSLOT) $(TEST_CENTRALBOARD)
+TEST_PATTERN = $(TEST_DIR)/testPattern
+TEST_ANIMALCARD = $(TEST_DIR)/testAnimalCard
+TESTS = $(TEST_HEXCOORD) $(TEST_BOARDCELL) $(TEST_PERSONALBOARD) $(TEST_TOKENBAG) $(TEST_TOKENSLOT) $(TEST_CENTRALBOARD) $(TEST_PATTERN) $(TEST_ANIMALCARD)
 
 # --- Build Rules ---
 
@@ -53,7 +55,7 @@ $(TARGET): $(OBJS)
 clean:
 	@echo "Cleaning up..."
 	rm -f $(OBJS) $(TARGET)
-	rm -f $(TEST_HEXCOORD) $(TEST_BOARDCELL) $(TEST_PERSONALBOARD) $(TEST_TOKENBAG) $(TEST_TOKENSLOT) $(TEST_CENTRALBOARD)
+	rm -f $(TEST_HEXCOORD) $(TEST_BOARDCELL) $(TEST_PERSONALBOARD) $(TEST_TOKENBAG) $(TEST_TOKENSLOT) $(TEST_CENTRALBOARD) $(TEST_PATTERN) $(TEST_ANIMALCARD)
 
 # Prevent conflicts with files named 'all' or 'clean'
 .PHONY: all clean test
@@ -89,6 +91,14 @@ $(TEST_CENTRALBOARD): $(TEST_DIR)/testCentralBoard.cpp $(SRC_DIR)/model/CentralB
 	@echo "Building $@..."
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
+$(TEST_PATTERN): $(TEST_DIR)/testPattern.cpp $(SRC_DIR)/model/Pattern.cpp $(SRC_DIR)/utils/HexCoord.cpp
+	@echo "Building $@..."
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
+$(TEST_ANIMALCARD): $(TEST_DIR)/testAnimalCard.cpp $(SRC_DIR)/model/AnimalCard.cpp $(SRC_DIR)/model/Pattern.cpp $(SRC_DIR)/utils/HexCoord.cpp
+	@echo "Building $@..."
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
 test: $(TESTS)
 	@echo "Running tests..."
 	./$(TEST_HEXCOORD)
@@ -97,3 +107,5 @@ test: $(TESTS)
 	./$(TEST_TOKENBAG)
 	./$(TEST_TOKENSLOT)
 	./$(TEST_CENTRALBOARD)
+	./$(TEST_PATTERN)
+	./$(TEST_ANIMALCARD)

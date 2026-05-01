@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 
-#include "utils/HexCoord.h"
+#include "utils/hexCoord.h"
 
 using harmonies::utils::HexCoord;
 
