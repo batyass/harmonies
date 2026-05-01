@@ -1,3 +1,25 @@
-main.o
-fonction.o
-prog.exe
+# Prerequisites
+*.d
+
+# Object files
+*.o
+
+# Linker output
+*.exe
+*.out
+prog
+
+# IDE and metadata
+.vscode/
+compile_commands.json
+
+# Design files (Optional: remove if you want to share with teammates)
+model.puml
+
+# test files
+/tests/testHexCoord
+/tests/testBoardCell
+/tests/testPersonalBoard
+/tests/testCentralBoard
+/tests/testTokenBag
+/tests/testTokenSlot
