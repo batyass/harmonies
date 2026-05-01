@@ -2,6 +2,7 @@
 #define PERSONALBOARD_H
 
 #include <map>
+#include "model/BoardSide.h"
 #include "model/BoardCell.h"
 #include "utils/hexCoord.h"
 
@@ -9,12 +10,6 @@ namespace harmonies
 {
     namespace model
     {
-
-        enum class BoardSide
-        {
-            A,
-            B
-        };
 
         class PersonalBoard
         {
