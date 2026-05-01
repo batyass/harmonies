@@ -30,7 +30,9 @@ TEST_CENTRALBOARD = $(TEST_DIR)/testCentralBoard
 TEST_PATTERN = $(TEST_DIR)/testPattern
 TEST_ANIMALCARD = $(TEST_DIR)/testAnimalCard
 TEST_ANIMALCARDDECK = $(TEST_DIR)/testAnimalCardDeck
-TESTS = $(TEST_HEXCOORD) $(TEST_BOARDCELL) $(TEST_PERSONALBOARD) $(TEST_TOKENBAG) $(TEST_TOKENSLOT) $(TEST_CENTRALBOARD) $(TEST_PATTERN) $(TEST_ANIMALCARD) $(TEST_ANIMALCARDDECK)
+TEST_NATURESPIRITCARD = $(TEST_DIR)/testNatureSpiritCard
+TEST_NATURESPIRITDECK = $(TEST_DIR)/testNatureSpiritDeck
+TESTS = $(TEST_HEXCOORD) $(TEST_BOARDCELL) $(TEST_PERSONALBOARD) $(TEST_TOKENBAG) $(TEST_TOKENSLOT) $(TEST_CENTRALBOARD) $(TEST_PATTERN) $(TEST_ANIMALCARD) $(TEST_ANIMALCARDDECK) $(TEST_NATURESPIRITCARD) $(TEST_NATURESPIRITDECK)
 
 # --- Build Rules ---
 
@@ -56,7 +58,7 @@ $(TARGET): $(OBJS)
 clean:
 	@echo "Cleaning up..."
 	rm -f $(OBJS) $(TARGET)
-	rm -f $(TEST_HEXCOORD) $(TEST_BOARDCELL) $(TEST_PERSONALBOARD) $(TEST_TOKENBAG) $(TEST_TOKENSLOT) $(TEST_CENTRALBOARD) $(TEST_PATTERN) $(TEST_ANIMALCARD) $(TEST_ANIMALCARDDECK)
+	rm -f $(TEST_HEXCOORD) $(TEST_BOARDCELL) $(TEST_PERSONALBOARD) $(TEST_TOKENBAG) $(TEST_TOKENSLOT) $(TEST_CENTRALBOARD) $(TEST_PATTERN) $(TEST_ANIMALCARD) $(TEST_ANIMALCARDDECK) $(TEST_NATURESPIRITCARD) $(TEST_NATURESPIRITDECK)
 
 # Prevent conflicts with files named 'all' or 'clean'
 .PHONY: all clean test
@@ -104,6 +106,14 @@ $(TEST_ANIMALCARDDECK): $(TEST_DIR)/testAnimalCardDeck.cpp $(SRC_DIR)/model/Anim
 	@echo "Building $@..."
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
+$(TEST_NATURESPIRITCARD): $(TEST_DIR)/testNatureSpiritCard.cpp $(SRC_DIR)/model/NatureSpiritCard.cpp $(SRC_DIR)/model/Pattern.cpp $(SRC_DIR)/utils/HexCoord.cpp
+	@echo "Building $@..."
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
+$(TEST_NATURESPIRITDECK): $(TEST_DIR)/testNatureSpiritDeck.cpp $(SRC_DIR)/model/NatureSpiritDeck.cpp $(SRC_DIR)/model/NatureSpiritCard.cpp $(SRC_DIR)/model/Pattern.cpp $(SRC_DIR)/utils/HexCoord.cpp
+	@echo "Building $@..."
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
 test: $(TESTS)
 	@echo "Running tests..."
 	./$(TEST_HEXCOORD)
@@ -115,3 +125,5 @@ test: $(TESTS)
 	./$(TEST_PATTERN)
 	./$(TEST_ANIMALCARD)
 	./$(TEST_ANIMALCARDDECK)
+	./$(TEST_NATURESPIRITCARD)
+	./$(TEST_NATURESPIRITDECK)
