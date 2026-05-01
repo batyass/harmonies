@@ -3,7 +3,7 @@
 
 #include <map>
 #include "model/BoardCell.h"
-#include "utils/HexCoord.h"
+#include "utils/hexCoord.h"
 
 namespace harmonies
 {
