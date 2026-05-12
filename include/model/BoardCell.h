@@ -32,6 +32,8 @@ namespace harmonies
 
             bool canPlaceCube() const;
             bool placeCube();
+
+            const std::vector<TokenType> &getTokenStack() const;
         };
 
     } // namespace model
