@@ -1,3 +1,4 @@
 Pour compiler vos fichier cpp et h, 
 taper make run pour compiler et executer le main
-et make test pour compiler et executer les test
+make test pour compiler et executer les test
+make clean pour effacer les executables

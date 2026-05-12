@@ -49,5 +49,10 @@ namespace harmonies
             return true;
         }
 
+        const std::vector<TokenType> &BoardCell::getTokenStack() const
+        {
+            return tokenStack;
+        }
+
     } // namespace model
 } // namespace harmonies
