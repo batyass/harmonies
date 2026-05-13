@@ -2,6 +2,8 @@
 #define PERSONALBOARD_H
 
 #include <map>
+#include <vector>
+
 #include "model/BoardSide.h"
 #include "model/BoardCell.h"
 #include "utils/hexCoord.h"
@@ -33,6 +35,9 @@ namespace harmonies
             // Check if a cell exists and get it
             BoardCell *getCell(const utils::HexCoord &coord);
             const BoardCell *getCell(const utils::HexCoord &coord) const;
+            const std::map<utils::HexCoord, BoardCell> &getCells() const;
+            std::vector<model::BoardCell *> getAdjacentCells(const utils::HexCoord &coord);
+            std::vector<const model::BoardCell *> getAdjacentCells(const utils::HexCoord &coord) const;
         };
 
     } // namespace model

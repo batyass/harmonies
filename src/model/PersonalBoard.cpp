@@ -1,5 +1,8 @@
 #include "model/PersonalBoard.h"
-#include <cmath>
+
+#include <array>
+#include <utility>
+#include <vector>
 
 namespace harmonies
 {
@@ -11,32 +14,60 @@ namespace harmonies
             initializeGrid();
         }
 
+        namespace // namespace anonyme
+        {
+            struct ColumnSpec
+            {
+                int q;      // colonne
+                int rStart; // première ligne de la colonne
+                int count;  // nombre de cases dans cette colonne
+            };
+        }
+
         void PersonalBoard::initializeGrid()
         {
-            // Standard radius for Harmonies board is typically 3
-            // (from center to edge, total 37 cells)
-            int radius = 3;
-
             cells.clear();
 
-            // Logic for A and B (currently they share the same hexagonal shape
-            // but might differ in "special" cell properties later)
-            if (side == BoardSide::A || side == BoardSide::B)
+            std::vector<ColumnSpec> columns;
+
+            if (side == BoardSide::A)
             {
-                for (int q = -radius; q <= radius; ++q)
-                {
-                    int r1 = std::max(-radius, -q - radius);
-                    int r2 = std::min(radius, -q + radius);
-                    for (int r = r1; r <= r2; ++r)
-                    {
-                        utils::HexCoord coord(q, r);
-                        cells.emplace(coord, BoardCell(coord));
-                    }
-                }
+                // Face A : 5, 4, 5, 4, 5 = 23 cases
+                columns = {
+                    {-2, -2, 5},
+                    {-1, -1, 4},
+                    {0, -2, 5},
+                    {1, -1, 4},
+                    {2, -2, 5}};
+            }
+            else if (side == BoardSide::B)
+            {
+                // Face B : 4, 3, 4, 3, 4, 3, 4 = 25 cases
+                columns = {
+                    {-3, -2, 4},
+                    {-2, -1, 3},
+                    {-1, -2, 4},
+                    {0, -1, 3},
+                    {1, -2, 4},
+                    {2, -1, 3},
+                    {3, -2, 4}};
+            }
+            else
+            {
+                return;
             }
 
-            // Future expansion:
-            // else if (side == BoardSide::C) { ... custom shape logic ... }
+            for (const ColumnSpec &column : columns)
+            {
+                for (int i = 0; i < column.count; ++i)
+                {
+                    int q = column.q;
+                    int r = column.rStart + i;
+
+                    utils::HexCoord coord(q, r);
+                    cells.emplace(coord, BoardCell(coord));
+                }
+            }
         }
 
         BoardCell *PersonalBoard::getCell(const utils::HexCoord &coord)
@@ -72,6 +103,69 @@ namespace harmonies
                 return cell->addToken(type);
             }
             return false; // Cell doesn't exist at this coordinate
+        }
+
+        const std::map<utils::HexCoord, BoardCell> &PersonalBoard::getCells() const
+        {
+            return cells;
+        }
+
+        std::vector<model::BoardCell *> PersonalBoard::getAdjacentCells(const utils::HexCoord &coord)
+        {
+            static const std::array<std::pair<int, int>, 6> directions = {{
+                std::make_pair(1, 0),
+                std::make_pair(1, -1),
+                std::make_pair(0, -1),
+                std::make_pair(-1, 0),
+                std::make_pair(-1, 1),
+                std::make_pair(0, 1)}};
+
+            std::vector<model::BoardCell *> adjacentCells;
+
+            for (std::size_t i = 0; i < directions.size(); ++i)
+            {
+                int dq = directions[i].first;
+                int dr = directions[i].second;
+                utils::HexCoord neighbor(coord.getQ() + dq, coord.getR() + dr);
+
+                auto it = cells.find(neighbor);
+
+                if (it != cells.end())
+                {
+                    adjacentCells.push_back(&it->second);
+                }
+            }
+
+            return adjacentCells;
+        }
+
+        std::vector<const model::BoardCell *> PersonalBoard::getAdjacentCells(const utils::HexCoord &coord) const
+        {
+            static const std::array<std::pair<int, int>, 6> directions = {{
+                std::make_pair(1, 0),
+                std::make_pair(1, -1),
+                std::make_pair(0, -1),
+                std::make_pair(-1, 0),
+                std::make_pair(-1, 1),
+                std::make_pair(0, 1)}};
+
+            std::vector<const model::BoardCell *> adjacentCells;
+
+            for (std::size_t i = 0; i < directions.size(); ++i)
+            {
+                int dq = directions[i].first;
+                int dr = directions[i].second;
+                utils::HexCoord neighbor(coord.getQ() + dq, coord.getR() + dr);
+
+                auto it = cells.find(neighbor);
+
+                if (it != cells.end())
+                {
+                    adjacentCells.push_back(&it->second);
+                }
+            }
+
+            return adjacentCells;
         }
 
     } // namespace model
