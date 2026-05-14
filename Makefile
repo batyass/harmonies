@@ -40,7 +40,10 @@ TEST_PLACEMENTVALIDATOR = $(TEST_DIR)/testPlacementValidator
 TEST_STACKRULE = $(TEST_DIR)/testStackRule
 TEST_LANDSCAPESCORECALCULATOR = $(TEST_DIR)/testLandscapeScoreCalculator
 TESTS = $(TEST_HEXCOORD) $(TEST_BOARDCELL) $(TEST_PERSONALBOARD) $(TEST_TOKENBAG) $(TEST_TOKENSLOT) $(TEST_CENTRALBOARD) $(TEST_PATTERN) $(TEST_ANIMALCARD) $(TEST_ANIMALCARDDECK) $(TEST_NATURESPIRITCARD) $(TEST_NATURESPIRITDECK) $(TEST_PLAYER) $(TEST_PLAYERCARDCOLLECTION) $(TEST_GAMECONFIG) $(TEST_SCOREREPORT) $(TEST_PLACEMENTVALIDATOR) $(TEST_STACKRULE) $(TEST_LANDSCAPESCORECALCULATOR)
-
+TEST_ENDGAMECHECKER = $(TEST_DIR)/testEndGameChecker
+TESTS = $(TEST_HEXCOORD) ... $(TEST_LANDSCAPESCORECALCULATOR) $(TEST_ENDGAMECHECKER)
+TEST_PATTERNMATCHER = $(TEST_DIR)/testPatternMatcher
+TESTS = $(TEST_HEXCOORD) ... $(TEST_ENDGAMECHECKER) $(TEST_PATTERNMATCHER)
 # --- Build Rules ---
 
 # Default rule
@@ -146,6 +149,14 @@ $(TEST_STACKRULE): $(TEST_DIR)/testStackRule.cpp $(SRC_DIR)/rules/StackRule.cpp 
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
 $(TEST_LANDSCAPESCORECALCULATOR): $(TEST_DIR)/testLandscapeScoreCalculator.cpp $(SRC_DIR)/scoring/LandscapeScoreCalculator.cpp $(SRC_DIR)/rules/StackRule.cpp $(SRC_DIR)/model/PersonalBoard.cpp $(SRC_DIR)/model/BoardCell.cpp $(SRC_DIR)/utils/HexCoord.cpp
+	@echo "Building $@..."
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
+$(TEST_ENDGAMECHECKER): $(TEST_DIR)/testEndGameChecker.cpp $(SRC_DIR)/rules/EndGameChecker.cpp $(SRC_DIR)/model/Player.cpp $(SRC_DIR)/model/PersonalBoard.cpp $(SRC_DIR)/model/BoardCell.cpp $(SRC_DIR)/model/TokenBag.cpp $(SRC_DIR)/utils/hexCoord.cpp
+	@echo "Building $@..."
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
+$(TEST_PATTERNMATCHER): $(TEST_DIR)/testPatternMatcher.cpp $(SRC_DIR)/rules/PatternMatcher.cpp $(SRC_DIR)/model/PersonalBoard.cpp $(SRC_DIR)/model/BoardCell.cpp $(SRC_DIR)/model/Pattern.cpp $(SRC_DIR)/utils/hexCoord.cpp
 	@echo "Building $@..."
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
