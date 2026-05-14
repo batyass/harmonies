@@ -24,7 +24,7 @@ namespace harmonies
             if (token == model::TokenType::RedBuilding)
                 return model::StackType::Building;
 
-            return model::StackType::Empty;
+            return model::StackType::Incomplete;
         }
     }
 }

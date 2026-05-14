@@ -12,6 +12,7 @@ namespace harmonies
     {
         namespace
         {
+            // Convert the stack height into the common score used by trees and mountains.
             std::size_t stackHeightScore(std::size_t height)
             {
                 if (height == 1)
@@ -23,6 +24,7 @@ namespace harmonies
                 return 0;
             }
 
+            // Apply the river scoring table used on side A of the personal board.
             std::size_t riverScore(std::size_t length)
             {
                 if (length <= 1)
@@ -40,11 +42,7 @@ namespace harmonies
                 return 15 + 4 * (length - 6);
             }
 
-            bool topTokenIs(const model::BoardCell &cell, model::TokenType token)
-            {
-                return cell.getHeight() > 0 && cell.getTokenStack().back() == token;
-            }
-
+            // Sum the score of every tree stack on the board, using its stack height.
             std::size_t computeTreeScore(const model::PersonalBoard &board)
             {
                 std::size_t score = 0;
@@ -53,7 +51,7 @@ namespace harmonies
                 for (std::map<utils::HexCoord, model::BoardCell>::const_iterator it = cells.begin(); it != cells.end(); ++it)
                 {
                     const model::BoardCell &cell = it->second;
-                    if (rules::StackRule(cell) == model::StackType::Tree && topTokenIs(cell, model::TokenType::GreenTree))
+                    if (rules::StackRule(cell) == model::StackType::Tree)
                     {
                         score += stackHeightScore(cell.getHeight());
                     }
@@ -62,6 +60,7 @@ namespace harmonies
                 return score;
             }
 
+            // Score each mountain only if it is adjacent to at least one other mountain.
             std::size_t computeMountainScore(const model::PersonalBoard &board)
             {
                 std::size_t score = 0;
@@ -74,7 +73,7 @@ namespace harmonies
 
                     if (rules::StackRule(cell) != model::StackType::Mountain)
                     {
-                        continue;
+                        continue; // This stack is not a mountain, so it does not contribute here.
                     }
 
                     std::vector<const model::BoardCell *> neighbors = board.getAdjacentCells(coord);
@@ -98,6 +97,7 @@ namespace harmonies
                 return score;
             }
 
+            // Find each connected component of fields and give 5 points to every component of size at least 2.
             std::size_t computeFieldScore(const model::PersonalBoard &board)
             {
                 std::size_t score = 0;
@@ -111,7 +111,7 @@ namespace harmonies
 
                     if (visited[start] || rules::StackRule(cell) != model::StackType::Field)
                     {
-                        continue;
+                        continue; // Already processed or not a field component start.
                     }
 
                     std::queue<utils::HexCoord> frontier;
@@ -146,6 +146,7 @@ namespace harmonies
                 return score;
             }
 
+            // Score a building if the top tokens of its neighboring cells contain at least 3 distinct colors.
             std::size_t computeBuildingScore(const model::PersonalBoard &board)
             {
                 std::size_t score = 0;
@@ -158,7 +159,7 @@ namespace harmonies
 
                     if (rules::StackRule(cell) != model::StackType::Building)
                     {
-                        continue;
+                        continue; // This stack is not a building, so it is ignored here.
                     }
 
                     std::vector<const model::BoardCell *> neighbors = board.getAdjacentCells(coord);
@@ -181,6 +182,7 @@ namespace harmonies
                 return score;
             }
 
+            // Build each connected water component, then compute the longest shortest path inside it.
             std::size_t computeLongestRiverLength(const model::PersonalBoard &board)
             {
                 std::size_t longest = 0;
@@ -194,7 +196,7 @@ namespace harmonies
 
                     if (visited[start] || rules::StackRule(cell) != model::StackType::Water)
                     {
-                        continue;
+                        continue; // Already processed or not part of a water component.
                     }
 
                     std::vector<utils::HexCoord> component;
@@ -254,6 +256,7 @@ namespace harmonies
                 return longest;
             }
 
+            // Count each connected component of non-water cells as one island on side B.
             std::size_t computeIslandScore(const model::PersonalBoard &board)
             {
                 std::size_t islandCount = 0;
@@ -267,7 +270,7 @@ namespace harmonies
 
                     if (visited[start] || rules::StackRule(cell) == model::StackType::Water)
                     {
-                        continue;
+                        continue; // Already part of a known island or blocked by water.
                     }
 
                     std::queue<utils::HexCoord> frontier;

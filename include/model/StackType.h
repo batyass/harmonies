@@ -7,12 +7,13 @@ namespace harmonies
 
         enum class StackType
         {
-            Tree,     // Arbre
-            Mountain, // Montagne
-            Field,    // Champs
-            Water,    // Eau
-            Empty,    // Vide
-            Building  // Bâtiment
+            Empty,      // Vide
+            Incomplete, // Non scorant
+            Tree,       // Arbre
+            Mountain,   // Montagne
+            Field,      // Champs
+            Water,      // Eau
+            Building    // Bâtiment
         };
 
     } // namespace model
