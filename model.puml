@@ -1,0 +1,166 @@
+@startuml
+' --- Configuration Visuelle ---
+skinparam classAttributeIconSize 0
+skinparam monochrome false
+skinparam packageStyle rectangle
+
+title Harmonies - Diagramme de Classes (Conception Initiale)
+
+' --- 1. Noyau du Modèle (Physique et Grille) ---
+
+enum TerrainType {
+    ARBRE      ' Vert
+    MONTAGNE   ' Gris
+    BATIMENT   ' Rouge
+    CHAMP      ' Jaune
+    EAU        ' Bleu
+    SOL        ' Brun
+}
+
+class Coordonnee {
+    - q : int
+    - r : int
+    - s : int
+    - z : int
+    + isValid() : bool {q+r+s=0 et z>=0}
+}
+
+class Jeton {
+    - type : TerrainType
+    + getType() : TerrainType
+}
+
+class Case {
+    - hasAnimalCube : bool
+    ' Dans Harmonies, une case à (q,r,s,z) contient UN jeton
+    + getJeton() : Jeton*
+    + estOccupee() : bool
+}
+
+abstract class Plateau {
+    # m_grille : map<Coordonnee, Case*>
+    + {abstract} estDansLimites(c : Coordonnee) : bool
+    + poserJeton(c : Coordonnee, j : Jeton*)
+    + calculerHauteur(q : int, r : int) : int
+    + verifierMotif(m : Motif) : bool
+}
+
+class PlateauA {
+    + estDansLimites(c : Coordonnee) : bool
+}
+
+class PlateauB {
+    + estDansLimites(c : Coordonnee) : bool
+}
+
+' --- 2. Joueurs et Cartes (Logique de Jeu) ---
+
+enum TypeAnimal {
+    PETIT_ROUX
+    GRUE
+    TRITON
+    LION
+    PANDA
+    ' ... à compléter selon le jeu
+}
+
+class Motif {
+    - configuration : map<CoordonneeRelative, TerrainType>
+    - hauteurRequise : int
+    + verifier(p : Plateau, centre : Coordonnee) : bool
+}
+note right: Vérifie la couleur ET la hauteur des piles
+
+class CarteAnimal {
+    - typeCible : TypeAnimal
+    - pointsParCube : int
+    - nbCubesRestants : int
+    + estComplete() : bool
+    + placerCube(p : Plateau, c : Coordonnee)
+}
+
+class CarteEsprit {
+    - nom : string
+    + appliquerBonusFinal(p : Plateau) : int
+}
+
+class Joueur {
+    - nom : string
+    - scoreTotal : int
+    - reserveJetons : vector<Jeton*> ' Lot de 3 jetons du marché
+    - cartesAnimal : vector<CarteAnimal*>
+    
+    + choisirLot(m : Marche, index : int)
+    + placerJeton(jIdx : int, c : Coordonnee, p : Plateau)
+    + prendreCarteAnimal(r : Riviere, cardId : int)
+}
+
+' --- 3. Gestion des Ressources ---
+
+class Sac {
+    - contenu : vector<Jeton*>
+    + piocher() : Jeton*
+}
+
+class Marche {
+    - lots : vector<vector<Jeton*>> ' 3 lots de 3 jetons
+    + rafraichir(s : Sac)
+}
+
+class Riviere {
+    - cartesDisponibles : vector<CarteAnimal*>
+    + rafraichir()
+}
+
+' --- 4. Système et Architecture ---
+
+class GameEngine {
+    - tour : int
+    + initialiserPartie()
+    + changerTour()
+}
+
+interface GameView {
+    + {abstract} update()
+}
+
+class ScoreSystem {
+    + calculerScoreTerrain(p : Plateau) : int
+    + calculerScoreAnimaux(j : Joueur) : int
+}
+
+
+/'
+' --- 5. Relations (Liaisons) ---
+
+' Héritage
+Plateau <|-- PlateauA
+Plateau <|-- PlateauB
+
+' Composition (Cycle de vie lié)
+Plateau "1" *-- "*" Case
+Joueur "1" *-- "1" Plateau
+
+' Agrégation (Objets qui circulent)
+Case "0..1" o-- "1" Jeton
+Joueur "1" o-- "0..4" CarteAnimal : possède
+Marche "1" o-- "*" Jeton
+Riviere "1" o-- "*" CarteAnimal
+CarteAnimal "1" o-- "1" Motif : définit
+
+' Dépendances et Contrôle
+GameEngine "1" *-- "1..4" Joueur
+GameEngine "1" o-- "1" Marche
+GameEngine "1" o-- "1" Riviere
+GameEngine "1" o-- "1" Sac
+GameEngine ..> ScoreSystem : finalise
+
+Case ..> Coordonnee : <<use>> localise
+Plateau ..> Coordonnee : <<use>> indexe
+Jeton ..> TerrainType : <<type>> définit la couleur
+CarteAnimal ..> TypeAnimal : <<target>> identifie l'espèce
+Motif ..> TerrainType : <<check>> compare les couleurs
+
+'/
+
+@enduml
