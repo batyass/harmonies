@@ -1,42 +1,47 @@
 #include "rules/EndGameChecker.h"
-#include "model/BoardCell.h"
 
 namespace harmonies
 {
     namespace rules
     {
-        bool EndGameChecker::isGameOver(const std::vector<model::Player*>& players, 
-                                      const model::TokenBag& bag)
+        namespace
         {
-            // Condition 1: Bag is empty
-            if (bag.isEmpty()) {
+            bool hasTwoOrFewerEmptySpaces(const model::PersonalBoard &board)
+            {
+                const std::map<utils::HexCoord, model::BoardCell> &cells = board.getCells();
+                int unoccupiedCount = 0;
+
+                for (std::map<utils::HexCoord, model::BoardCell>::const_iterator it = cells.begin(); it != cells.end(); ++it)
+                {
+                    const model::BoardCell &cell = it->second;
+                    if (cell.getHeight() == 0)
+                    {
+                        ++unoccupiedCount;
+                    }
+                }
+
+                return unoccupiedCount <= 2;
+            }
+        }
+
+        bool isGameOver(const std::vector<const model::PersonalBoard *> &boards,
+                        const model::TokenBag &bag)
+        {
+            if (bag.isEmpty())
+            {
                 return true;
             }
 
-            // Condition 2: Any player has 2 or fewer unoccupied cells
-            for (const auto* player : players) {
-                if (player != nullptr && hasTwoOrFewerEmptySpaces(*(player->getBoard()))) {
+            for (std::size_t i = 0; i < boards.size(); ++i)
+            {
+                const model::PersonalBoard *board = boards[i];
+                if (board != nullptr && hasTwoOrFewerEmptySpaces(*board))
+                {
                     return true;
                 }
             }
 
             return false;
-        }
-
-        bool EndGameChecker::hasTwoOrFewerEmptySpaces(const model::PersonalBoard& board)
-        {
-            const auto& cells = board.getCells();
-            int unoccupiedCount = 0;
-
-            // Count cells with 0 height (inoccupées)
-            for (auto const& [coord, cell] : cells) {
-                if (cell.getHeight() == 0) {
-                    unoccupiedCount++;
-                }
-            }
-
-            // Rule: 2 unoccupied cells or less
-            return unoccupiedCount <= 2;
         }
     }
 }
