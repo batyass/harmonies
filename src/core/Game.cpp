@@ -12,26 +12,25 @@ Game::Game(const model::GameConfig& gameConfig, const std::vector<std::string>& 
       phase(GamePhase::NotStarted) {
     
     for (const auto& name : playerNames) {
-        players.push_back(new model::Player(name, config.getSide()));
+        players.push_back(std::make_unique<model::Player>(name, config.getSide()));
     }
 }
 
-Game::~Game() {
-    for (model::Player* p : players) {
-        delete p;
-    }
-    players.clear();
-
-    delete turnManager;
-    // tokenBag et centralBoard sont nettoyés automatiquement par le compilateur (RAII)
-}
+Game::~Game() = default;
+// unique_ptr détruit automatiquement turnManager et chaque Player.
 
 void Game::initGame() {
     if (phase != GamePhase::NotStarted) {
         throw std::logic_error("Game::initGame: Impossible d'initialiser une partie deja demarree.");
     }
 
-    turnManager = new core::TurnManager(players);
+    // TurnManager reçoit une vue non-propriétaire (raw pointers) ; Game reste seul propriétaire.
+    std::vector<model::Player*> rawPlayers;
+    rawPlayers.reserve(players.size());
+    for (const auto& p : players) {
+        rawPlayers.push_back(p.get());
+    }
+    turnManager = std::make_unique<core::TurnManager>(rawPlayers);
 
     // Verrouillage de l'état
     phase = GamePhase::WaitingForMarketChoice;
@@ -47,10 +46,14 @@ model::Player* Game::getCurrentPlayer() const {
 }
 
 core::TurnManager* Game::getTurnManager() const {
-    return turnManager;
+    return turnManager.get();
 }
 
 model::CentralBoard* Game::getCentralBoard() {
+    return &centralBoard;
+}
+
+const model::CentralBoard* Game::getCentralBoard() const {
     return &centralBoard;
 }
 
@@ -58,7 +61,11 @@ model::TokenBag* Game::getTokenBag() {
     return &tokenBag;
 }
 
-const std::vector<model::Player*>& Game::getPlayers() const {
+const model::TokenBag* Game::getTokenBag() const {
+    return &tokenBag;
+}
+
+const std::vector<std::unique_ptr<model::Player>>& Game::getPlayers() const {
     return players;
 }
 
@@ -76,9 +83,28 @@ bool Game::takeTokensFromMarket(std::size_t slotIndex) {
     // ...
 
     // Transition obligatoire une fois l'action réalisée
-    // phase = GamePhase::WaitingForPlacement;
+    phase = GamePhase::WaitingForPlacement;
     
     return true;
+}
+
+bool Game::placeTokenOnBoard(const utils::HexCoord& coord, model::TokenType token) {
+    if (phase != GamePhase::WaitingForPlacement) {
+        throw std::logic_error("Game::placeTokenOnBoard: Action illegale.");
+    }
+    return true;
+}
+
+void Game::checkEndGame() {
+    std::vector<model::Player*> rawPlayers;
+    rawPlayers.reserve(players.size());
+    for (const auto& p : players) {
+        rawPlayers.push_back(p.get());
+    }
+
+    if (rules::EndGameChecker::isGameOver(rawPlayers, tokenBag)) {
+        phase = GamePhase::GameOver;
+    }
 }
 
 }
