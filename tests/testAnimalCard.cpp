@@ -32,7 +32,7 @@ int main()
     int failures = 0;
 
     Pattern pattern({{HexCoord(0, 0), TokenType::BrownEarth, PatternCell::AnyHeight}});
-    AnimalCard card("Fox", pattern, {8, 5, 3});
+    AnimalCard card("Fox", pattern, {3, 5, 8});
 
     check(card.getName() == "Fox",
           "An animal card should expose its name",
@@ -43,8 +43,8 @@ int main()
     check(card.getCubesOnCard() == 3,
           "A new card should start with all cubes on the card",
           failures);
-    check(card.nextSlotValue() == 8,
-          "The next slot value should start from the highest score",
+    check(card.nextSlotValue() == 3,
+          "The next slot value should start from the first revealed score",
           failures);
 
     check(card.placeNextCube(),
