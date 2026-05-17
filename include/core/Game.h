@@ -11,7 +11,6 @@
 #include "model/CentralBoard.h"
 #include "core/TurnManager.h"
 #include "core/GameState.h"
-#include "rules/EndGameChecker.h"
 
 namespace harmonies
 {
@@ -34,7 +33,7 @@ namespace harmonies
 
         public:
             Game(const model::GameConfig &gameConfig, const std::vector<std::string> &playerNames);
-            ~Game();
+            ~Game() = default;
 
             // ------------------------------------------------------------------------
             // Règle des 5 : Interdiction stricte de copier ou d'assigner l'objet Game.
@@ -63,7 +62,7 @@ namespace harmonies
             bool isGameOver() const;
 
             // Actions de base (squelettes)
-            bool takeTokensFromMarket(std::size_t slotIndex);
+            bool takeTokensFromSlot(std::size_t slotIndex);
 
             bool placeTokenOnBoard(const utils::HexCoord &coord, model::TokenType token);
             void checkEndGame();

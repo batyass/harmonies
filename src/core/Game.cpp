@@ -1,5 +1,6 @@
 #include "core/Game.h"
 #include <stdexcept>
+#include "rules/EndGameChecker.h"
 
 namespace harmonies
 {
@@ -10,18 +11,18 @@ namespace harmonies
             : config(gameConfig),
               tokenBag(),
               centralBoard(gameConfig.getNbPlayer() == 1 ? 3 : 5),
-              turnManager(nullptr),
+              turnManager(),
               state(GameState::NotStarted)
         {
-
+            if (playerNames.size() != gameConfig.getNbPlayer())
+            {
+                throw std::invalid_argument("Game: wrong number of players");
+            }
             for (const auto &name : playerNames)
             {
-                players.push_back(std::make_unique<model::Player>(name, config.getSide()));
+                players.push_back(std::unique_ptr<model::Player>(new model::Player(name, config.getSide())));
             }
         }
-
-        Game::~Game() = default;
-        // unique_ptr détruit automatiquement turnManager et chaque Player.
 
         void Game::initGame()
         {
@@ -37,10 +38,10 @@ namespace harmonies
             {
                 rawPlayers.push_back(p.get());
             }
-            turnManager = std::make_unique<core::TurnManager>(rawPlayers);
+            turnManager = std::unique_ptr<core::TurnManager>(new core::TurnManager(rawPlayers));
 
             // Verrouillage de l'état
-            state = GameState::WaitingForMarketChoice;
+            state = GameState::WaitingForSlotChoice;
         }
 
         GameState Game::getState() const
@@ -90,10 +91,10 @@ namespace harmonies
             return state == GameState::GameOver;
         }
 
-        bool Game::takeTokensFromMarket(std::size_t slotIndex)
+        bool Game::takeTokensFromSlot(std::size_t slotIndex)
         {
             // FSM Hermétique : l'action est formellement interdite si on n'est pas dans la bonne phase
-            if (state != GameState::WaitingForMarketChoice)
+            if (state != GameState::WaitingForSlotChoice)
             {
                 throw std::logic_error("Game::takeTokensFromMarket: Action illegale dans la phase actuelle.");
             }
@@ -113,6 +114,11 @@ namespace harmonies
             {
                 throw std::logic_error("Game::placeTokenOnBoard: Action illegale.");
             }
+            // placeTokenOnBoardService()
+            turnManager->nextTurn();
+            state = GameState::WaitingForSlotChoice;
+            checkEndGame();
+
             return true;
         }
 

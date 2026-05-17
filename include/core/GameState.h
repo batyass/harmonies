@@ -11,10 +11,10 @@ namespace harmonies
          */
         enum class GameState
         {
-            NotStarted,             // Le jeu n'a pas encore été initialisé
-            WaitingForMarketChoice, // En attente que le joueur choisisse un slot sur le plateau central
-            WaitingForPlacement,    // En attente que le joueur place ses jetons sur son plateau personnel
-            GameOver                // La partie est terminée
+            NotStarted,           // Le jeu n'a pas encore été initialisé
+            WaitingForSlotChoice, // En attente que le joueur choisisse un slot sur le plateau central
+            WaitingForPlacement,  // En attente que le joueur place ses jetons sur son plateau personnel
+            GameOver              // La partie est terminée
         };
 
     }
