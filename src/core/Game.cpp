@@ -1,6 +1,9 @@
 #include "core/Game.h"
 #include <stdexcept>
+#include <algorithm>
 #include "rules/EndGameChecker.h"
+#include "core/SlotSelectionService.h"
+#include "core/TokenPlacementService.h"
 
 namespace harmonies
 {
@@ -94,13 +97,13 @@ namespace harmonies
         bool Game::takeTokensFromSlot(std::size_t slotIndex)
         {
             // FSM Hermétique : l'action est formellement interdite si on n'est pas dans la bonne phase
-            if (state != GameState::WaitingForSlotChoice)
+            if (state != GameState::WaitingForSlotChoice && state != GameState::LastTurn)
             {
                 throw std::logic_error("Game::takeTokensFromMarket: Action illegale dans la phase actuelle.");
             }
 
-            // Logique de récupération des jetons à implémenter par le développeur
-            // ...
+            // Logique de récupération des jetons
+            context.pendingTokens = core::takeTokensFromSlot(centralBoard, tokenBag, slotIndex);
 
             // Transition obligatoire une fois l'action réalisée
             state = GameState::WaitingForPlacement;
@@ -114,12 +117,21 @@ namespace harmonies
             {
                 throw std::logic_error("Game::placeTokenOnBoard: Action illegale.");
             }
-            // placeTokenOnBoardService()
-            turnManager->nextTurn();
-            state = GameState::WaitingForSlotChoice;
-            checkEndGame();
-
-            return true;
+            auto it = std::find(context.pendingTokens.begin(), context.pendingTokens.end(), token);
+            if (it != context.pendingTokens.end())
+            {
+                bool done = core::placeTokenOnBoard(*turnManager->getCurrentPlayer()->getBoard(), coord, token);
+                if (done)
+                    context.pendingTokens.erase(it);
+                if (context.pendingTokens.empty())
+                {
+                    turnManager->nextTurn();
+                    state = GameState::WaitingForSlotChoice;
+                    checkEndGame();
+                }
+                return done;
+            }
+            return false;
         }
 
         void Game::checkEndGame()
@@ -131,8 +143,13 @@ namespace harmonies
             }
             if (rules::isGameOver(boards, tokenBag))
             {
+                state = GameState::LastTurn;
+            }
+            if ((state == GameState::LastTurn) && (getCurrentPlayer() == players[0].get()))
+            {
                 state = GameState::GameOver;
             }
         }
+
     }
 }
