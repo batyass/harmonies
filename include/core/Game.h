@@ -11,6 +11,7 @@
 #include "model/CentralBoard.h"
 #include "core/TurnManager.h"
 #include "core/GameState.h"
+#include "core/TurnContext.h"
 
 namespace harmonies
 {
@@ -30,6 +31,8 @@ namespace harmonies
             std::unique_ptr<core::TurnManager> turnManager;
 
             GameState state;
+
+            TurnContext context;
 
         public:
             Game(const model::GameConfig &gameConfig, const std::vector<std::string> &playerNames);
