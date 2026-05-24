@@ -13,6 +13,7 @@ using harmonies::model::Pattern;
 using harmonies::model::PatternCell;
 using harmonies::model::PersonalBoard;
 using harmonies::model::TokenType;
+using harmonies::scoring::NatureSpiritEffect;
 using harmonies::utils::HexCoord;
 
 namespace
@@ -36,11 +37,12 @@ int main()
     int failures = 0;
 
     Pattern pattern({{HexCoord(0, 0), TokenType::BlueWater, PatternCell::AnyHeight}});
+    NatureSpiritEffect effect;
     HexCoord anchor(0, 0);
 
     {
         PersonalBoard board(BoardSide::A);
-        NatureSpiritCard card("Brook Spirit", pattern, nullptr);
+        NatureSpiritCard card("Brook Spirit", pattern, effect);
 
         check(!placeNatureSpiritCube(card, board, anchor),
               "placeNatureSpiritCube should fail on an empty board (pattern mismatch)",
@@ -52,7 +54,7 @@ int main()
 
     {
         PersonalBoard board(BoardSide::A);
-        NatureSpiritCard card("Brook Spirit", pattern, nullptr);
+        NatureSpiritCard card("Brook Spirit", pattern, effect);
 
         board.placeToken(anchor, TokenType::BlueWater);
 
@@ -69,7 +71,7 @@ int main()
 
     {
         PersonalBoard board(BoardSide::A);
-        NatureSpiritCard card("Brook Spirit", pattern, nullptr);
+        NatureSpiritCard card("Brook Spirit", pattern, effect);
 
         card.placeCube(); // cube deja pose manuellement
 
@@ -82,7 +84,7 @@ int main()
 
     {
         PersonalBoard board(BoardSide::A);
-        NatureSpiritCard card("Brook Spirit", pattern, nullptr);
+        NatureSpiritCard card("Brook Spirit", pattern, effect);
 
         board.placeToken(anchor, TokenType::BlueWater);
         board.getCell(anchor)->placeCube(); // cube deja present sur la case

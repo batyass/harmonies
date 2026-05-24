@@ -5,12 +5,12 @@ namespace harmonies
     namespace model
     {
 
-        NatureSpiritCard::NatureSpiritCard(std::string name, Pattern pattern, const scoring::NatureSpiritEffect *effect)
+        NatureSpiritCard::NatureSpiritCard(std::string name, Pattern pattern, const scoring::NatureSpiritEffect &effect)
             : name(name), pattern(pattern), cubePlaced(false), effect(effect) {}
 
         const std::string &NatureSpiritCard::getName() const { return name; }
         const Pattern &NatureSpiritCard::getPattern() const { return pattern; }
-        const scoring::NatureSpiritEffect *NatureSpiritCard::getEffect() const { return effect; }
+        const scoring::NatureSpiritEffect &NatureSpiritCard::getEffect() const { return effect; }
 
         bool NatureSpiritCard::isCubePlaced() const { return cubePlaced; }
 
