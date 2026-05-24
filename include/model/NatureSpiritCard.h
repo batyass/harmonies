@@ -16,15 +16,15 @@ namespace harmonies
         private:
             std::string name;
             Pattern pattern;
-            bool cubePlaced; // false = cube encore sur la carte
-            const scoring::NatureSpiritEffect *effect; // effet non possede par la carte
+            bool cubePlaced;                    // false = cube encore sur la carte
+            scoring::NatureSpiritEffect effect; // effet de la carte
 
         public:
-            NatureSpiritCard(std::string name, Pattern pattern, const scoring::NatureSpiritEffect *effect);
+            NatureSpiritCard(std::string name, Pattern pattern, const scoring::NatureSpiritEffect &effect);
 
             const std::string &getName() const;
             const Pattern &getPattern() const;
-            const scoring::NatureSpiritEffect *getEffect() const;
+            const scoring::NatureSpiritEffect &getEffect() const;
 
             bool isCubePlaced() const;
 

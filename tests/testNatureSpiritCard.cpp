@@ -7,6 +7,7 @@ using harmonies::model::NatureSpiritCard;
 using harmonies::model::Pattern;
 using harmonies::model::PatternCell;
 using harmonies::model::TokenType;
+using harmonies::scoring::NatureSpiritEffect;
 using harmonies::utils::HexCoord;
 
 namespace
@@ -30,7 +31,8 @@ int main()
     int failures = 0;
 
     Pattern pattern({{HexCoord(0, 0), TokenType::BlueWater, PatternCell::AnyHeight}});
-    NatureSpiritCard card("Brook Spirit", pattern, nullptr);
+    NatureSpiritEffect effect;
+    NatureSpiritCard card("Brook Spirit", pattern, effect);
 
     check(card.getName() == "Brook Spirit",
           "A nature spirit card should expose its name",
@@ -38,8 +40,8 @@ int main()
     check(card.getPattern().getCells().size() == 1,
           "A nature spirit card should expose its pattern",
           failures);
-    check(card.getEffect() == nullptr,
-          "A nature spirit card should keep the provided placeholder effect",
+    check(card.getEffect().landscapeRules.empty() && card.getEffect().connectedRules.empty(),
+          "A nature spirit card should keep the provided effect data",
           failures);
     check(!card.isCubePlaced(),
           "A new nature spirit card should start with its cube on the card",
