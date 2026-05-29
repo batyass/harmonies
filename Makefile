@@ -1,7 +1,7 @@
 # --- Compiler Settings ---
 CXX = g++
 # -Iinclude tells the compiler to look for header files in the include/ directory
-CXXFLAGS = -Wall -Wextra -std=c++11 -Iinclude
+CXXFLAGS = -Wall -Wextra -std=c++17 -Iinclude
 
 # --- Target and Folders ---
 TARGET = prog
