@@ -22,7 +22,7 @@ int main() {
         harmonies::ui::ConsoleRenderer renderer;
         harmonies::ui::ConsoleInputHandler inputHandler(game, renderer);
 
-        // 4. Boucle de jeu principale
+        // Boucle de jeu principale
         while (!game.isGameOver()) {
             inputHandler.processInput();
         }
