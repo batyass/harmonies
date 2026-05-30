@@ -75,6 +75,15 @@ namespace harmonies
                 }
             }
 
+            for (std::size_t i = 0; i < centralBoard.getNbSlots(); ++i)
+            {
+                model::TokenSlot *slot = centralBoard.getSlot(i);
+                if (slot != nullptr)
+                {
+                    slot->fill(tokenBag.drawTokens(3));
+                }
+            }
+
             // Verrouillage de l'état
             state = GameState::WaitingForSlotChoice;
         }
@@ -134,6 +143,16 @@ namespace harmonies
             }
 
             return winner;
+        }
+
+        const std::vector<model::TokenType> &Game::getPendingTokens() const
+        {
+            return context.pendingTokens;
+        }
+
+        bool Game::isNatureSpiritEnabled() const
+        {
+            return config.getNatureSpiritOption();
         }
 
         model::CentralBoard *Game::getCentralBoard()

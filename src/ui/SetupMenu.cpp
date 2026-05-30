@@ -2,6 +2,7 @@
 #include <cctype>
 #include <iostream>
 #include <limits>
+#include <stdexcept>
 
 namespace harmonies
 {
@@ -18,6 +19,10 @@ namespace harmonies
                 {
                     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                     return value;
+                }
+                if (std::cin.eof())
+                {
+                    throw std::runtime_error("Setup annule par fermeture de l'entree standard.");
                 }
                 std::cout << "  Please enter a number between " << min << " and " << max << ".\n";
                 std::cin.clear();
@@ -41,6 +46,10 @@ namespace harmonies
                 }
                 else
                 {
+                    if (std::cin.eof())
+                    {
+                        throw std::runtime_error("Setup annule par fermeture de l'entree standard.");
+                    }
                     std::cin.clear();
                     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                 }
@@ -56,6 +65,10 @@ namespace harmonies
                 std::cout << prompt;
                 if (std::getline(std::cin, line) && !line.empty())
                     return line;
+                if (std::cin.eof())
+                {
+                    throw std::runtime_error("Setup annule par fermeture de l'entree standard.");
+                }
                 std::cout << "  Name cannot be empty.\n";
             }
         }
@@ -101,7 +114,7 @@ namespace harmonies
             std::cout << "Board   : Side " << (side == model::BoardSide::A ? 'A' : 'B') << '\n';
             std::cout << "Spirit  : " << (spirit ? "enabled" : "disabled") << '\n';
             std::cout << "Names   : ";
-            for (std::size_t i = 1; i < playerNames.size(); i++)
+            for (std::size_t i = 0; i < playerNames.size(); i++)
             {
                 if (i > 0) std::cout << ", ";
                 std::cout << playerNames[i];

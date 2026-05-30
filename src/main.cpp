@@ -25,6 +25,10 @@ int main() {
         // Boucle de jeu principale
         while (!game.isGameOver()) {
             inputHandler.processInput();
+            if (!std::cin.good())
+            {
+                break;
+            }
         }
 
         std::cout << "\n========================================" << std::endl;
