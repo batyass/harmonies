@@ -5,20 +5,20 @@
 #include "ui/ConsoleRenderer.h"
 
 namespace harmonies {
-namespace ui {
+    namespace ui {
 
-class ConsoleInputHandler {
-private:
-    core::Game& game;
-    const ConsoleRenderer& renderer;
+        class ConsoleInputHandler {
+        private:
+            core::Game& game;
+            const ConsoleRenderer& renderer;
 
-public:
-    ConsoleInputHandler(core::Game& gameInstance, const ConsoleRenderer& rendererInstance);
+        public:
+            ConsoleInputHandler(core::Game& gameInstance, const ConsoleRenderer& rendererInstance);
 
-    void processInput();
-};
+            void processInput();
+        };
 
-}
+    }
 }
 
 #endif
