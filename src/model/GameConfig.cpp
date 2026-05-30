@@ -1,4 +1,5 @@
 #include "model/GameConfig.h"
+#include <stdexcept>
 
 namespace harmonies
 {

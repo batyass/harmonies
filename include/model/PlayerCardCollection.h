@@ -17,6 +17,8 @@ public:
     void addCard(const AnimalCard& card);
     void removeCard(std::size_t index);
     std::size_t getCardCount() const;
+    AnimalCard* getCard(std::size_t index);
+    const AnimalCard* getCard(std::size_t index) const;
     const std::vector<AnimalCard>& getCards() const;
 };
 

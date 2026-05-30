@@ -15,7 +15,7 @@ using harmonies::scoring::ConnectedGroupRule;
 using harmonies::scoring::LandscapeCountRule;
 using harmonies::scoring::NSEffectType;
 using harmonies::scoring::NatureSpiritEffect;
-using harmonies::scoring::natureSpiritScoreCalculator;
+using harmonies::scoring::NatureSpiritScoreCalculator;
 using harmonies::utils::HexCoord;
 
 namespace
@@ -50,7 +50,7 @@ int main()
         board.placeToken(HexCoord(0, 0), TokenType::GrayStone);
         board.placeToken(HexCoord(0, 0), TokenType::GrayStone);
 
-        check(natureSpiritScoreCalculator(card, board) == 0,
+        check(NatureSpiritScoreCalculator(card, board) == 0,
               "A nature spirit card should score 0 if its cube has not been placed",
               failures);
     }
@@ -77,7 +77,7 @@ int main()
 
         card.placeCube();
 
-        check(natureSpiritScoreCalculator(card, board) == 18,
+        check(NatureSpiritScoreCalculator(card, board) == 18,
               "Count-landscapes effects should score each matching stack",
               failures);
     }
@@ -103,7 +103,7 @@ int main()
 
         card.placeCube();
 
-        check(natureSpiritScoreCalculator(card, board) == 12,
+        check(NatureSpiritScoreCalculator(card, board) == 12,
               "Connected-group effects should score groups according to their size range",
               failures);
     }

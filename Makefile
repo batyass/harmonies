@@ -52,6 +52,9 @@ TEST_GAME = $(TEST_DIR)/testGame
 TEST_CONSOLERENDERER = $(TEST_DIR)/testConsoleRenderer
 TEST_SETUPMENU = $(TEST_DIR)/testSetupMenu
 TESTS =$(TEST_HEXCOORD) $(TEST_BOARDCELL) $(TEST_PERSONALBOARD) $(TEST_TOKENBAG) $(TEST_TOKENSLOT) $(TEST_CENTRALBOARD) $(TEST_PATTERN) $(TEST_ANIMALCARD) $(TEST_ANIMALCARDSCORECALCULATOR) $(TEST_ANIMALCARDDECK) $(TEST_NATURESPIRITCARD) $(TEST_NATURESPIRITDECK) $(TEST_NATURESPIRITSCORECALCULATOR) $(TEST_PLAYER) $(TEST_PLAYERCARDCOLLECTION) $(TEST_GAMECONFIG) $(TEST_SCOREREPORT) $(TEST_PLACEMENTVALIDATOR) $(TEST_STACKRULE) $(TEST_LANDSCAPESCORECALCULATOR) $(TEST_ENDGAMECHECKER) $(TEST_PATTERNMATCHER) $(TEST_TURNMANAGER) $(TEST_ANIMALCUBEPLACEMENTSERVICE) $(TEST_NATURESPIRITPLACEMENTSERVICE) $(TEST_SLOTSELECTIONSERVICE) $(TEST_TOKENPLACEMENTSERVICE) $(TEST_GAME) $(TEST_CONSOLERENDERER)
+TESTS = $(TEST_HEXCOORD) $(TEST_BOARDCELL) $(TEST_PERSONALBOARD) $(TEST_TOKENBAG) $(TEST_TOKENSLOT) $(TEST_CENTRALBOARD) $(TEST_PATTERN) $(TEST_ANIMALCARD) $(TEST_ANIMALCARDSCORECALCULATOR) $(TEST_ANIMALCARDDECK) $(TEST_NATURESPIRITCARD) $(TEST_NATURESPIRITDECK) $(TEST_NATURESPIRITSCORECALCULATOR) $(TEST_PLAYER) $(TEST_PLAYERCARDCOLLECTION) $(TEST_GAMECONFIG) $(TEST_SCOREREPORT) $(TEST_PLACEMENTVALIDATOR) $(TEST_STACKRULE) $(TEST_LANDSCAPESCORECALCULATOR) $(TEST_ENDGAMECHECKER) $(TEST_PATTERNMATCHER) $(TEST_TURNMANAGER) $(TEST_ANIMALCUBEPLACEMENTSERVICE) $(TEST_NATURESPIRITPLACEMENTSERVICE) $(TEST_SLOTSELECTIONSERVICE) $(TEST_TOKENPLACEMENTSERVICE) $(TEST_GAME)
+TEST_SCORECALCULATOR = $(TEST_DIR)/testScoreCalculator
+TEST_SOLOSCOREEVALUATOR = $(TEST_DIR)/testSoloScoreEvaluator
 # --- Build Rules ---
 
 # Default rule
@@ -196,7 +199,15 @@ $(TEST_TOKENPLACEMENTSERVICE): $(TEST_DIR)/testTokenPlacementService.cpp $(SRC_D
 	@echo "Building $@..."
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
-$(TEST_GAME): $(TEST_DIR)/testGame.cpp $(SRC_DIR)/core/Game.cpp $(SRC_DIR)/core/TurnManager.cpp $(SRC_DIR)/core/SlotSelectionService.cpp $(SRC_DIR)/core/TokenPlacementService.cpp $(SRC_DIR)/rules/EndGameChecker.cpp $(SRC_DIR)/rules/PlacementValidator.cpp $(SRC_DIR)/model/Player.cpp $(SRC_DIR)/model/PersonalBoard.cpp $(SRC_DIR)/model/BoardCell.cpp $(SRC_DIR)/model/GameConfig.cpp $(SRC_DIR)/model/TokenBag.cpp $(SRC_DIR)/model/CentralBoard.cpp $(SRC_DIR)/model/TokenSlot.cpp $(SRC_DIR)/utils/HexCoord.cpp
+$(TEST_GAME): $(TEST_DIR)/testGame.cpp $(SRC_DIR)/core/Game.cpp $(SRC_DIR)/core/DefaultDeckFactory.cpp $(SRC_DIR)/core/TurnManager.cpp $(SRC_DIR)/core/SlotSelectionService.cpp $(SRC_DIR)/core/TokenPlacementService.cpp $(SRC_DIR)/core/AnimalCubePlacementService.cpp $(SRC_DIR)/core/NatureSpiritPlacementService.cpp $(SRC_DIR)/rules/EndGameChecker.cpp $(SRC_DIR)/rules/PlacementValidator.cpp $(SRC_DIR)/rules/PatternMatcher.cpp $(SRC_DIR)/rules/StackRule.cpp $(SRC_DIR)/scoring/LandscapeScoreCalculator.cpp $(SRC_DIR)/scoring/AnimalCardScoreCalculator.cpp $(SRC_DIR)/scoring/NatureSpiritScoreCalculator.cpp $(SRC_DIR)/model/Player.cpp $(SRC_DIR)/model/PlayerCardCollection.cpp $(SRC_DIR)/model/AnimalCardDeck.cpp $(SRC_DIR)/model/NatureSpiritDeck.cpp $(SRC_DIR)/model/AnimalCard.cpp $(SRC_DIR)/model/NatureSpiritCard.cpp $(SRC_DIR)/model/Pattern.cpp $(SRC_DIR)/model/PersonalBoard.cpp $(SRC_DIR)/model/BoardCell.cpp $(SRC_DIR)/model/GameConfig.cpp $(SRC_DIR)/model/TokenBag.cpp $(SRC_DIR)/model/CentralBoard.cpp $(SRC_DIR)/model/TokenSlot.cpp $(SRC_DIR)/utils/HexCoord.cpp
+	@echo "Building $@..."
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
+$(TEST_SCORECALCULATOR): $(TEST_DIR)/testScoreCalculator.cpp $(SRC_DIR)/scoring/ScoreCalculator.cpp $(SRC_DIR)/model/Player.cpp $(SRC_DIR)/model/PersonalBoard.cpp $(SRC_DIR)/model/PlayerCardCollection.cpp $(SRC_DIR)/scoring/LandscapeScoreCalculator.cpp $(SRC_DIR)/scoring/AnimalCardScoreCalculator.cpp $(SRC_DIR)/scoring/NatureSpiritScoreCalculator.cpp $(SRC_DIR)/rules/StackRule.cpp $(SRC_DIR)/model/BoardCell.cpp $(SRC_DIR)/utils/HexCoord.cpp $(SRC_DIR)/model/ScoreReport.cpp $(SRC_DIR)/model/AnimalCard.cpp $(SRC_DIR)/model/Pattern.cpp $(SRC_DIR)/model/NatureSpiritCard.cpp
+	@echo "Building $@..."
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
+$(TEST_SOLOSCOREEVALUATOR): $(TEST_DIR)/testSoloScoreEvaluator.cpp $(SRC_DIR)/scoring/SoloScoreEvaluator.cpp
 	@echo "Building $@..."
 	$(CXX) $(CXXFLAGS) $^ -o $@
 

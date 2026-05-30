@@ -9,7 +9,7 @@ namespace harmonies
 {
     namespace scoring
     {
-        std::size_t natureSpiritScoreCalculator(const model::NatureSpiritCard &card, const model::PersonalBoard &board);
+        std::size_t NatureSpiritScoreCalculator(const model::NatureSpiritCard &card, const model::PersonalBoard &board);
 
     } // namespace scoring
 } // namespace harmonies
