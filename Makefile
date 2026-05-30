@@ -196,7 +196,7 @@ $(TEST_TOKENPLACEMENTSERVICE): $(TEST_DIR)/testTokenPlacementService.cpp $(SRC_D
 	@echo "Building $@..."
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
-$(TEST_GAME): $(TEST_DIR)/testGame.cpp $(SRC_DIR)/core/Game.cpp $(SRC_DIR)/core/TurnManager.cpp $(SRC_DIR)/core/SlotSelectionService.cpp $(SRC_DIR)/core/TokenPlacementService.cpp $(SRC_DIR)/rules/EndGameChecker.cpp $(SRC_DIR)/rules/PlacementValidator.cpp $(SRC_DIR)/model/Player.cpp $(SRC_DIR)/model/PersonalBoard.cpp $(SRC_DIR)/model/BoardCell.cpp $(SRC_DIR)/model/GameConfig.cpp $(SRC_DIR)/model/TokenBag.cpp $(SRC_DIR)/model/CentralBoard.cpp $(SRC_DIR)/model/TokenSlot.cpp $(SRC_DIR)/utils/HexCoord.cpp
+$(TEST_GAME): $(TEST_DIR)/testGame.cpp $(SRC_DIR)/core/Game.cpp $(SRC_DIR)/core/DefaultDeckFactory.cpp $(SRC_DIR)/core/TurnManager.cpp $(SRC_DIR)/core/SlotSelectionService.cpp $(SRC_DIR)/core/TokenPlacementService.cpp $(SRC_DIR)/core/AnimalCubePlacementService.cpp $(SRC_DIR)/core/NatureSpiritPlacementService.cpp $(SRC_DIR)/rules/EndGameChecker.cpp $(SRC_DIR)/rules/PlacementValidator.cpp $(SRC_DIR)/rules/PatternMatcher.cpp $(SRC_DIR)/rules/StackRule.cpp $(SRC_DIR)/scoring/LandscapeScoreCalculator.cpp $(SRC_DIR)/scoring/AnimalCardScoreCalculator.cpp $(SRC_DIR)/scoring/NatureSpiritScoreCalculator.cpp $(SRC_DIR)/model/Player.cpp $(SRC_DIR)/model/PlayerCardCollection.cpp $(SRC_DIR)/model/AnimalCardDeck.cpp $(SRC_DIR)/model/NatureSpiritDeck.cpp $(SRC_DIR)/model/AnimalCard.cpp $(SRC_DIR)/model/NatureSpiritCard.cpp $(SRC_DIR)/model/Pattern.cpp $(SRC_DIR)/model/PersonalBoard.cpp $(SRC_DIR)/model/BoardCell.cpp $(SRC_DIR)/model/GameConfig.cpp $(SRC_DIR)/model/TokenBag.cpp $(SRC_DIR)/model/CentralBoard.cpp $(SRC_DIR)/model/TokenSlot.cpp $(SRC_DIR)/utils/HexCoord.cpp
 	@echo "Building $@..."
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
