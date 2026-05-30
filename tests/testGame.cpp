@@ -4,6 +4,9 @@
 #include <vector>
 
 #include "core/Game.h"
+#include "model/NatureSpiritCard.h"
+#include "model/Pattern.h"
+#include "scoring/NatureSpiritEffect.h"
 
 using harmonies::core::Game;
 using harmonies::core::GameState;
@@ -122,6 +125,203 @@ int main()
         Game game(config, playerNames);
         game.initGame();
 
+        const std::size_t visibleBefore = game.getAnimalCardDeck()->visibleCount();
+
+        check(game.takeVisibleAnimalCard(0),
+              "Taking a visible animal card should succeed once per turn",
+              failures);
+        check(game.getPlayers()[0]->getAnimalCards()->getCardCount() == 1,
+              "Taking a visible animal card should add it to the current player's collection",
+              failures);
+        check(game.getAnimalCardDeck()->visibleCount() == visibleBefore - 1,
+              "Taking a visible animal card should remove it from the visible market until end of turn",
+              failures);
+        check(!game.takeVisibleAnimalCard(0),
+              "A player should not be able to take more than one visible animal card in the same turn",
+              failures);
+    }
+
+    {
+        GameConfig config(2, BoardSide::A, true);
+        std::vector<std::string> playerNames;
+        playerNames.push_back("Alice");
+        playerNames.push_back("Bob");
+
+        Game game(config, playerNames);
+        game.initGame();
+
+        check(game.getPlayers()[0]->getNatureSpiritCardCount() == 2,
+              "With the nature spirit option enabled, each player should receive two nature spirit cards at setup",
+              failures);
+
+        check(game.chooseNatureSpiritCard(0),
+              "The current player should be able to choose one of their two nature spirit cards",
+              failures);
+        check(game.getPlayers()[0]->getNatureSpiritCardCount() == 1,
+              "Choosing a nature spirit card should keep only the selected card",
+              failures);
+        check(!game.chooseNatureSpiritCard(0),
+              "Once a nature spirit card has been chosen, the player should not choose again",
+              failures);
+
+        const TokenType spiritTokenType =
+            game.getPlayers()[0]->getNatureSpiritCard(0)->getPattern().getCells()[0].type;
+        HexCoord spiritAnchor(0, 0);
+        game.getPlayers()[0]->getBoard()->placeToken(spiritAnchor, spiritTokenType);
+
+        check(game.placeNatureSpiritCube(spiritAnchor),
+              "The chosen nature spirit card should be able to place its cube when the pattern is satisfied",
+              failures);
+        check(game.getPlayers()[0]->getBoard()->getCell(spiritAnchor) != nullptr &&
+                  game.getPlayers()[0]->getBoard()->getCell(spiritAnchor)->hasCube(),
+              "Placing a nature spirit cube through Game should mark the chosen board cell",
+              failures);
+        check(game.getPlayers()[0]->getNatureSpiritCard(0) != nullptr &&
+                  game.getPlayers()[0]->getNatureSpiritCard(0)->isCubePlaced(),
+              "Placing a nature spirit cube through Game should update the selected card",
+              failures);
+    }
+
+    {
+        GameConfig config(2, BoardSide::A, true);
+        std::vector<std::string> playerNames;
+        playerNames.push_back("Alice");
+        playerNames.push_back("Bob");
+
+        Game game(config, playerNames);
+        game.initGame();
+
+        std::vector<TokenType> firstTurnSlot;
+        firstTurnSlot.push_back(TokenType::BlueWater);
+        firstTurnSlot.push_back(TokenType::GrayStone);
+        firstTurnSlot.push_back(TokenType::BrownEarth);
+        game.getCentralBoard()->getSlot(0)->fill(firstTurnSlot);
+
+        check(game.takeTokensFromSlot(0),
+              "A player should be able to start their first turn without choosing a nature spirit card immediately",
+              failures);
+        check(game.placeTokenOnBoard(HexCoord(0, 0), TokenType::BlueWater),
+              "The first player should be able to place the first mandatory token",
+              failures);
+        check(game.placeTokenOnBoard(HexCoord(1, 0), TokenType::GrayStone),
+              "The first player should be able to place the second mandatory token",
+              failures);
+        check(game.placeTokenOnBoard(HexCoord(0, 1), TokenType::BrownEarth),
+              "The first player should be able to place the third mandatory token",
+              failures);
+
+        game.getCentralBoard()->getSlot(0)->fill(firstTurnSlot);
+        check(game.takeTokensFromSlot(0),
+              "The second player should be able to play their first turn normally",
+              failures);
+        check(game.placeTokenOnBoard(HexCoord(0, 0), TokenType::BlueWater),
+              "The second player should be able to place the first mandatory token",
+              failures);
+        check(game.placeTokenOnBoard(HexCoord(1, 0), TokenType::GrayStone),
+              "The second player should be able to place the second mandatory token",
+              failures);
+        check(game.placeTokenOnBoard(HexCoord(0, 1), TokenType::BrownEarth),
+              "The second player should be able to place the third mandatory token",
+              failures);
+
+        check(game.getCurrentPlayer() != nullptr &&
+                  game.getCurrentPlayer()->getName() == "Alice",
+              "After one full round, the turn should return to the first player",
+              failures);
+        check(!game.chooseNatureSpiritCard(0),
+              "A nature spirit card should no longer be choosable after the player's first turn has passed",
+              failures);
+    }
+
+    {
+        GameConfig config(2, BoardSide::A, false);
+        std::vector<std::string> playerNames;
+        playerNames.push_back("Alice");
+        playerNames.push_back("Bob");
+
+        Game game(config, playerNames);
+        game.initGame();
+
+        std::size_t compatibleCardIndex = game.getAnimalCardDeck()->visibleCount();
+        for (std::size_t i = 0; i < game.getAnimalCardDeck()->getVisible().size(); ++i)
+        {
+            const std::string &name = game.getAnimalCardDeck()->getVisible()[i].getName();
+            if (name == "Bear" || name == "Fox")
+            {
+                compatibleCardIndex = i;
+                break;
+            }
+        }
+
+        check(compatibleCardIndex < game.getAnimalCardDeck()->visibleCount(),
+              "The visible animal market should contain at least one card compatible with the chosen token slot",
+              failures);
+
+        std::vector<TokenType> chosenSlot;
+        chosenSlot.push_back(TokenType::BlueWater);
+        chosenSlot.push_back(TokenType::GrayStone);
+        chosenSlot.push_back(TokenType::BrownEarth);
+        game.getCentralBoard()->getSlot(0)->fill(chosenSlot);
+
+        check(game.takeVisibleAnimalCard(compatibleCardIndex),
+              "A visible animal card should be takeable before the mandatory token placement sequence",
+              failures);
+        check(game.getPlayers()[0]->getAnimalCards()->getCardCount() == 1,
+              "Taking a visible animal card should store it for the current player",
+              failures);
+
+        const std::string cardName = game.getPlayers()[0]->getAnimalCards()->getCard(0)->getName();
+
+        game.takeTokensFromSlot(0);
+
+        check(game.placeTokenOnBoard(HexCoord(0, 0), TokenType::BlueWater),
+              "The player should still be able to start placing mandatory tokens after taking an animal card",
+              failures);
+
+        HexCoord cubeAnchor(0, 0);
+        if (cardName == "Bear")
+        {
+            cubeAnchor = HexCoord(1, 0);
+            check(game.placeTokenOnBoard(cubeAnchor, TokenType::GrayStone),
+                  "The player should be able to place the landscape needed for the chosen animal card",
+                  failures);
+        }
+        else if (cardName == "Fox")
+        {
+            cubeAnchor = HexCoord(0, 1);
+            check(game.placeTokenOnBoard(cubeAnchor, TokenType::BrownEarth),
+                  "The player should be able to place the landscape needed for the chosen animal card",
+                  failures);
+        }
+        else
+        {
+            check(false,
+                  "The deterministic test setup should only draw a card compatible with the chosen slot tokens",
+                  failures);
+        }
+
+        check(game.placeAnimalCube(0, cubeAnchor),
+              "The player should be able to place an animal cube during the same turn when the pattern is satisfied",
+              failures);
+        check(game.getPlayers()[0]->getBoard()->getCell(cubeAnchor) != nullptr &&
+                  game.getPlayers()[0]->getBoard()->getCell(cubeAnchor)->hasCube(),
+              "Placing an animal cube through Game should mark the chosen board cell",
+              failures);
+        check(game.getPlayers()[0]->getAnimalCards()->getCard(0) != nullptr &&
+                  game.getPlayers()[0]->getAnimalCards()->getCard(0)->getCubesOnCard() == 0,
+              "Placing an animal cube through Game should consume one cube from the chosen animal card",
+              failures);
+    }
+
+    {
+        GameConfig config(2, BoardSide::A, false);
+        std::vector<std::string> playerNames;
+        playerNames.push_back("Alice");
+        playerNames.push_back("Bob");
+
+        Game game(config, playerNames);
+        game.initGame();
+
         std::vector<TokenType> chosenSlot;
         chosenSlot.push_back(TokenType::BlueWater);
         chosenSlot.push_back(TokenType::GrayStone);
@@ -166,6 +366,59 @@ int main()
         check(game.getPlayers()[0]->getBoard()->getCell(HexCoord(0, 1)) != nullptr &&
                   game.getPlayers()[0]->getBoard()->getCell(HexCoord(0, 1))->getHeight() == 1,
               "The third placed token should remain on Alice's board",
+              failures);
+        check(game.getAnimalCardDeck()->visibleCount() == 5,
+              "Visible animal cards should be refilled at the end of the turn",
+              failures);
+    }
+
+    {
+        GameConfig config(2, BoardSide::A, true);
+        std::vector<std::string> playerNames;
+        playerNames.push_back("Alice");
+        playerNames.push_back("Bob");
+
+        Game game(config, playerNames);
+        game.initGame();
+
+        harmonies::model::Player *alice = game.getPlayers()[0].get();
+        alice->getBoard()->placeToken(HexCoord(0, 0), TokenType::GreenTree);
+
+        harmonies::model::Pattern animalPattern(
+            std::vector<harmonies::model::PatternCell>(1, harmonies::model::PatternCell{HexCoord(0, 0), TokenType::GreenTree, harmonies::model::PatternCell::AnyHeight}));
+        harmonies::model::AnimalCard animalCard("Scoring Fox", animalPattern, std::vector<int>(1, 3));
+        animalCard.placeNextCube();
+        alice->getAnimalCards()->addCard(animalCard);
+
+        harmonies::scoring::NatureSpiritEffect spiritEffect;
+        spiritEffect.type = harmonies::scoring::NSEffectType::CountLandscapes;
+        spiritEffect.landscapeRules.push_back(
+            harmonies::scoring::LandscapeCountRule{TokenType::GreenTree, harmonies::model::PatternCell::AnyHeight, 4});
+
+        harmonies::model::NatureSpiritCard spiritCard("Scoring Spirit", animalPattern, spiritEffect);
+        spiritCard.placeCube();
+        alice->addNatureSpiritCard(spiritCard);
+
+        check(game.calculatePlayerScore(*alice) == 8,
+              "Game should sum landscape, animal and nature spirit scores for a player",
+              failures);
+    }
+
+    {
+        GameConfig config(2, BoardSide::A, false);
+        std::vector<std::string> playerNames;
+        playerNames.push_back("Alice");
+        playerNames.push_back("Bob");
+
+        Game game(config, playerNames);
+        game.initGame();
+
+        game.getPlayers()[0]->setScore(12);
+        game.getPlayers()[1]->setScore(9);
+
+        check(game.getWinner() != nullptr &&
+                  game.getWinner()->getName() == "Alice",
+              "getWinner should return the player with the highest stored score",
               failures);
     }
 
