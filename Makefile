@@ -1,7 +1,7 @@
 # --- Compiler Settings ---
 CXX = g++
 # -Iinclude tells the compiler to look for header files in the include/ directory
-CXXFLAGS = -Wall -Wextra -std=c++17 -Iinclude
+CXXFLAGS = -Wall -Wextra -std=c++11 -Iinclude
 
 # --- Target and Folders ---
 TARGET = prog
@@ -29,9 +29,11 @@ TEST_TOKENSLOT = $(TEST_DIR)/testTokenSlot
 TEST_CENTRALBOARD = $(TEST_DIR)/testCentralBoard
 TEST_PATTERN = $(TEST_DIR)/testPattern
 TEST_ANIMALCARD = $(TEST_DIR)/testAnimalCard
+TEST_ANIMALCARDSCORECALCULATOR = $(TEST_DIR)/testAnimalCardScoreCalculator
 TEST_ANIMALCARDDECK = $(TEST_DIR)/testAnimalCardDeck
 TEST_NATURESPIRITCARD = $(TEST_DIR)/testNatureSpiritCard
 TEST_NATURESPIRITDECK = $(TEST_DIR)/testNatureSpiritDeck
+TEST_NATURESPIRITSCORECALCULATOR = $(TEST_DIR)/testNatureSpiritScoreCalculator
 TEST_PLAYER = $(TEST_DIR)/testPlayer
 TEST_PLAYERCARDCOLLECTION = $(TEST_DIR)/testPlayerCardCollection
 TEST_GAMECONFIG = $(TEST_DIR)/testGameConfig
@@ -39,11 +41,15 @@ TEST_SCOREREPORT = $(TEST_DIR)/testScoreReport
 TEST_PLACEMENTVALIDATOR = $(TEST_DIR)/testPlacementValidator
 TEST_STACKRULE = $(TEST_DIR)/testStackRule
 TEST_LANDSCAPESCORECALCULATOR = $(TEST_DIR)/testLandscapeScoreCalculator
-TEST_TURNMANAGER = $(TEST_DIR)/testTurnManager
 TEST_ENDGAMECHECKER = $(TEST_DIR)/testEndGameChecker
 TEST_PATTERNMATCHER = $(TEST_DIR)/testPatternMatcher
-TESTS = $(TEST_HEXCOORD) $(TEST_BOARDCELL) $(TEST_PERSONALBOARD) $(TEST_TOKENBAG) $(TEST_TOKENSLOT) $(TEST_CENTRALBOARD) $(TEST_PATTERN) $(TEST_ANIMALCARD) $(TEST_ANIMALCARDDECK) $(TEST_NATURESPIRITCARD) $(TEST_NATURESPIRITDECK) $(TEST_PLAYER) $(TEST_PLAYERCARDCOLLECTION) $(TEST_GAMECONFIG) $(TEST_SCOREREPORT) $(TEST_PLACEMENTVALIDATOR) $(TEST_STACKRULE) $(TEST_LANDSCAPESCORECALCULATOR) $(TEST_TURNMANAGER) $(TEST_ENDGAMECHECKER) $(TEST_PATTERNMATCHER)
-
+TEST_TURNMANAGER = $(TEST_DIR)/testTurnManager
+TEST_ANIMALCUBEPLACEMENTSERVICE = $(TEST_DIR)/testAnimalCubePlacementService
+TEST_NATURESPIRITPLACEMENTSERVICE = $(TEST_DIR)/testNatureSpiritPlacementService
+TEST_SLOTSELECTIONSERVICE = $(TEST_DIR)/testSlotSelectionService
+TEST_TOKENPLACEMENTSERVICE = $(TEST_DIR)/testTokenPlacementService
+TEST_GAME = $(TEST_DIR)/testGame
+TESTS = $(TEST_HEXCOORD) $(TEST_BOARDCELL) $(TEST_PERSONALBOARD) $(TEST_TOKENBAG) $(TEST_TOKENSLOT) $(TEST_CENTRALBOARD) $(TEST_PATTERN) $(TEST_ANIMALCARD) $(TEST_ANIMALCARDSCORECALCULATOR) $(TEST_ANIMALCARDDECK) $(TEST_NATURESPIRITCARD) $(TEST_NATURESPIRITDECK) $(TEST_NATURESPIRITSCORECALCULATOR) $(TEST_PLAYER) $(TEST_PLAYERCARDCOLLECTION) $(TEST_GAMECONFIG) $(TEST_SCOREREPORT) $(TEST_PLACEMENTVALIDATOR) $(TEST_STACKRULE) $(TEST_LANDSCAPESCORECALCULATOR) $(TEST_ENDGAMECHECKER) $(TEST_PATTERNMATCHER) $(TEST_TURNMANAGER) $(TEST_ANIMALCUBEPLACEMENTSERVICE) $(TEST_NATURESPIRITPLACEMENTSERVICE) $(TEST_SLOTSELECTIONSERVICE) $(TEST_TOKENPLACEMENTSERVICE) $(TEST_GAME)
 # --- Build Rules ---
 
 # Default rule
@@ -68,7 +74,7 @@ $(TARGET): $(OBJS)
 clean:
 	@echo "Cleaning up..."
 	rm -f $(OBJS) $(TARGET)
-	rm -f $(TESTS)
+	rm -f $(TEST_HEXCOORD) $(TEST_BOARDCELL) $(TEST_PERSONALBOARD) $(TEST_TOKENBAG) $(TEST_TOKENSLOT) $(TEST_CENTRALBOARD) $(TEST_PATTERN) $(TEST_ANIMALCARD) $(TEST_ANIMALCARDSCORECALCULATOR) $(TEST_ANIMALCARDDECK) $(TEST_NATURESPIRITCARD) $(TEST_NATURESPIRITDECK) $(TEST_NATURESPIRITSCORECALCULATOR) $(TEST_PLAYER) $(TEST_PLAYERCARDCOLLECTION) $(TEST_GAMECONFIG) $(TEST_SCOREREPORT) $(TEST_PLACEMENTVALIDATOR) $(TEST_STACKRULE) $(TEST_LANDSCAPESCORECALCULATOR) $(TEST_ENDGAMECHECKER) $(TEST_PATTERNMATCHER) $(TEST_TURNMANAGER) $(TEST_ANIMALCUBEPLACEMENTSERVICE) $(TEST_NATURESPIRITPLACEMENTSERVICE) $(TEST_SLOTSELECTIONSERVICE) $(TEST_TOKENPLACEMENTSERVICE) $(TEST_GAME)
 
 # Prevent conflicts with files named 'all' or 'clean'
 .PHONY: all clean test
@@ -112,6 +118,10 @@ $(TEST_ANIMALCARD): $(TEST_DIR)/testAnimalCard.cpp $(SRC_DIR)/model/AnimalCard.c
 	@echo "Building $@..."
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
+$(TEST_ANIMALCARDSCORECALCULATOR): $(TEST_DIR)/testAnimalCardScoreCalculator.cpp $(SRC_DIR)/scoring/AnimalCardScoreCalculator.cpp $(SRC_DIR)/model/AnimalCard.cpp $(SRC_DIR)/model/Pattern.cpp $(SRC_DIR)/utils/HexCoord.cpp
+	@echo "Building $@..."
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
 $(TEST_ANIMALCARDDECK): $(TEST_DIR)/testAnimalCardDeck.cpp $(SRC_DIR)/model/AnimalCardDeck.cpp $(SRC_DIR)/model/AnimalCard.cpp $(SRC_DIR)/model/Pattern.cpp $(SRC_DIR)/utils/HexCoord.cpp
 	@echo "Building $@..."
 	$(CXX) $(CXXFLAGS) $^ -o $@
@@ -121,6 +131,10 @@ $(TEST_NATURESPIRITCARD): $(TEST_DIR)/testNatureSpiritCard.cpp $(SRC_DIR)/model/
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
 $(TEST_NATURESPIRITDECK): $(TEST_DIR)/testNatureSpiritDeck.cpp $(SRC_DIR)/model/NatureSpiritDeck.cpp $(SRC_DIR)/model/NatureSpiritCard.cpp $(SRC_DIR)/model/Pattern.cpp $(SRC_DIR)/utils/HexCoord.cpp
+	@echo "Building $@..."
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
+$(TEST_NATURESPIRITSCORECALCULATOR): $(TEST_DIR)/testNatureSpiritScoreCalculator.cpp $(SRC_DIR)/scoring/NatureSpiritScoreCalculator.cpp $(SRC_DIR)/model/NatureSpiritCard.cpp $(SRC_DIR)/model/Pattern.cpp $(SRC_DIR)/model/PersonalBoard.cpp $(SRC_DIR)/model/BoardCell.cpp $(SRC_DIR)/utils/HexCoord.cpp
 	@echo "Building $@..."
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
@@ -152,15 +166,35 @@ $(TEST_LANDSCAPESCORECALCULATOR): $(TEST_DIR)/testLandscapeScoreCalculator.cpp $
 	@echo "Building $@..."
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
-$(TEST_TURNMANAGER): $(TEST_DIR)/testTurnManager.cpp $(SRC_DIR)/core/TurnManager.cpp $(SRC_DIR)/model/Player.cpp $(SRC_DIR)/model/PersonalBoard.cpp $(SRC_DIR)/model/BoardCell.cpp $(SRC_DIR)/utils/HexCoord.cpp
-	@echo "Building $@..."
-	$(CXX) $(CXXFLAGS) $^ -o $@
-
 $(TEST_ENDGAMECHECKER): $(TEST_DIR)/testEndGameChecker.cpp $(SRC_DIR)/rules/EndGameChecker.cpp $(SRC_DIR)/model/Player.cpp $(SRC_DIR)/model/PersonalBoard.cpp $(SRC_DIR)/model/BoardCell.cpp $(SRC_DIR)/model/TokenBag.cpp $(SRC_DIR)/utils/hexCoord.cpp
 	@echo "Building $@..."
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
 $(TEST_PATTERNMATCHER): $(TEST_DIR)/testPatternMatcher.cpp $(SRC_DIR)/rules/PatternMatcher.cpp $(SRC_DIR)/model/PersonalBoard.cpp $(SRC_DIR)/model/BoardCell.cpp $(SRC_DIR)/model/Pattern.cpp $(SRC_DIR)/utils/hexCoord.cpp
+	@echo "Building $@..."
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
+$(TEST_TURNMANAGER): $(TEST_DIR)/testTurnManager.cpp $(SRC_DIR)/core/TurnManager.cpp $(SRC_DIR)/model/Player.cpp $(SRC_DIR)/model/PersonalBoard.cpp $(SRC_DIR)/model/BoardCell.cpp $(SRC_DIR)/utils/HexCoord.cpp
+	@echo "Building $@..."
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
+$(TEST_ANIMALCUBEPLACEMENTSERVICE): $(TEST_DIR)/testAnimalCubePlacementService.cpp $(SRC_DIR)/core/AnimalCubePlacementService.cpp $(SRC_DIR)/rules/PatternMatcher.cpp $(SRC_DIR)/model/AnimalCard.cpp $(SRC_DIR)/model/Pattern.cpp $(SRC_DIR)/model/PersonalBoard.cpp $(SRC_DIR)/model/BoardCell.cpp $(SRC_DIR)/utils/hexCoord.cpp
+	@echo "Building $@..."
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
+$(TEST_NATURESPIRITPLACEMENTSERVICE): $(TEST_DIR)/testNatureSpiritPlacementService.cpp $(SRC_DIR)/core/NatureSpiritPlacementService.cpp $(SRC_DIR)/rules/PatternMatcher.cpp $(SRC_DIR)/model/NatureSpiritCard.cpp $(SRC_DIR)/model/Pattern.cpp $(SRC_DIR)/model/PersonalBoard.cpp $(SRC_DIR)/model/BoardCell.cpp $(SRC_DIR)/utils/hexCoord.cpp
+	@echo "Building $@..."
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
+$(TEST_SLOTSELECTIONSERVICE): $(TEST_DIR)/testSlotSelectionService.cpp $(SRC_DIR)/core/SlotSelectionService.cpp $(SRC_DIR)/model/CentralBoard.cpp $(SRC_DIR)/model/TokenSlot.cpp $(SRC_DIR)/model/TokenBag.cpp
+	@echo "Building $@..."
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
+$(TEST_TOKENPLACEMENTSERVICE): $(TEST_DIR)/testTokenPlacementService.cpp $(SRC_DIR)/core/TokenPlacementService.cpp $(SRC_DIR)/rules/PlacementValidator.cpp $(SRC_DIR)/model/PersonalBoard.cpp $(SRC_DIR)/model/BoardCell.cpp $(SRC_DIR)/utils/HexCoord.cpp
+	@echo "Building $@..."
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
+$(TEST_GAME): $(TEST_DIR)/testGame.cpp $(SRC_DIR)/core/Game.cpp $(SRC_DIR)/core/DefaultDeckFactory.cpp $(SRC_DIR)/core/TurnManager.cpp $(SRC_DIR)/core/SlotSelectionService.cpp $(SRC_DIR)/core/TokenPlacementService.cpp $(SRC_DIR)/core/AnimalCubePlacementService.cpp $(SRC_DIR)/core/NatureSpiritPlacementService.cpp $(SRC_DIR)/rules/EndGameChecker.cpp $(SRC_DIR)/rules/PlacementValidator.cpp $(SRC_DIR)/rules/PatternMatcher.cpp $(SRC_DIR)/rules/StackRule.cpp $(SRC_DIR)/scoring/LandscapeScoreCalculator.cpp $(SRC_DIR)/scoring/AnimalCardScoreCalculator.cpp $(SRC_DIR)/scoring/NatureSpiritScoreCalculator.cpp $(SRC_DIR)/model/Player.cpp $(SRC_DIR)/model/PlayerCardCollection.cpp $(SRC_DIR)/model/AnimalCardDeck.cpp $(SRC_DIR)/model/NatureSpiritDeck.cpp $(SRC_DIR)/model/AnimalCard.cpp $(SRC_DIR)/model/NatureSpiritCard.cpp $(SRC_DIR)/model/Pattern.cpp $(SRC_DIR)/model/PersonalBoard.cpp $(SRC_DIR)/model/BoardCell.cpp $(SRC_DIR)/model/GameConfig.cpp $(SRC_DIR)/model/TokenBag.cpp $(SRC_DIR)/model/CentralBoard.cpp $(SRC_DIR)/model/TokenSlot.cpp $(SRC_DIR)/utils/HexCoord.cpp
 	@echo "Building $@..."
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
@@ -174,9 +208,11 @@ test: $(TESTS)
 	./$(TEST_CENTRALBOARD)
 	./$(TEST_PATTERN)
 	./$(TEST_ANIMALCARD)
+	./$(TEST_ANIMALCARDSCORECALCULATOR)
 	./$(TEST_ANIMALCARDDECK)
 	./$(TEST_NATURESPIRITCARD)
 	./$(TEST_NATURESPIRITDECK)
+	./$(TEST_NATURESPIRITSCORECALCULATOR)
 	./$(TEST_PLAYER)
 	./$(TEST_PLAYERCARDCOLLECTION)
 	./$(TEST_GAMECONFIG)
@@ -184,6 +220,11 @@ test: $(TESTS)
 	./$(TEST_PLACEMENTVALIDATOR)
 	./$(TEST_STACKRULE)
 	./$(TEST_LANDSCAPESCORECALCULATOR)
-	./$(TEST_TURNMANAGER)
 	./$(TEST_ENDGAMECHECKER)
 	./$(TEST_PATTERNMATCHER)
+	./$(TEST_TURNMANAGER)
+	./$(TEST_ANIMALCUBEPLACEMENTSERVICE)
+	./$(TEST_NATURESPIRITPLACEMENTSERVICE)
+	./$(TEST_SLOTSELECTIONSERVICE)
+	./$(TEST_TOKENPLACEMENTSERVICE)
+	./$(TEST_GAME)

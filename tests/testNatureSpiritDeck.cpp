@@ -10,6 +10,7 @@ using harmonies::model::NatureSpiritDeck;
 using harmonies::model::Pattern;
 using harmonies::model::PatternCell;
 using harmonies::model::TokenType;
+using harmonies::scoring::NatureSpiritEffect;
 using harmonies::utils::HexCoord;
 
 namespace
@@ -30,7 +31,8 @@ namespace
     NatureSpiritCard makeCard(const std::string &name)
     {
         Pattern pattern({{HexCoord(0, 0), TokenType::BrownEarth, PatternCell::AnyHeight}});
-        return NatureSpiritCard(name, pattern, nullptr);
+        NatureSpiritEffect effect;
+        return NatureSpiritCard(name, pattern, effect);
     }
 }
 

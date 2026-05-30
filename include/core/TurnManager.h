@@ -1,30 +1,35 @@
 #ifndef TURNMANAGER_H
 #define TURNMANAGER_H
 
-#include <vector>
+#include <cstddef>
 #include <stdexcept>
+#include <vector>
+
 #include "model/Player.h"
 
-namespace harmonies {
-namespace core {
+namespace harmonies
+{
+    namespace core
+    {
 
-class TurnManager {
-private:
-    std::vector<model::Player*> players;
-    std::size_t currentPlayerIndex;
-    unsigned int currentTurn;
+        class TurnManager
+        {
+        private:
+            // Non-owning view: Game remains responsible for player lifetime.
+            std::vector<model::Player *> players;
+            std::size_t currentPlayerIndex;
+            std::size_t currentTurn;
 
-public:
-    TurnManager(const std::vector<model::Player*>& gamePlayers);
-    ~TurnManager();
+        public:
+            explicit TurnManager(const std::vector<model::Player *> &gamePlayers);
 
-    model::Player* getCurrentPlayer() const;
-    void nextTurn();
-    unsigned int getTurnCount() const;
-    bool isNewCycle() const;
-};
+            model::Player *getCurrentPlayer() const;
+            void nextTurn();
+            std::size_t getTurnCount() const;
+            bool isNewTurn() const;
+        };
 
-}
+    }
 }
 
 #endif
