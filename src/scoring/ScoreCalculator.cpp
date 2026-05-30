@@ -21,17 +21,21 @@ namespace harmonies
             report.addTreeScore(landscapeScore); 
 
             std::size_t totalAnimalScore = 0;
-            const auto& completedCards = player.getCompletedAnimalCards().getCards();
-            for (std::size_t i = 0; i < completedCards.size(); ++i)
+            const model::PlayerCardCollection *animalCards = player.getAnimalCards();
+            if (animalCards != nullptr)
             {
-                totalAnimalScore += AnimalCardScoreCalculator(completedCards[i]);
+                const std::vector<model::AnimalCard> &cards = animalCards->getCards();
+                for (std::size_t i = 0; i < cards.size(); ++i)
+                {
+                    totalAnimalScore += AnimalCardScoreCalculator(cards[i]);
+                }
             }
             report.addAnimalsScore(totalAnimalScore);
 
-            const auto* spirit = player.getNatureSpiritCard();
-            if (spirit != nullptr)
+            const std::vector<model::NatureSpiritCard> &natureSpiritCards = player.getNatureSpiritCards();
+            for (std::size_t i = 0; i < natureSpiritCards.size(); ++i)
             {
-                std::size_t spiritScore = natureSpiritScoreCalculator(*spirit, *board);
+                std::size_t spiritScore = NatureSpiritScoreCalculator(natureSpiritCards[i], *board);
                 report.addSpiritScore(spiritScore);
             }
 

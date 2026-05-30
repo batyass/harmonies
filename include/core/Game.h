@@ -64,6 +64,8 @@ namespace harmonies
             // Cette méthode devra s'appuyer sur le futur ScoreCalculator une fois celui-ci implémenté.
             std::size_t calculatePlayerScore(const model::Player &player) const;
             const model::Player *getWinner() const;
+            const std::vector<model::TokenType> &getPendingTokens() const;
+            bool isNatureSpiritEnabled() const;
 
             // Les méthodes retournent l'adresse de l'objet agrégé
             model::CentralBoard *getCentralBoard();
