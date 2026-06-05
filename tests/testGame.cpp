@@ -209,6 +209,9 @@ int main()
         check(game.placeTokenOnBoard(HexCoord(0, 1), TokenType::BrownEarth),
               "The first player should be able to place the third mandatory token",
               failures);
+        check(game.endTurn(),
+              "After completing mandatory placements, the first player should be able to end their turn explicitly",
+              failures);
 
         game.getCentralBoard()->getSlot(0)->fill(firstTurnSlot);
         check(game.takeTokensFromSlot(0),
@@ -222,6 +225,9 @@ int main()
               failures);
         check(game.placeTokenOnBoard(HexCoord(0, 1), TokenType::BrownEarth),
               "The second player should be able to place the third mandatory token",
+              failures);
+        check(game.endTurn(),
+              "After completing mandatory placements, the second player should be able to end their turn explicitly",
               failures);
 
         check(game.getCurrentPlayer() != nullptr &&
@@ -347,12 +353,22 @@ int main()
         check(game.placeTokenOnBoard(HexCoord(0, 1), TokenType::BrownEarth),
               "The last pending token should be placeable on the board",
               failures);
+        check(game.getState() == GameState::WaitingForTurnEndChoice,
+              "After the last token is placed, the current player should choose whether to end the turn",
+              failures);
+        check(game.getCurrentPlayer() != nullptr &&
+                  game.getCurrentPlayer()->getName() == "Alice",
+              "After placing all pending tokens, the current player should keep control until they end the turn",
+              failures);
+        check(game.endTurn(),
+              "The current player should be able to explicitly end the turn once mandatory actions are complete",
+              failures);
         check(game.getState() == GameState::WaitingForSlotChoice,
-              "After the last token is placed, the next player should enter the slot-choice phase",
+              "After ending the turn, the next player should enter the slot-choice phase",
               failures);
         check(game.getCurrentPlayer() != nullptr &&
                   game.getCurrentPlayer()->getName() == "Bob",
-              "After placing all pending tokens, the turn should pass to the next player",
+              "After ending the turn, control should pass to the next player",
               failures);
 
         check(game.getPlayers()[0]->getBoard()->getCell(HexCoord(0, 0)) != nullptr &&

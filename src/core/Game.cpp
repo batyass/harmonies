@@ -35,7 +35,8 @@ namespace harmonies
               animalCardDeck(makeDefaultAnimalCards(), visibleAnimalCardSlots(gameConfig.getNbPlayer())),
               natureSpiritDeck(makeDefaultNatureSpiritCards()),
               turnManager(),
-              state(GameState::NotStarted)
+              state(GameState::NotStarted),
+              finalRoundTriggered(false)
         {
             if (playerNames.size() != gameConfig.getNbPlayer())
             {
@@ -86,6 +87,7 @@ namespace harmonies
 
             // Verrouillage de l'état
             state = GameState::WaitingForSlotChoice;
+            finalRoundTriggered = false;
         }
 
         GameState Game::getState() const
@@ -155,6 +157,11 @@ namespace harmonies
             return config.getNatureSpiritOption();
         }
 
+        bool Game::isFinalRoundTriggered() const
+        {
+            return finalRoundTriggered;
+        }
+
         model::CentralBoard *Game::getCentralBoard()
         {
             return &centralBoard;
@@ -218,7 +225,7 @@ namespace harmonies
         bool Game::takeTokensFromSlot(std::size_t slotIndex)
         {
             // FSM Hermétique : l'action est formellement interdite si on n'est pas dans la bonne phase
-            if (state != GameState::WaitingForSlotChoice && state != GameState::LastTurn)
+            if (state != GameState::WaitingForSlotChoice)
             {
                 throw std::logic_error("Game::takeTokensFromMarket: Action illegale dans la phase actuelle.");
             }
@@ -236,7 +243,7 @@ namespace harmonies
         {
             if (state != GameState::WaitingForSlotChoice &&
                 state != GameState::WaitingForPlacement &&
-                state != GameState::LastTurn)
+                state != GameState::WaitingForTurnEndChoice)
             {
                 throw std::logic_error("Game::takeVisibleAnimalCard: Action illegale dans la phase actuelle.");
             }
@@ -256,7 +263,7 @@ namespace harmonies
         {
             if (state != GameState::WaitingForSlotChoice &&
                 state != GameState::WaitingForPlacement &&
-                state != GameState::LastTurn)
+                state != GameState::WaitingForTurnEndChoice)
             {
                 throw std::logic_error("Game::placeAnimalCube: Action illegale dans la phase actuelle.");
             }
@@ -280,7 +287,7 @@ namespace harmonies
 
             if (state != GameState::WaitingForSlotChoice &&
                 state != GameState::WaitingForPlacement &&
-                state != GameState::LastTurn)
+                state != GameState::WaitingForTurnEndChoice)
             {
                 throw std::logic_error("Game::chooseNatureSpiritCard: Action illegale dans la phase actuelle.");
             }
@@ -307,7 +314,7 @@ namespace harmonies
 
             if (state != GameState::WaitingForSlotChoice &&
                 state != GameState::WaitingForPlacement &&
-                state != GameState::LastTurn)
+                state != GameState::WaitingForTurnEndChoice)
             {
                 throw std::logic_error("Game::placeNatureSpiritCube: Action illegale dans la phase actuelle.");
             }
@@ -341,11 +348,22 @@ namespace harmonies
                     context.pendingTokens.erase(it);
                 if (context.pendingTokens.empty())
                 {
-                    finishTurn();
+                    state = GameState::WaitingForTurnEndChoice;
                 }
                 return done;
             }
             return false;
+        }
+
+        bool Game::endTurn()
+        {
+            if (state != GameState::WaitingForTurnEndChoice)
+            {
+                throw std::logic_error("Game::endTurn: Action illegale dans la phase actuelle.");
+            }
+
+            finishTurn();
+            return true;
         }
 
         void Game::checkEndGame()
@@ -357,9 +375,9 @@ namespace harmonies
             }
             if (rules::isGameOver(boards, tokenBag))
             {
-                state = GameState::LastTurn;
+                finalRoundTriggered = true;
             }
-            if ((state == GameState::LastTurn) && (getCurrentPlayer() == players[0].get()))
+            if (finalRoundTriggered && (getCurrentPlayer() == players[0].get()))
             {
                 state = GameState::GameOver;
                 finalizeScores(players, *this);
