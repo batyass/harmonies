@@ -14,7 +14,7 @@ namespace harmonies
             NotStarted,           // Le jeu n'a pas encore été initialisé
             WaitingForSlotChoice, // En attente que le joueur choisisse un slot sur le plateau central
             WaitingForPlacement,  // En attente que le joueur place ses jetons sur son plateau personnel
-            LastTurn,             // Tour final dans le cas où la partie est arrêtée
+            WaitingForTurnEndChoice, // Les actions obligatoires sont terminees ; le joueur peut encore faire des actions optionnelles avant de terminer son tour
             GameOver              // La partie est terminée
         };
 
