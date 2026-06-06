@@ -9,6 +9,7 @@
 #include <QPushButton>
 #include <QMessageBox>
 #include <QGroupBox>
+#include <exception>
 
 CentralBoardWidget::CentralBoardWidget(harmonies::core::Game *backendGame, QWidget *parent)
     : QWidget(parent), game(backendGame)
@@ -137,10 +138,16 @@ void CentralBoardWidget::updateUI() {
             );
 
         connect(btn, &QPushButton::clicked, this, [this, i]() {
-            if (game->takeTokensFromSlot(i)) {
-                Q_EMIT slotSelected();
-            } else {
-                QMessageBox::warning(this, "Action Impossible", "Erreur lors de la selection.");
+            try {
+                if (game->takeTokensFromSlot(i)) {
+                    Q_EMIT slotSelected();
+                } else {
+                    QMessageBox::warning(this, "Action Impossible", "Erreur lors de la selection.");
+                }
+            } catch (const std::exception &e) {
+                QMessageBox::critical(this, "Erreur du moteur", QString::fromUtf8(e.what()));
+            } catch (...) {
+                QMessageBox::critical(this, "Erreur du moteur", "Une erreur inattendue est survenue lors de la selection du slot.");
             }
         });
         rowLayout->addWidget(btn);

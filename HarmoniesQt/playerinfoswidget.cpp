@@ -1,5 +1,6 @@
 #include "playerinfoswidget.h"
 #include <QMessageBox>
+#include <exception>
 
 // Initialize static selection tracker tracking active slot focus
 std::size_t PlayerInfosWidget::selectedTokenIndex = 0;
@@ -158,10 +159,16 @@ QString PlayerInfosWidget::getColorStyleByTokenType(int typeInt) {
 
 void PlayerInfosWidget::onEndTurnClicked() {
     if (!game) return;
-    if (game->endTurn()) {
-        resetSelection();
-        Q_EMIT turnEnded();
-    } else {
-        QMessageBox::warning(this, "Erreur", "Impossible de finir le tour maintenant.");
+    try {
+        if (game->endTurn()) {
+            resetSelection();
+            Q_EMIT turnEnded();
+        } else {
+            QMessageBox::warning(this, "Erreur", "Impossible de finir le tour maintenant.");
+        }
+    } catch (const std::exception &e) {
+        QMessageBox::critical(this, "Erreur du moteur", QString::fromUtf8(e.what()));
+    } catch (...) {
+        QMessageBox::critical(this, "Erreur du moteur", "Une erreur inattendue est survenue lors de la fin du tour.");
     }
 }

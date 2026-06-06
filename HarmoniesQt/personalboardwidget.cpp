@@ -10,6 +10,7 @@
 #include <QMessageBox>
 #include <algorithm>
 #include <climits>
+#include <exception>
 
 PersonalBoardWidget::PersonalBoardWidget(harmonies::core::Game *backendGame, QWidget *parent)
     : QWidget(parent), game(backendGame)
@@ -108,13 +109,19 @@ void PersonalBoardWidget::mousePressEvent(QMouseEvent *event) {
 
                 harmonies::model::TokenType tokenToPlace = pending[targetIndex];
 
-                if (game->placeTokenOnBoard(coord, tokenToPlace)) {
-                    // Reset focus smoothly to remaining elements to prevent index overflow crashes
-                    PlayerInfosWidget::resetSelection();
-                    Q_EMIT boardUpdated();
-                    return;
-                } else {
-                    QMessageBox::warning(this, "Erreur", "Placement non valide selon les regles.");
+                try {
+                    if (game->placeTokenOnBoard(coord, tokenToPlace)) {
+                        // Reset focus smoothly to remaining elements to prevent index overflow crashes
+                        PlayerInfosWidget::resetSelection();
+                        Q_EMIT boardUpdated();
+                        return;
+                    } else {
+                        QMessageBox::warning(this, "Erreur", "Placement non valide selon les regles.");
+                    }
+                } catch (const std::exception &e) {
+                    QMessageBox::critical(this, "Erreur du moteur", QString::fromUtf8(e.what()));
+                } catch (...) {
+                    QMessageBox::critical(this, "Erreur du moteur", "Une erreur inattendue est survenue lors du placement du jeton.");
                 }
             }
             break;
