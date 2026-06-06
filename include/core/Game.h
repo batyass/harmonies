@@ -36,6 +36,7 @@ namespace harmonies
             std::unique_ptr<core::TurnManager> turnManager;
 
             GameState state;
+            bool finalRoundTriggered;
 
             TurnContext context;
 
@@ -66,6 +67,7 @@ namespace harmonies
             const model::Player *getWinner() const;
             const std::vector<model::TokenType> &getPendingTokens() const;
             bool isNatureSpiritEnabled() const;
+            bool isFinalRoundTriggered() const;
 
             // Les méthodes retournent l'adresse de l'objet agrégé
             model::CentralBoard *getCentralBoard();
@@ -89,6 +91,7 @@ namespace harmonies
             bool placeNatureSpiritCube(const utils::HexCoord &anchor);
 
             bool placeTokenOnBoard(const utils::HexCoord &coord, model::TokenType token);
+            bool endTurn();
             void checkEndGame();
         };
 

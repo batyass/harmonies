@@ -11,15 +11,19 @@ prog
 
 # IDE and metadata
 .vscode/
-compile_commands.json
-
-# test files
-/tests/testHexCoord
-/tests/testBoardCell
-/tests/testPersonalBoard
-/tests/testCentralBoard
-/tests/testTokenBag
-/tests/testTokenSlot
-
 .qtcreator/
+compile_commands.json
+*.pro.user
+*.pro.user.*
+.qmake.stash
+
+# Qt / qmake build artifacts
 build/
+build-*/
+moc_*.cpp
+ui_*.h
+qrc_*.cpp
+
+# Generated test executables
+/tests/*
+!/tests/*.cpp

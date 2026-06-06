@@ -111,7 +111,7 @@ namespace harmonies {
                 std::cout << "\n========================================\n";
                 std::cout << "Tour " << game.getTurnManager()->getTurnCount()
                           << " - Joueur courant : " << player->getName() << '\n';
-                if (game.getState() == core::GameState::LastTurn)
+                if (game.isFinalRoundTriggered())
                 {
                     std::cout << "Dernier tour : la partie se terminera a la fin de cette ronde.\n";
                 }
@@ -125,7 +125,7 @@ namespace harmonies {
         void ConsoleInputHandler::processInput() {
             core::GameState state = game.getState();
 
-            if (state == core::GameState::WaitingForSlotChoice || state == core::GameState::LastTurn) {
+            if (state == core::GameState::WaitingForSlotChoice) {
                 while (true) {
                     displayTurnHeader(game);
                     renderer.displayCentralBoard(*game.getCentralBoard());
@@ -327,6 +327,141 @@ namespace harmonies {
                                 return;
                             }
                             std::cout << "Placement refuse par le jeu.\n";
+                        }
+                        else if (choice == 2)
+                        {
+                            int cardIndex;
+                            displayVisibleAnimalCards(game);
+                            if (!readInt("Index de la carte animale visible : ", cardIndex))
+                            {
+                                std::cout << "\nFin de flux (EOF) detectee. Abandon de la saisie.\n";
+                                return;
+                            }
+                            if (cardIndex < 0)
+                            {
+                                std::cout << "Index invalide.\n";
+                                continue;
+                            }
+                            if (game.takeVisibleAnimalCard(static_cast<std::size_t>(cardIndex)))
+                            {
+                                std::cout << "Carte animale prise.\n";
+                                return;
+                            }
+                            std::cout << "Prise de carte refusee.\n";
+                        }
+                        else if (game.isNatureSpiritEnabled() && choice == 3)
+                        {
+                            int cardIndex;
+                            if (!readInt("Index de la carte esprit a conserver : ", cardIndex))
+                            {
+                                std::cout << "\nFin de flux (EOF) detectee. Abandon de la saisie.\n";
+                                return;
+                            }
+                            if (cardIndex < 0)
+                            {
+                                std::cout << "Index invalide.\n";
+                                continue;
+                            }
+                            if (game.chooseNatureSpiritCard(static_cast<std::size_t>(cardIndex)))
+                            {
+                                std::cout << "Carte esprit choisie.\n";
+                                return;
+                            }
+                            std::cout << "Choix de carte esprit refuse.\n";
+                        }
+                        else if ((game.isNatureSpiritEnabled() && choice == 4) ||
+                                 (!game.isNatureSpiritEnabled() && choice == 3))
+                        {
+                            int cardIndex;
+                            int q;
+                            int r;
+                            if (!readInt("Index de votre carte animale : ", cardIndex) ||
+                                !readInt("Coordonnee q de l'ancrage : ", q) ||
+                                !readInt("Coordonnee r de l'ancrage : ", r))
+                            {
+                                std::cout << "\nFin de flux (EOF) detectee. Abandon de la saisie.\n";
+                                return;
+                            }
+                            if (cardIndex < 0)
+                            {
+                                std::cout << "Index invalide.\n";
+                                continue;
+                            }
+                            if (game.placeAnimalCube(static_cast<std::size_t>(cardIndex), utils::HexCoord(q, r)))
+                            {
+                                std::cout << "Cube animal pose.\n";
+                                return;
+                            }
+                            std::cout << "Pose du cube animal refusee.\n";
+                        }
+                        else if (game.isNatureSpiritEnabled() && choice == 5)
+                        {
+                            int q;
+                            int r;
+                            if (!readInt("Coordonnee q de l'ancrage esprit : ", q) ||
+                                !readInt("Coordonnee r de l'ancrage esprit : ", r))
+                            {
+                                std::cout << "\nFin de flux (EOF) detectee. Abandon de la saisie.\n";
+                                return;
+                            }
+                            if (game.placeNatureSpiritCube(utils::HexCoord(q, r)))
+                            {
+                                std::cout << "Cube esprit pose.\n";
+                                return;
+                            }
+                            std::cout << "Pose du cube esprit refusee.\n";
+                        }
+                        else
+                        {
+                            std::cout << "Choix invalide.\n";
+                        }
+                    }
+                    catch (const std::exception &e)
+                    {
+                        std::cout << "Action impossible : " << e.what() << '\n';
+                    }
+                }
+            } else if (state == core::GameState::WaitingForTurnEndChoice) {
+                while (true) {
+                    displayTurnHeader(game);
+                    renderer.displayPersonalBoard(*game.getCurrentPlayer()->getBoard());
+                    displayOwnedAnimalCards(*game.getCurrentPlayer());
+                    if (game.isNatureSpiritEnabled())
+                    {
+                        displayNatureSpiritCards(*game.getCurrentPlayer());
+                    }
+
+                    std::cout << "Actions disponibles :\n";
+                    std::cout << "  1. Terminer le tour et passer au joueur suivant\n";
+                    std::cout << "  2. Prendre une carte animale visible\n";
+                    if (game.isNatureSpiritEnabled())
+                    {
+                        std::cout << "  3. Choisir votre carte esprit de la nature\n";
+                        std::cout << "  4. Poser un cube animal\n";
+                        std::cout << "  5. Poser un cube esprit de la nature\n";
+                    }
+                    else
+                    {
+                        std::cout << "  3. Poser un cube animal\n";
+                    }
+
+                    int choice;
+                    if (!readInt("Votre choix : ", choice))
+                    {
+                        std::cout << "\nFin de flux (EOF) detectee. Abandon de la saisie.\n";
+                        return;
+                    }
+
+                    try
+                    {
+                        if (choice == 1)
+                        {
+                            if (game.endTurn())
+                            {
+                                std::cout << "Tour termine.\n";
+                                return;
+                            }
+                            std::cout << "Fin de tour refusee.\n";
                         }
                         else if (choice == 2)
                         {
