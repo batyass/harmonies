@@ -41,6 +41,21 @@ PlayerInfosWidget::PlayerInfosWidget(harmonies::core::Game *backendGame, QWidget
     connect(endTurnButton, &QPushButton::clicked, this, &PlayerInfosWidget::onEndTurnClicked);
     layout->addWidget(endTurnButton);
 
+    // ============================================================================
+    // MINIMAL BLOCK ADDITION: Append cards tray securely below end-turn section
+    // ============================================================================
+    QLabel *ownedTitleLabel = new QLabel("Mes Cartes Animales :", this);
+    ownedTitleLabel->setStyleSheet("font-weight: bold; font-size: 11px; color: #37474F; margin-top: 6px; border: none;");
+    layout->addWidget(ownedTitleLabel);
+
+    ownedCardsContainer = new QWidget(this);
+    ownedCardsContainer->setStyleSheet("background-color: #FAFAFA; border: 1px dashed #CFD8DC; border-radius: 4px;");
+    ownedCardsLayout = new QHBoxLayout(ownedCardsContainer);
+    ownedCardsLayout->setContentsMargins(4, 4, 4, 4);
+    ownedCardsLayout->setSpacing(6);
+    ownedCardsLayout->addStretch();
+    layout->addWidget(ownedCardsContainer);
+
     updateUI();
 }
 
@@ -140,6 +155,9 @@ void PlayerInfosWidget::updateUI() {
             pendingLayout->insertWidget(pendingLayout->count() - 1, circle);
         }
     }
+
+    // MINIMAL INTEGRATION: Safely invoke the card layout redraw mechanism
+    updateOwnedCardsUI();
 }
 
 QString PlayerInfosWidget::getColorStyleByTokenType(int typeInt) {
@@ -167,5 +185,60 @@ void PlayerInfosWidget::onEndTurnClicked() {
         QMessageBox::critical(this, "Erreur du moteur", QString::fromUtf8(e.what()));
     } catch (...) {
         QMessageBox::critical(this, "Erreur du moteur", "Une erreur inattendue est survenue lors de la fin du tour.");
+    }
+}
+
+// ============================================================================
+// REDRAW FUNCTION: Renders live player card vector states safely
+// ============================================================================
+void PlayerInfosWidget::updateOwnedCardsUI() {
+    if (!game) return;
+
+    while (QLayoutItem *item = ownedCardsLayout->takeAt(0)) {
+        if (QWidget *w = item->widget()) w->deleteLater();
+        delete item;
+    }
+    ownedCardsLayout->addStretch();
+
+    harmonies::model::Player* currentPlayer = game->getCurrentPlayer();
+    if (!currentPlayer || !currentPlayer->getAnimalCards()) return;
+
+    // Fetch matching data stream directly from model collection
+    const std::vector<harmonies::model::AnimalCard>& ownedCards = currentPlayer->getAnimalCards()->getCards();
+
+    if (ownedCards.empty()) {
+        QLabel *emptyLabel = new QLabel("Aucune carte acquise", ownedCardsContainer);
+        emptyLabel->setStyleSheet("color: #90A4AE; font-style: italic; font-size: 11px; border: none; background: transparent;");
+        ownedCardsLayout->insertWidget(0, emptyLabel);
+    } else {
+        for (std::size_t i = 0; i < ownedCards.size(); ++i) {
+            QFrame *cardFrame = new QFrame(ownedCardsContainer);
+            cardFrame->setFixedSize(95, 55);
+            cardFrame->setStyleSheet(
+                "background-color: #E8F5E9; border: 2px solid #81C784; "
+                "border-radius: 4px; padding: 2px;"
+                );
+
+            QVBoxLayout *frameLayout = new QVBoxLayout(cardFrame);
+            frameLayout->setContentsMargins(2, 2, 2, 2);
+            frameLayout->setSpacing(1);
+
+            QString cardName = QString::fromStdString(ownedCards[i].getName());
+            QLabel *nameLabel = new QLabel(cardName, cardFrame);
+            nameLabel->setStyleSheet("font-weight: bold; font-size: 10px; color: #1B5E20; border: none; background: transparent;");
+            nameLabel->setAlignment(Qt::AlignCenter);
+            frameLayout->addWidget(nameLabel);
+
+            // Dynamic progression checking: tokens placed over max allocation ceiling
+            int currentCubes = ownedCards[i].getCubesOnCard();
+            int totalCubes = ownedCards[i].totalSlots();
+
+            QLabel *cubeLabel = new QLabel(QString("Cubes: %1/%2").arg(currentCubes).arg(totalCubes), cardFrame);
+            cubeLabel->setStyleSheet("font-size: 9px; color: #2E7D32; font-weight: bold; border: none; background: transparent;");
+            cubeLabel->setAlignment(Qt::AlignCenter);
+            frameLayout->addWidget(cubeLabel);
+
+            ownedCardsLayout->insertWidget(ownedCardsLayout->count() - 1, cardFrame);
+        }
     }
 }

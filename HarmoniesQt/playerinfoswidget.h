@@ -54,6 +54,15 @@ private Q_SLOTS:
     void onEndTurnClicked();
     void handleTokenSelection(std::size_t index);
 
+    // ============================================================================
+    // MINIMAL ADDTION: Strictly appended outside of slot macros to avoid MOC errors
+    // ============================================================================
+private:
+    QWidget *ownedCardsContainer;
+    QHBoxLayout *ownedCardsLayout;
+
+    void updateOwnedCardsUI();
+
 public:
     explicit PlayerInfosWidget(harmonies::core::Game *backendGame, QWidget *parent = nullptr);
     ~PlayerInfosWidget() = default;
