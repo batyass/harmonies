@@ -56,7 +56,6 @@ void PersonalBoardWidget::paintEvent(QPaintEvent *event) {
             painter.drawText(QRect(pixelPos.x()-15, pixelPos.y()-10, 30, 20), Qt::AlignCenter, QString("%1,%2").arg(coord.getQ()).arg(coord.getR()));
         } else {
             painter.setPen(QPen(Qt::black, 1));
-            // Top token is the last element of the stack vector
             int topType = static_cast<int>(cell.getTokenStack().back());
             painter.setBrush(QColor(getColorByTokenType(topType)));
             painter.drawEllipse(pixelPos, radius - 1, radius - 1);
@@ -109,10 +108,13 @@ void PersonalBoardWidget::mousePressEvent(QMouseEvent *event) {
 }
 
 QPoint PersonalBoardWidget::axialToPixel(int q, int r, int radius, int centerX, int centerY) {
-    double size = radius * 1.15;
-    double x = size * (qSqrt(3.0) * q + qSqrt(3.0)/2.0 * r);
-    double y = size * (3.0/2.0 * r);
-    return QPoint(static_cast<int>(x) + centerX, static_cast<int>(y) + centerY);
+    double colWidth  = radius * 2.1;
+    double rowHeight = radius * 2.1;
+
+    double x = centerX + q * colWidth;
+    
+    double y = centerY + r * rowHeight - ((q % 2 != 0) ? rowHeight / 2.0 : 0.0);
+    return QPoint(static_cast<int>(x), static_cast<int>(y));
 }
 
 QString PersonalBoardWidget::getColorByTokenType(int typeInt) {
