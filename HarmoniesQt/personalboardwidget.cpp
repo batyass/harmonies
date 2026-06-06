@@ -61,10 +61,15 @@ void PersonalBoardWidget::paintEvent(QPaintEvent *event) {
             painter.setFont(QFont("Arial", 7));
             painter.drawText(QRect(pixelPos.x()-15, pixelPos.y()-10, 30, 20), Qt::AlignCenter, QString("%1,%2").arg(coord.getQ()).arg(coord.getR()));
         } else {
-            painter.setPen(QPen(Qt::black, 1));
-            int topType = static_cast<int>(cell.getTokenStack().back());
-            painter.setBrush(QColor(getColorByTokenType(topType)));
-            painter.drawEllipse(pixelPos, radius - 1, radius - 1);
+            const auto& stack = cell.getTokenStack();
+            const int outerR = radius - 1;
+            static const double scales[3] = {1.0, 0.62, 0.30};
+            for (int i = 0; i < static_cast<int>(stack.size()); ++i) {
+                int r = static_cast<int>(outerR * scales[i]);
+                painter.setBrush(QColor(getColorByTokenType(static_cast<int>(stack[i]))));
+                painter.setPen(QPen(Qt::black, 1));
+                painter.drawEllipse(pixelPos, r, r);
+            }
         }
     }
 }
