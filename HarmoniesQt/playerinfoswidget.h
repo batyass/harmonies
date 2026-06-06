@@ -42,7 +42,7 @@ private:
     QPushButton *endTurnButton;
 
     // TRACKING: Holds the currently selected index within game->getPendingTokens()
-    static std::size_t selectedTokenIndex;
+    std::size_t selectedTokenIndex;
 
     QString getColorStyleByTokenType(int typeInt);
 
@@ -58,9 +58,8 @@ public:
     explicit PlayerInfosWidget(harmonies::core::Game *backendGame, QWidget *parent = nullptr);
     ~PlayerInfosWidget() = default;
 
-    // Public static getter so the board can poll exactly which token is active
-    static std::size_t getSelectedTokenIndex();
-    static void resetSelection();
+    std::size_t getSelectedTokenIndex() const;
+    void resetSelection();
 
     void updateUI();
 };

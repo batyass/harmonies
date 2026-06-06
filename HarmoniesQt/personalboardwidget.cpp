@@ -13,9 +13,13 @@
 #include <exception>
 
 PersonalBoardWidget::PersonalBoardWidget(harmonies::core::Game *backendGame, QWidget *parent)
-    : QWidget(parent), game(backendGame)
+    : QWidget(parent), game(backendGame), playerInfosWidget(nullptr)
 {
     this->setStyleSheet("background-color: #E8F5E9; border: 1px solid #B0BEC5; border-radius: 4px;");
+}
+
+void PersonalBoardWidget::setPlayerInfosWidget(PlayerInfosWidget *infosWidget) {
+    playerInfosWidget = infosWidget;
 }
 
 void PersonalBoardWidget::updateUI() {
@@ -100,7 +104,10 @@ void PersonalBoardWidget::mousePressEvent(QMouseEvent *event) {
             const auto& pending = game->getPendingTokens();
             if (!pending.empty()) {
                 // CLEAN EXTRACTION: Get index selected by player from the list
-                std::size_t targetIndex = PlayerInfosWidget::getSelectedTokenIndex();
+                std::size_t targetIndex = 0;
+                if (playerInfosWidget != nullptr) {
+                    targetIndex = playerInfosWidget->getSelectedTokenIndex();
+                }
 
                 // Safety bounds sanitization fallback
                 if (targetIndex >= pending.size()) {
@@ -112,7 +119,9 @@ void PersonalBoardWidget::mousePressEvent(QMouseEvent *event) {
                 try {
                     if (game->placeTokenOnBoard(coord, tokenToPlace)) {
                         // Reset focus smoothly to remaining elements to prevent index overflow crashes
-                        PlayerInfosWidget::resetSelection();
+                        if (playerInfosWidget != nullptr) {
+                            playerInfosWidget->resetSelection();
+                        }
                         Q_EMIT boardUpdated();
                         return;
                     } else {

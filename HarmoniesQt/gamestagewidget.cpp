@@ -26,6 +26,8 @@ GameStageWidget::GameStageWidget(harmonies::core::Game *backendGame, QWidget *pa
     playerInfos = new PlayerInfosWidget(game, this);
     rightColumn->addWidget(playerInfos, 4);
 
+    personalBoard->setPlayerInfosWidget(playerInfos);
+
     mainLayout->addLayout(rightColumn, 3);
 
     connect(centralBoard, &CentralBoardWidget::slotSelected, this, &GameStageWidget::refreshAllComponents);

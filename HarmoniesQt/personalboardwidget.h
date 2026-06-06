@@ -4,11 +4,13 @@
 #include <QWidget>
 
 namespace harmonies { namespace core { class Game; } }
+class PlayerInfosWidget;
 
 class PersonalBoardWidget : public QWidget {
     Q_OBJECT
 private:
     harmonies::core::Game *game;
+    PlayerInfosWidget *playerInfosWidget;
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -25,6 +27,7 @@ public:
     explicit PersonalBoardWidget(harmonies::core::Game *backendGame, QWidget *parent = nullptr);
     ~PersonalBoardWidget() = default;
 
+    void setPlayerInfosWidget(PlayerInfosWidget *infosWidget);
     void updateUI();
 };
 

@@ -2,11 +2,8 @@
 #include <QMessageBox>
 #include <exception>
 
-// Initialize static selection tracker tracking active slot focus
-std::size_t PlayerInfosWidget::selectedTokenIndex = 0;
-
 PlayerInfosWidget::PlayerInfosWidget(harmonies::core::Game *backendGame, QWidget *parent)
-    : QWidget(parent), game(backendGame)
+    : QWidget(parent), game(backendGame), selectedTokenIndex(0)
 {
     this->setStyleSheet("background-color: #E3F2FD; border: 1px solid #B0BEC5; border-radius: 4px;");
 
@@ -47,7 +44,7 @@ PlayerInfosWidget::PlayerInfosWidget(harmonies::core::Game *backendGame, QWidget
     updateUI();
 }
 
-std::size_t PlayerInfosWidget::getSelectedTokenIndex() {
+std::size_t PlayerInfosWidget::getSelectedTokenIndex() const {
     return selectedTokenIndex;
 }
 
