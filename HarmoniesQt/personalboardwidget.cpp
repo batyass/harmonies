@@ -8,6 +8,8 @@
 #include <QMouseEvent>
 #include <QtMath>
 #include <QMessageBox>
+#include <algorithm>
+#include <climits>
 
 PersonalBoardWidget::PersonalBoardWidget(harmonies::core::Game *backendGame, QWidget *parent)
     : QWidget(parent), game(backendGame)
@@ -39,11 +41,15 @@ void PersonalBoardWidget::paintEvent(QPaintEvent *event) {
     int centerX = width() / 2;
     int centerY = height() / 2 + 20;
 
+    int qMin = INT_MAX;
+    for (const auto& pair : cells)
+        qMin = std::min(qMin, pair.first.getQ());
+
     for (const auto& pair : cells) {
         const harmonies::utils::HexCoord& coord = pair.first;
         const harmonies::model::BoardCell& cell = pair.second;
 
-        QPoint pixelPos = axialToPixel(coord.getQ(), coord.getR(), radius, centerX, centerY);
+        QPoint pixelPos = axialToPixel(coord.getQ(), coord.getR(), radius, centerX, centerY, qMin);
 
         // Aligned with BoardCell.h methods: getTokenStack()
         if (cell.getTokenStack().empty()) {
@@ -72,9 +78,13 @@ void PersonalBoardWidget::mousePressEvent(QMouseEvent *event) {
 
     const auto& cells = game->getCurrentPlayer()->getBoard()->getCells();
 
+    int qMin = INT_MAX;
+    for (const auto& pair : cells)
+        qMin = std::min(qMin, pair.first.getQ());
+
     for (const auto& pair : cells) {
         const harmonies::utils::HexCoord& coord = pair.first;
-        QPoint pixelPos = axialToPixel(coord.getQ(), coord.getR(), radius, centerX, centerY);
+        QPoint pixelPos = axialToPixel(coord.getQ(), coord.getR(), radius, centerX, centerY, qMin);
 
         int dx = event->pos().x() - pixelPos.x();
         int dy = event->pos().y() - pixelPos.y();
@@ -107,13 +117,15 @@ void PersonalBoardWidget::mousePressEvent(QMouseEvent *event) {
     }
 }
 
-QPoint PersonalBoardWidget::axialToPixel(int q, int r, int radius, int centerX, int centerY) {
+QPoint PersonalBoardWidget::axialToPixel(int q, int r, int radius, int centerX, int centerY, int qMin) {
     double colWidth  = radius * 2.1;
     double rowHeight = radius * 2.1;
 
     double x = centerX + q * colWidth;
-    
-    double y = centerY + r * rowHeight - ((q % 2 != 0) ? rowHeight / 2.0 : 0.0);
+    // Use column index (q - qMin) to determine stagger so the pattern is always
+    // "even index = straight, odd index = shifted up", regardless of board side.
+    bool isOddColumn = ((q - qMin) % 2 != 0);
+    double y = centerY + r * rowHeight - (isOddColumn ? rowHeight / 2.0 : 0.0);
     return QPoint(static_cast<int>(x), static_cast<int>(y));
 }
 

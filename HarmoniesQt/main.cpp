@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
         // 3. Construct your exact GameConfig object
         harmonies::model::GameConfig config(
             names.size(),
-            harmonies::model::BoardSide::A,
+            setup.getBoardSide(),
             setup.isNatureSpiritEnabled()
             );
 

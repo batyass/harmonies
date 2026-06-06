@@ -15,7 +15,7 @@ protected:
     void mousePressEvent(QMouseEvent *event) override;
 
 private:
-    QPoint axialToPixel(int q, int r, int radius, int centerX, int centerY);
+    QPoint axialToPixel(int q, int r, int radius, int centerX, int centerY, int qMin);
     QString getColorByTokenType(int typeInt);
 
 Q_SIGNALS:
