@@ -20,3 +20,6 @@ compile_commands.json
 /tests/testCentralBoard
 /tests/testTokenBag
 /tests/testTokenSlot
+
+.qtcreator/
+build/
