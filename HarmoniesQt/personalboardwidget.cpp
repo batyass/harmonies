@@ -8,6 +8,8 @@
 #include <QMouseEvent>
 #include <QtMath>
 #include <QMessageBox>
+#include <algorithm>
+#include <climits>
 
 PersonalBoardWidget::PersonalBoardWidget(harmonies::core::Game *backendGame, QWidget *parent)
     : QWidget(parent), game(backendGame)
@@ -39,11 +41,15 @@ void PersonalBoardWidget::paintEvent(QPaintEvent *event) {
     int centerX = width() / 2;
     int centerY = height() / 2 + 20;
 
+    int qMin = INT_MAX;
+    for (const auto& pair : cells)
+        qMin = std::min(qMin, pair.first.getQ());
+
     for (const auto& pair : cells) {
         const harmonies::utils::HexCoord& coord = pair.first;
         const harmonies::model::BoardCell& cell = pair.second;
 
-        QPoint pixelPos = axialToPixel(coord.getQ(), coord.getR(), radius, centerX, centerY);
+        QPoint pixelPos = axialToPixel(coord.getQ(), coord.getR(), radius, centerX, centerY, qMin);
 
         // Aligned with BoardCell.h methods: getTokenStack()
         if (cell.getTokenStack().empty()) {
@@ -55,11 +61,15 @@ void PersonalBoardWidget::paintEvent(QPaintEvent *event) {
             painter.setFont(QFont("Arial", 7));
             painter.drawText(QRect(pixelPos.x()-15, pixelPos.y()-10, 30, 20), Qt::AlignCenter, QString("%1,%2").arg(coord.getQ()).arg(coord.getR()));
         } else {
-            painter.setPen(QPen(Qt::black, 1));
-            // Top token is the last element of the stack vector
-            int topType = static_cast<int>(cell.getTokenStack().back());
-            painter.setBrush(QColor(getColorByTokenType(topType)));
-            painter.drawEllipse(pixelPos, radius - 1, radius - 1);
+            const auto& stack = cell.getTokenStack();
+            const int outerR = radius - 1;
+            static const double scales[3] = {1.0, 0.62, 0.30};
+            for (int i = 0; i < static_cast<int>(stack.size()); ++i) {
+                int r = static_cast<int>(outerR * scales[i]);
+                painter.setBrush(QColor(getColorByTokenType(static_cast<int>(stack[i]))));
+                painter.setPen(QPen(Qt::black, 1));
+                painter.drawEllipse(pixelPos, r, r);
+            }
         }
     }
 }
@@ -73,9 +83,13 @@ void PersonalBoardWidget::mousePressEvent(QMouseEvent *event) {
 
     const auto& cells = game->getCurrentPlayer()->getBoard()->getCells();
 
+    int qMin = INT_MAX;
+    for (const auto& pair : cells)
+        qMin = std::min(qMin, pair.first.getQ());
+
     for (const auto& pair : cells) {
         const harmonies::utils::HexCoord& coord = pair.first;
-        QPoint pixelPos = axialToPixel(coord.getQ(), coord.getR(), radius, centerX, centerY);
+        QPoint pixelPos = axialToPixel(coord.getQ(), coord.getR(), radius, centerX, centerY, qMin);
 
         int dx = event->pos().x() - pixelPos.x();
         int dy = event->pos().y() - pixelPos.y();
@@ -108,11 +122,16 @@ void PersonalBoardWidget::mousePressEvent(QMouseEvent *event) {
     }
 }
 
-QPoint PersonalBoardWidget::axialToPixel(int q, int r, int radius, int centerX, int centerY) {
-    double size = radius * 1.15;
-    double x = size * (qSqrt(3.0) * q + qSqrt(3.0)/2.0 * r);
-    double y = size * (3.0/2.0 * r);
-    return QPoint(static_cast<int>(x) + centerX, static_cast<int>(y) + centerY);
+QPoint PersonalBoardWidget::axialToPixel(int q, int r, int radius, int centerX, int centerY, int qMin) {
+    double colWidth  = radius * 2.1;
+    double rowHeight = radius * 2.1;
+
+    double x = centerX + q * colWidth;
+    // Use column index (q - qMin) to determine stagger so the pattern is always
+    // "even index = straight, odd index = shifted up", regardless of board side.
+    bool isOddColumn = ((q - qMin) % 2 != 0);
+    double y = centerY + r * rowHeight - (isOddColumn ? rowHeight / 2.0 : 0.0);
+    return QPoint(static_cast<int>(x), static_cast<int>(y));
 }
 
 QString PersonalBoardWidget::getColorByTokenType(int typeInt) {

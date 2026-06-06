@@ -14,7 +14,7 @@ namespace harmonies
         class CentralBoard
         {
         private:
-            std::vector<TokenSlot> slots;
+            std::vector<TokenSlot> marketSlots;
 
         public:
             explicit CentralBoard(int nbPlayers);

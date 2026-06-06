@@ -2,6 +2,8 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QMessageBox>
+#include <QHBoxLayout>
+#include <QComboBox>
 
 SetupDialog::SetupDialog(QWidget *parent) : QDialog(parent) {
     this->setWindowTitle("Configuration de la Partie");
@@ -26,7 +28,16 @@ SetupDialog::SetupDialog(QWidget *parent) : QDialog(parent) {
     namesContainerLayout = new QVBoxLayout(namesWidget);
     mainLayout->addWidget(namesWidget);
 
-    // 3. Game Options (Nature Spirit)
+    // 3. Board Side Selection
+    QHBoxLayout *sideLayout = new QHBoxLayout();
+    sideLayout->addWidget(new QLabel("Face du plateau :"));
+    boardSideComboBox = new QComboBox(this);
+    boardSideComboBox->addItem("Face A", QVariant('A'));
+    boardSideComboBox->addItem("Face B", QVariant('B'));
+    sideLayout->addWidget(boardSideComboBox);
+    mainLayout->addLayout(sideLayout);
+
+    // 4. Game Options (Nature Spirit)
     natureSpiritCheckBox = new QCheckBox("Activer l'extension Esprits de la Nature", this);
     natureSpiritCheckBox->setChecked(false);
     mainLayout->addWidget(natureSpiritCheckBox);
@@ -74,6 +85,12 @@ std::vector<std::string> SetupDialog::getPlayerNames() const {
         names.push_back(input->text().trimmed().toStdString());
     }
     return names;
+}
+
+harmonies::model::BoardSide SetupDialog::getBoardSide() const {
+    return (boardSideComboBox->currentData().toChar() == 'A')
+        ? harmonies::model::BoardSide::A
+        : harmonies::model::BoardSide::B;
 }
 
 bool SetupDialog::isNatureSpiritEnabled() const {

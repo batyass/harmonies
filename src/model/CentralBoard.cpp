@@ -8,32 +8,32 @@ namespace harmonies
         CentralBoard::CentralBoard(int nbPlayers)
         {
             std::size_t nbSlots = (nbPlayers == 1) ? 3 : 5;
-            slots.resize(nbSlots);
+            marketSlots.resize(nbSlots);
         }
 
         std::size_t CentralBoard::getNbSlots() const
         {
-            return slots.size();
+            return marketSlots.size();
         }
 
         TokenSlot *CentralBoard::getSlot(std::size_t index)
         {
-            if (index >= slots.size())
+            if (index >= marketSlots.size())
             {
                 return nullptr;
             }
 
-            return &slots[index];
+            return &marketSlots[index];
         }
 
         const TokenSlot *CentralBoard::getSlot(std::size_t index) const
         {
-            if (index >= slots.size())
+            if (index >= marketSlots.size())
             {
                 return nullptr;
             }
 
-            return &slots[index];
+            return &marketSlots[index];
         }
 
     }
