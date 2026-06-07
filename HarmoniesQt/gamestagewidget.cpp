@@ -32,6 +32,7 @@ GameStageWidget::GameStageWidget(harmonies::core::Game *backendGame, QWidget *pa
 
     connect(centralBoard, &CentralBoardWidget::slotSelected, this, &GameStageWidget::refreshAllComponents);
     connect(personalBoard, &PersonalBoardWidget::boardUpdated, this, &GameStageWidget::refreshAllComponents);
+    connect(cardMarket, &CardMarketWidget::marketUpdated, this, &GameStageWidget::refreshAllComponents);
     connect(playerInfos, &PlayerInfosWidget::turnEnded, this, &GameStageWidget::refreshAllComponents);
 }
 
