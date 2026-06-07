@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/">
+        <file>assets/cards/animal/duck.png</file>
+        <file>assets/cards/animal/fennec.png</file>
+        <file>assets/cards/animal/fox.png</file>
+        <file>assets/cards/animal/parrot.png</file>
+        <file>assets/cards/animal/raven.png</file>
+        <file>assets/cards/animal/squirrel.png</file>
+        <file>assets/cards/spirit/lion.png</file>
+    </qresource>
+</RCC>

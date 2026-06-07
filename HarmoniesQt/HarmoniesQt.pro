@@ -62,3 +62,5 @@ HEADERS += mainwindow.h \
            playerownedcardswidget.h \
            playerinfoswidget.h \
            spiritcardwidget.h
+
+RESOURCES += resources.qrc

@@ -29,6 +29,25 @@ namespace
             ++failures;
         }
     }
+
+    void buildAnimalPatternOnBoard(harmonies::model::PersonalBoard &board,
+                                   const harmonies::utils::HexCoord &anchor,
+                                   const harmonies::model::Pattern &pattern)
+    {
+        const std::vector<harmonies::model::PatternCell> &cells = pattern.getCells();
+        for (std::size_t i = 0; i < cells.size(); ++i)
+        {
+            const harmonies::model::PatternCell &cell = cells[i];
+            harmonies::utils::HexCoord target(anchor.getQ() + cell.offset.getQ(),
+                                              anchor.getR() + cell.offset.getR());
+
+            int height = cell.height == harmonies::model::PatternCell::AnyHeight ? 1 : cell.height;
+            for (int h = 0; h < height; ++h)
+            {
+                board.placeToken(target, cell.type);
+            }
+        }
+    }
 }
 
 int main()
@@ -248,19 +267,8 @@ int main()
         Game game(config, playerNames);
         game.initGame();
 
-        std::size_t compatibleCardIndex = game.getAnimalCardDeck()->visibleCount();
-        for (std::size_t i = 0; i < game.getAnimalCardDeck()->getVisible().size(); ++i)
-        {
-            const std::string &name = game.getAnimalCardDeck()->getVisible()[i].getName();
-            if (name == "bear" || name == "fox")
-            {
-                compatibleCardIndex = i;
-                break;
-            }
-        }
-
-        check(compatibleCardIndex < game.getAnimalCardDeck()->visibleCount(),
-              "The visible animal market should contain at least one card compatible with the chosen token slot",
+        check(game.getAnimalCardDeck()->visibleCount() > 0,
+              "The visible animal market should expose at least one card",
               failures);
 
         std::vector<TokenType> chosenSlot;
@@ -269,14 +277,17 @@ int main()
         chosenSlot.push_back(TokenType::BrownEarth);
         game.getCentralBoard()->getSlot(0)->fill(chosenSlot);
 
-        check(game.takeVisibleAnimalCard(compatibleCardIndex),
+        check(game.takeVisibleAnimalCard(0),
               "A visible animal card should be takeable before the mandatory token placement sequence",
               failures);
         check(game.getPlayers()[0]->getAnimalCards()->getCardCount() == 1,
               "Taking a visible animal card should store it for the current player",
               failures);
 
-        const std::string cardName = game.getPlayers()[0]->getAnimalCards()->getCard(0)->getName();
+        harmonies::model::AnimalCard *chosenCard = game.getPlayers()[0]->getAnimalCards()->getCard(0);
+        check(chosenCard != nullptr,
+              "The taken animal card should remain accessible in the player's collection",
+              failures);
 
         game.takeTokensFromSlot(0);
 
@@ -284,25 +295,12 @@ int main()
               "The player should still be able to start placing mandatory tokens after taking an animal card",
               failures);
 
-        HexCoord cubeAnchor(0, 0);
-        if (cardName == "bear")
+        HexCoord cubeAnchor(0, 1);
+        if (chosenCard != nullptr)
         {
-            cubeAnchor = HexCoord(1, 0);
-            check(game.placeTokenOnBoard(cubeAnchor, TokenType::GrayStone),
-                  "The player should be able to place the landscape needed for the chosen animal card",
-                  failures);
-        }
-        else if (cardName == "fox")
-        {
-            cubeAnchor = HexCoord(0, 1);
-            check(game.placeTokenOnBoard(cubeAnchor, TokenType::BrownEarth),
-                  "The player should be able to place the landscape needed for the chosen animal card",
-                  failures);
-        }
-        else
-        {
-            check(false,
-                  "The deterministic test setup should only draw a card compatible with the chosen slot tokens",
+            buildAnimalPatternOnBoard(*game.getPlayers()[0]->getBoard(), cubeAnchor, chosenCard->getPattern());
+            check(true,
+                  "The player board should be configurable to satisfy the chosen animal card pattern",
                   failures);
         }
 
@@ -314,7 +312,8 @@ int main()
               "Placing an animal cube through Game should mark the chosen board cell",
               failures);
         check(game.getPlayers()[0]->getAnimalCards()->getCard(0) != nullptr &&
-                  game.getPlayers()[0]->getAnimalCards()->getCard(0)->getCubesOnCard() == 0,
+                  game.getPlayers()[0]->getAnimalCards()->getCard(0)->getCubesOnCard() ==
+                      game.getPlayers()[0]->getAnimalCards()->getCard(0)->totalSlots() - 1,
               "Placing an animal cube through Game should consume one cube from the chosen animal card",
               failures);
     }

@@ -1,6 +1,15 @@
 #include "playerownedcardswidget.h"
 #include "model/Player.h"
 #include <QFrame>
+#include <QPixmap>
+
+namespace
+{
+    QString animalCardImagePath(const std::string &cardName)
+    {
+        return QString(":/assets/cards/animal/%1.png").arg(QString::fromStdString(cardName));
+    }
+}
 
 PlayerOwnedCardsWidget::PlayerOwnedCardsWidget(harmonies::core::Game *backendGame, QWidget *parent)
     : QWidget(parent), game(backendGame)
@@ -50,7 +59,7 @@ void PlayerOwnedCardsWidget::updateUI() {
         for (std::size_t i = 0; i < ownedCards.size(); ++i) {
             bool complete = ownedCards[i].isComplete();
             ClickableCardFrame *cardFrame = new ClickableCardFrame(static_cast<int>(i), !complete, cardsContainer);
-            cardFrame->setFixedSize(110, 65);
+            cardFrame->setFixedSize(120, 180);
             
             QString borderStyle;
             QString bgColor;
@@ -75,11 +84,25 @@ void PlayerOwnedCardsWidget::updateUI() {
             }
 
             QVBoxLayout *frameLayout = new QVBoxLayout(cardFrame);
-            frameLayout->setContentsMargins(2, 2, 2, 2);
-            frameLayout->setSpacing(2);
+            frameLayout->setContentsMargins(4, 4, 4, 4);
+            frameLayout->setSpacing(4);
 
             // Fetch the REAL card name from backend structure
             QString cardName = QString::fromStdString(ownedCards[i].getName());
+            QLabel *imageLabel = new QLabel(cardFrame);
+            imageLabel->setAlignment(Qt::AlignCenter);
+            imageLabel->setFixedSize(100, 120);
+            QPixmap pixmap(animalCardImagePath(ownedCards[i].getName()));
+            if (!pixmap.isNull()) {
+                imageLabel->setPixmap(pixmap.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+                imageLabel->setStyleSheet("border: none; background: transparent;");
+            } else {
+                imageLabel->setText(cardName);
+                imageLabel->setWordWrap(true);
+                imageLabel->setStyleSheet("font-weight: bold; font-size: 10px; color: #5D4037; border: 1px dashed #B0BEC5; background: #FFFDE7;");
+            }
+            frameLayout->addWidget(imageLabel);
+
             QLabel *nameLabel = new QLabel(cardName, cardFrame);
             nameLabel->setStyleSheet(QString("font-weight: bold; font-size: 10px; color: %1; border: none;")
                                      .arg(complete ? "#546E7A" : "#1B5E20"));
