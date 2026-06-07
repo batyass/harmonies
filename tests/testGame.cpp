@@ -252,7 +252,7 @@ int main()
         for (std::size_t i = 0; i < game.getAnimalCardDeck()->getVisible().size(); ++i)
         {
             const std::string &name = game.getAnimalCardDeck()->getVisible()[i].getName();
-            if (name == "Bear" || name == "Fox")
+            if (name == "bear" || name == "fox")
             {
                 compatibleCardIndex = i;
                 break;
@@ -285,14 +285,14 @@ int main()
               failures);
 
         HexCoord cubeAnchor(0, 0);
-        if (cardName == "Bear")
+        if (cardName == "bear")
         {
             cubeAnchor = HexCoord(1, 0);
             check(game.placeTokenOnBoard(cubeAnchor, TokenType::GrayStone),
                   "The player should be able to place the landscape needed for the chosen animal card",
                   failures);
         }
-        else if (cardName == "Fox")
+        else if (cardName == "fox")
         {
             cubeAnchor = HexCoord(0, 1);
             check(game.placeTokenOnBoard(cubeAnchor, TokenType::BrownEarth),
