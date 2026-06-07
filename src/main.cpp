@@ -1,51 +1,25 @@
-#include <iostream>
+#include <QApplication>
+#include "core/Game.h"
+#include "ui/VuePartie.h"
+#include "model/GameConfig.h"
 #include <vector>
 #include <string>
-#include <exception>
 
-#include "core/Game.h"
-#include "ui/SetupMenu.h"
-#include "ui/ConsoleInputHandler.h"
-#include "ui/ConsoleRenderer.h"
-#include "model/Player.h"
-#include "model/GameConfig.h"
+int main(int argc, char *argv[]) {
+    QApplication app(argc, argv);
 
-int main() {
-    try {
-        harmonies::ui::SetupMenu setupMenu;
-        harmonies::model::GameConfig config = setupMenu.run();
-        const std::vector<std::string>& playerNames = setupMenu.getPlayerNames();
+    // Configuration factice pour tester l'interface visuelle directement
+    harmonies::model::GameConfig config(2, harmonies::model::BoardSide::A, true);
+    std::vector<std::string> playerNames = {"Yassir", "Peilin"};
+    
+    harmonies::core::Game game(config, playerNames);
+    
+    // On initialise le jeu pour éviter le crash du marché vide (en attendant le fix de Clément)
+    game.initGame();
 
-        harmonies::core::Game game(config, playerNames);
-        game.initGame();
+    // Lancement de ton interface graphique
+    harmonies::ui::VuePartie fenetre(game);
+    fenetre.show();
 
-        harmonies::ui::ConsoleRenderer renderer;
-        harmonies::ui::ConsoleInputHandler inputHandler(game, renderer);
-
-        // Boucle de jeu principale
-        while (!game.isGameOver()) {
-            inputHandler.processInput();
-            if (!std::cin.good())
-            {
-                break;
-            }
-        }
-
-        std::cout << "\n========================================" << std::endl;
-        std::cout << "           FIN DE LA PARTIE             " << std::endl;
-        std::cout << "========================================\n" << std::endl;
-
-        std::vector<harmonies::model::Player*> playersPtrs;
-        for (const auto& playerPtr : game.getPlayers()) {
-            playersPtrs.push_back(playerPtr.get());
-        }
-
-        renderer.displayEndGame(playersPtrs);
-
-    } catch (const std::exception& e) {
-        std::cerr << "Une erreur inattendue est survenue : " << e.what() << std::endl;
-        return 1;
-    }
-
-    return 0;
+    return app.exec();
 }
