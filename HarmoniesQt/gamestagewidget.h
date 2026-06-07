@@ -8,6 +8,7 @@ class PersonalBoardWidget;
 class CentralBoardWidget;
 class CardMarketWidget;
 class PlayerInfosWidget;
+class PlayerOwnedCardsWidget;
 
 namespace harmonies { namespace core { class Game; } }
 
@@ -19,6 +20,7 @@ private:
     PersonalBoardWidget *personalBoard;
     CentralBoardWidget *centralBoard;
     CardMarketWidget *cardMarket;
+    PlayerOwnedCardsWidget *ownedCards;
     PlayerInfosWidget *playerInfos;
 
 public:

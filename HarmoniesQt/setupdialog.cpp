@@ -55,8 +55,14 @@ SetupDialog::SetupDialog(QWidget *parent) : QDialog(parent) {
 }
 
 void SetupDialog::onPlayerCountChanged(int count) {
-    // Clear previous inputs
-    qDeleteAll(nameInputs);
+    // Clear previous inputs and remove their layout items to avoid stale spacing.
+    while (QLayoutItem *item = namesContainerLayout->takeAt(0)) {
+        if (QWidget *widget = item->widget()) {
+            widget->deleteLater();
+        }
+        delete item;
+    }
+
     nameInputs.clear();
 
     // Dynamically generate QLineEdit rows based on current spinbox value

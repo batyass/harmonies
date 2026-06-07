@@ -2,6 +2,7 @@
 #include "personalboardwidget.h"
 #include "centralboardwidget.h"
 #include "cardmarketwidget.h"
+#include "playerownedcardswidget.h"
 #include "playerinfoswidget.h"
 #include "core/Game.h"
 #include <QHBoxLayout>
@@ -23,6 +24,9 @@ GameStageWidget::GameStageWidget(harmonies::core::Game *backendGame, QWidget *pa
     cardMarket = new CardMarketWidget(game, this);
     rightColumn->addWidget(cardMarket, 6);
 
+    ownedCards = new PlayerOwnedCardsWidget(game, this);
+    rightColumn->addWidget(ownedCards, 4);
+
     playerInfos = new PlayerInfosWidget(game, this);
     rightColumn->addWidget(playerInfos, 4);
 
@@ -32,6 +36,7 @@ GameStageWidget::GameStageWidget(harmonies::core::Game *backendGame, QWidget *pa
 
     connect(centralBoard, &CentralBoardWidget::slotSelected, this, &GameStageWidget::refreshAllComponents);
     connect(personalBoard, &PersonalBoardWidget::boardUpdated, this, &GameStageWidget::refreshAllComponents);
+    connect(cardMarket, &CardMarketWidget::marketUpdated, this, &GameStageWidget::refreshAllComponents);
     connect(playerInfos, &PlayerInfosWidget::turnEnded, this, &GameStageWidget::refreshAllComponents);
 }
 
@@ -39,5 +44,6 @@ void GameStageWidget::refreshAllComponents() {
     personalBoard->updateUI();
     centralBoard->updateUI();
     cardMarket->updateUI();
+    ownedCards->updateUI();
     playerInfos->updateUI();
 }

@@ -18,6 +18,7 @@ SOURCES += main.cpp \
            centralboardwidget.cpp \
            gamestagewidget.cpp \
            personalboardwidget.cpp \
+           playerownedcardswidget.cpp \
            playerinfoswidget.cpp \
            $$PWD/../src/core/Game.cpp \
            $$PWD/../src/core/TurnManager.cpp \
@@ -58,4 +59,5 @@ HEADERS += mainwindow.h \
            centralboardwidget.h \
            gamestagewidget.h \
            personalboardwidget.h \
+           playerownedcardswidget.h \
            playerinfoswidget.h
