@@ -2,6 +2,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QMessageBox>
+#include <exception>
 
 CardMarketWidget::CardMarketWidget(harmonies::core::Game *backendGame, QWidget *parent)
     : QWidget(parent), game(backendGame)
@@ -84,20 +85,26 @@ void CardMarketWidget::updateUI() {
 void CardMarketWidget::onMarketCardClicked(std::size_t index) {
     if (!game) return;
 
-    auto state = game->getState();
-    if (state != harmonies::core::GameState::WaitingForSlotChoice &&
-        state != harmonies::core::GameState::WaitingForPlacement &&
-        state != harmonies::core::GameState::WaitingForTurnEndChoice)
-    {
-        QMessageBox::information(this, "Action Impossible", "Vous ne pouvez pas prendre de carte durant cette phase.");
-        return;
-    }
+    try {
+        auto state = game->getState();
+        if (state != harmonies::core::GameState::WaitingForSlotChoice &&
+            state != harmonies::core::GameState::WaitingForPlacement &&
+            state != harmonies::core::GameState::WaitingForTurnEndChoice)
+        {
+            QMessageBox::information(this, "Action Impossible", "Vous ne pouvez pas prendre de carte durant cette phase.");
+            return;
+        }
 
-    if (game->takeVisibleAnimalCard(index)) {
-        QMessageBox::information(this, "Succes", "Vous avez recupere cette carte animale !");
-        Q_EMIT marketUpdated();
-        updateUI();
-    } else {
-        QMessageBox::warning(this, "Erreur", "Vous avez deja pris une carte animale durant ce tour.");
+        if (game->takeVisibleAnimalCard(index)) {
+            QMessageBox::information(this, "Succes", "Vous avez recupere cette carte animale !");
+            Q_EMIT marketUpdated();
+            updateUI();
+        } else {
+            QMessageBox::warning(this, "Erreur", "Vous avez deja pris une carte animale durant ce tour.");
+        }
+    } catch (const std::exception &e) {
+        QMessageBox::critical(this, "Erreur du moteur", QString::fromUtf8(e.what()));
+    } catch (...) {
+        QMessageBox::critical(this, "Erreur du moteur", "Une erreur inattendue est survenue lors de la prise de la carte animale.");
     }
 }
