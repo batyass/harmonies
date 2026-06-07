@@ -7,8 +7,9 @@
 class PersonalBoardWidget;
 class CentralBoardWidget;
 class CardMarketWidget;
-class PlayerInfosWidget;
 class PlayerOwnedCardsWidget;
+class PlayerInfosWidget;
+class SpiritCardWidget;
 
 namespace harmonies { namespace core { class Game; } }
 
@@ -21,7 +22,14 @@ private:
     CentralBoardWidget *centralBoard;
     CardMarketWidget *cardMarket;
     PlayerOwnedCardsWidget *ownedCards;
+    SpiritCardWidget *spiritCard;
     PlayerInfosWidget *playerInfos;
+
+    int selectedAnimalCardIndex = -1;
+
+private Q_SLOTS:
+    void onAnimalCardSelected(int index);
+    void onCubePlaced();
 
 public:
     explicit GameStageWidget(harmonies::core::Game *backendGame, QWidget *parent = nullptr);
@@ -29,5 +37,6 @@ public:
 
     void refreshAllComponents();
 };
+
 
 #endif // GAMESTAGEWIDGET_H

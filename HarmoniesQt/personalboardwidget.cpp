@@ -80,7 +80,7 @@ void PersonalBoardWidget::paintEvent(QPaintEvent *event) {
 }
 
 void PersonalBoardWidget::mousePressEvent(QMouseEvent *event) {
-    if (!game || game->getState() != harmonies::core::GameState::WaitingForPlacement) return;
+    if (!game) return;
 
     int radius = 22;
     int centerX = width() / 2;
@@ -99,8 +99,33 @@ void PersonalBoardWidget::mousePressEvent(QMouseEvent *event) {
         int dx = event->pos().x() - pixelPos.x();
         int dy = event->pos().y() - pixelPos.y();
 
-        // Perimeter hit-test inside clicked hexagon radius limits
         if ((dx * dx + dy * dy) < (radius * radius)) {
+            // STEP 3: Handle Animal Cube Placement if a card is selected
+            if (selectedAnimalCardIndex != -1) {
+                try {
+                    if (game->placeAnimalCube(static_cast<std::size_t>(selectedAnimalCardIndex), coord)) {
+                        selectedAnimalCardIndex = -1;
+                        Q_EMIT cubePlaced();
+                        Q_EMIT boardUpdated();
+                        return;
+                    } else {
+                        QMessageBox::warning(this, "Erreur", "Placement de cube non valide pour cette carte.");
+                        // Reset selection on error too to allow user to try again or change strategy
+                        selectedAnimalCardIndex = -1;
+                        Q_EMIT cubePlaced();
+                        return;
+                    }
+                } catch (const std::exception &e) {
+                    QMessageBox::critical(this, "Erreur du moteur", QString::fromUtf8(e.what()));
+                    selectedAnimalCardIndex = -1;
+                    Q_EMIT cubePlaced();
+                    return;
+                }
+            }
+
+            // FALLBACK: Normal Token Placement logic
+            if (game->getState() != harmonies::core::GameState::WaitingForPlacement) return;
+
             const auto& pending = game->getPendingTokens();
             if (!pending.empty()) {
                 // CLEAN EXTRACTION: Get index selected by player from the list

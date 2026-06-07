@@ -60,4 +60,5 @@ HEADERS += mainwindow.h \
            gamestagewidget.h \
            personalboardwidget.h \
            playerownedcardswidget.h \
-           playerinfoswidget.h
+           playerinfoswidget.h \
+           spiritcardwidget.h
