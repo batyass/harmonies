@@ -25,11 +25,12 @@ private:
     SpiritCardWidget *spiritCard;
     PlayerInfosWidget *playerInfos;
 
-    int selectedAnimalCardIndex = -1;
+    void clearAnimalCardSelection();
 
 private Q_SLOTS:
     void onAnimalCardSelected(int index);
     void onCubePlaced();
+    void onTurnEnded();
 
 public:
     explicit GameStageWidget(harmonies::core::Game *backendGame, QWidget *parent = nullptr);

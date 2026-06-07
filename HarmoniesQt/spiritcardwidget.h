@@ -6,6 +6,7 @@
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QMessageBox>
+#include <exception>
 #include "core/Game.h"
 
 class SpiritCardWidget : public QWidget {
@@ -74,11 +75,17 @@ public:
                         "QPushButton:hover { background-color: #D1C4E9; }"
                     );
                     connect(btn, &QPushButton::clicked, this, [this, i]() {
-                        if (game->chooseNatureSpiritCard(i)) {
-                            Q_EMIT spiritChosen();
-                            updateUI();
-                        } else {
-                            QMessageBox::warning(this, "Action Impossible", "Vous ne pouvez plus choisir d'Esprit.");
+                        try {
+                            if (game->chooseNatureSpiritCard(i)) {
+                                Q_EMIT spiritChosen();
+                                updateUI();
+                            } else {
+                                QMessageBox::warning(this, "Action Impossible", "Vous ne pouvez plus choisir d'Esprit.");
+                            }
+                        } catch (const std::exception &e) {
+                            QMessageBox::critical(this, "Erreur du moteur", QString::fromUtf8(e.what()));
+                        } catch (...) {
+                            QMessageBox::critical(this, "Erreur du moteur", "Une erreur inattendue est survenue lors du choix de l'esprit.");
                         }
                     });
                     contentLayout->addWidget(btn);

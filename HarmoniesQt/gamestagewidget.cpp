@@ -42,7 +42,7 @@ GameStageWidget::GameStageWidget(harmonies::core::Game *backendGame, QWidget *pa
     connect(personalBoard, &PersonalBoardWidget::boardUpdated, this, &GameStageWidget::refreshAllComponents);
     connect(cardMarket, &CardMarketWidget::marketUpdated, this, &GameStageWidget::refreshAllComponents);
     connect(spiritCard, &SpiritCardWidget::spiritChosen, this, &GameStageWidget::refreshAllComponents);
-    connect(playerInfos, &PlayerInfosWidget::turnEnded, this, &GameStageWidget::refreshAllComponents);
+    connect(playerInfos, &PlayerInfosWidget::turnEnded, this, &GameStageWidget::onTurnEnded);
 
     // Câblage Placement Cube Animal
     connect(ownedCards, &PlayerOwnedCardsWidget::cardClicked, this, &GameStageWidget::onAnimalCardSelected);
@@ -50,15 +50,20 @@ GameStageWidget::GameStageWidget(harmonies::core::Game *backendGame, QWidget *pa
 }
 
 void GameStageWidget::onAnimalCardSelected(int index) {
-    selectedAnimalCardIndex = index;
-    // Transmettre au plateau pour le prochain clic
     personalBoard->setSelectedAnimalCardIndex(index);
-    // Mettre à jour le surlignage dans la liste des cartes
     ownedCards->setSelectedIndex(index);
 }
 
 void GameStageWidget::onCubePlaced() {
-    selectedAnimalCardIndex = -1;
+    clearAnimalCardSelection();
+}
+
+void GameStageWidget::onTurnEnded() {
+    clearAnimalCardSelection();
+    refreshAllComponents();
+}
+
+void GameStageWidget::clearAnimalCardSelection() {
     personalBoard->setSelectedAnimalCardIndex(-1);
     ownedCards->setSelectedIndex(-1);
 }

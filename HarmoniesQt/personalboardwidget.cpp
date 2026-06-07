@@ -80,7 +80,7 @@ void PersonalBoardWidget::paintEvent(QPaintEvent *event) {
 }
 
 void PersonalBoardWidget::mousePressEvent(QMouseEvent *event) {
-    if (!game) return;
+    if (!game || !game->getCurrentPlayer() || !game->getCurrentPlayer()->getBoard()) return;
 
     int radius = 22;
     int centerX = width() / 2;
@@ -100,8 +100,18 @@ void PersonalBoardWidget::mousePressEvent(QMouseEvent *event) {
         int dy = event->pos().y() - pixelPos.y();
 
         if ((dx * dx + dy * dy) < (radius * radius)) {
-            // STEP 3: Handle Animal Cube Placement if a card is selected
+            auto state = game->getState();
+            bool canPlaceAnimalCube =
+                state == harmonies::core::GameState::WaitingForSlotChoice ||
+                state == harmonies::core::GameState::WaitingForPlacement ||
+                state == harmonies::core::GameState::WaitingForTurnEndChoice;
+
+            // If an animal card is selected, the next click on the board targets cube placement.
             if (selectedAnimalCardIndex != -1) {
+                if (!canPlaceAnimalCube) {
+                    return;
+                }
+
                 try {
                     if (game->placeAnimalCube(static_cast<std::size_t>(selectedAnimalCardIndex), coord)) {
                         selectedAnimalCardIndex = -1;
@@ -123,8 +133,8 @@ void PersonalBoardWidget::mousePressEvent(QMouseEvent *event) {
                 }
             }
 
-            // FALLBACK: Normal Token Placement logic
-            if (game->getState() != harmonies::core::GameState::WaitingForPlacement) return;
+            // Otherwise, a board click is interpreted as normal token placement.
+            if (state != harmonies::core::GameState::WaitingForPlacement) return;
 
             const auto& pending = game->getPendingTokens();
             if (!pending.empty()) {
