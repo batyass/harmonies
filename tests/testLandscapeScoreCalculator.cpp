@@ -77,7 +77,7 @@ int main()
         board.placeToken(HexCoord(0, 0), TokenType::BrownEarth);
         board.placeToken(HexCoord(0, 0), TokenType::RedBuilding);
         board.placeToken(HexCoord(1, 0), TokenType::YellowField);
-        board.placeToken(HexCoord(1, -1), TokenType::GrayStone);
+        board.placeToken(HexCoord(1, 1), TokenType::GrayStone);
         board.placeToken(HexCoord(0, -1), TokenType::BlueWater);
 
         check(LandscapeScoreCalculator(board) == 5,

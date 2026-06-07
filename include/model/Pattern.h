@@ -14,7 +14,11 @@ namespace harmonies
         {
             static constexpr int AnyHeight = 0;
 
-            utils::HexCoord offset; // relatif au token contenant le cube (0,0)
+            // Relative board coordinate around the anchor cell.
+            // This is not a naive q/r delta repeated by multiplication:
+            // for a straight line, each cell must use the actual coordinate reached
+            // on the even-q board after successive directional steps.
+            utils::HexCoord offset;
             TokenType type;         // TokenType en question
             int height;             // Hauteur requise (AnyHeight = n'importe quelle hauteur)
         };

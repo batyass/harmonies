@@ -11,6 +11,7 @@ class PersonalBoardWidget : public QWidget {
 private:
     harmonies::core::Game *game;
     PlayerInfosWidget *playerInfosWidget;
+    int selectedAnimalCardIndex = -1;
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -22,12 +23,14 @@ private:
 
 Q_SIGNALS:
     void boardUpdated();
+    void cubePlaced(); // Signal to clear selection in UI
 
 public:
     explicit PersonalBoardWidget(harmonies::core::Game *backendGame, QWidget *parent = nullptr);
     ~PersonalBoardWidget() = default;
 
     void setPlayerInfosWidget(PlayerInfosWidget *infosWidget);
+    void setSelectedAnimalCardIndex(int index) { selectedAnimalCardIndex = index; }
     void updateUI();
 };
 

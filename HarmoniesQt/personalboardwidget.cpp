@@ -76,11 +76,23 @@ void PersonalBoardWidget::paintEvent(QPaintEvent *event) {
                 painter.drawEllipse(pixelPos, r, r);
             }
         }
+
+        if (cell.hasCube()) {
+            QRect cubeRect(pixelPos.x() - 8, pixelPos.y() - 8, 16, 16);
+            painter.setPen(QPen(QColor("#5D4037"), 1));
+            painter.setBrush(QColor("#FFB74D"));
+            painter.drawRoundedRect(cubeRect, 3, 3);
+
+            // Small highlight to keep the cube visible on both dark and light stacks.
+            painter.setPen(Qt::NoPen);
+            painter.setBrush(QColor(255, 255, 255, 140));
+            painter.drawEllipse(pixelPos.x() - 3, pixelPos.y() - 3, 5, 5);
+        }
     }
 }
 
 void PersonalBoardWidget::mousePressEvent(QMouseEvent *event) {
-    if (!game || game->getState() != harmonies::core::GameState::WaitingForPlacement) return;
+    if (!game || !game->getCurrentPlayer() || !game->getCurrentPlayer()->getBoard()) return;
 
     int radius = 22;
     int centerX = width() / 2;
@@ -99,8 +111,43 @@ void PersonalBoardWidget::mousePressEvent(QMouseEvent *event) {
         int dx = event->pos().x() - pixelPos.x();
         int dy = event->pos().y() - pixelPos.y();
 
-        // Perimeter hit-test inside clicked hexagon radius limits
         if ((dx * dx + dy * dy) < (radius * radius)) {
+            auto state = game->getState();
+            bool canPlaceAnimalCube =
+                state == harmonies::core::GameState::WaitingForSlotChoice ||
+                state == harmonies::core::GameState::WaitingForPlacement ||
+                state == harmonies::core::GameState::WaitingForTurnEndChoice;
+
+            // If an animal card is selected, the next click on the board targets cube placement.
+            if (selectedAnimalCardIndex != -1) {
+                if (!canPlaceAnimalCube) {
+                    return;
+                }
+
+                try {
+                    if (game->placeAnimalCube(static_cast<std::size_t>(selectedAnimalCardIndex), coord)) {
+                        selectedAnimalCardIndex = -1;
+                        Q_EMIT cubePlaced();
+                        Q_EMIT boardUpdated();
+                        return;
+                    } else {
+                        QMessageBox::warning(this, "Erreur", "Placement de cube non valide pour cette carte.");
+                        // Reset selection on error too to allow user to try again or change strategy
+                        selectedAnimalCardIndex = -1;
+                        Q_EMIT cubePlaced();
+                        return;
+                    }
+                } catch (const std::exception &e) {
+                    QMessageBox::critical(this, "Erreur du moteur", QString::fromUtf8(e.what()));
+                    selectedAnimalCardIndex = -1;
+                    Q_EMIT cubePlaced();
+                    return;
+                }
+            }
+
+            // Otherwise, a board click is interpreted as normal token placement.
+            if (state != harmonies::core::GameState::WaitingForPlacement) return;
+
             const auto& pending = game->getPendingTokens();
             if (!pending.empty()) {
                 // CLEAN EXTRACTION: Get index selected by player from the list
@@ -143,9 +190,10 @@ QPoint PersonalBoardWidget::axialToPixel(int q, int r, int radius, int centerX, 
     double rowHeight = radius * 2.1;
 
     double x = centerX + q * colWidth;
-    // Use column index (q - qMin) to determine stagger so the pattern is always
-    // "even index = straight, odd index = shifted up", regardless of board side.
-    bool isOddColumn = ((q - qMin) % 2 != 0);
+    Q_UNUSED(qMin);
+    // The whole project now uses even-q offset coordinates:
+    // odd columns are drawn half a row higher than even columns.
+    bool isOddColumn = (q % 2 != 0);
     double y = centerY + r * rowHeight - (isOddColumn ? rowHeight / 2.0 : 0.0);
     return QPoint(static_cast<int>(x), static_cast<int>(y));
 }
