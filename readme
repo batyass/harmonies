@@ -2,3 +2,19 @@ Pour compiler vos fichier cpp et h,
 taper make run pour compiler et executer le main
 make test pour compiler et executer les test
 make clean pour effacer les executables
+
+Convention des coordonnees hexagonales
+
+Le projet utilise une convention de coordonnees "even-q offset".
+- `q` represente la colonne
+- `r` represente la ligne
+- les voisins dependent de la parite de la colonne
+
+Exemple important :
+depuis `HexCoord(0,0)`, les voisins sont
+`(-1,0)`, `(-1,1)`, `(0,1)`, `(1,1)`, `(1,0)`, `(0,-1)`
+
+Consequences :
+- les patterns des cartes doivent etre ecrits avec cette convention
+- les rotations de patterns suivent cette meme geometrie
+- l'affichage Qt et la logique metier utilisent la meme convention

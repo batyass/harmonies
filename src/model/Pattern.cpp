@@ -4,7 +4,6 @@ namespace harmonies
 {
     namespace model
     {
-
         Pattern::Pattern(std::vector<PatternCell> cells) : cells(cells) {}
 
         const std::vector<PatternCell> &Pattern::getCells() const { return cells; }
@@ -18,10 +17,7 @@ namespace harmonies
             {
                 for (PatternCell &cell : rotatedCells)
                 {
-                    int q = cell.offset.getQ();
-                    int r = cell.offset.getR();
-                    // 60° rotation sens horaire: (q, r) -> (q+r, -q)
-                    cell.offset = utils::HexCoord(q + r, -q);
+                    cell.offset = utils::rotateOffset(cell.offset, 1);
                 }
             }
             return Pattern(rotatedCells);

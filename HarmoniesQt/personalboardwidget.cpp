@@ -76,6 +76,18 @@ void PersonalBoardWidget::paintEvent(QPaintEvent *event) {
                 painter.drawEllipse(pixelPos, r, r);
             }
         }
+
+        if (cell.hasCube()) {
+            QRect cubeRect(pixelPos.x() - 8, pixelPos.y() - 8, 16, 16);
+            painter.setPen(QPen(QColor("#5D4037"), 1));
+            painter.setBrush(QColor("#FFB74D"));
+            painter.drawRoundedRect(cubeRect, 3, 3);
+
+            // Small highlight to keep the cube visible on both dark and light stacks.
+            painter.setPen(Qt::NoPen);
+            painter.setBrush(QColor(255, 255, 255, 140));
+            painter.drawEllipse(pixelPos.x() - 3, pixelPos.y() - 3, 5, 5);
+        }
     }
 }
 
@@ -178,9 +190,10 @@ QPoint PersonalBoardWidget::axialToPixel(int q, int r, int radius, int centerX, 
     double rowHeight = radius * 2.1;
 
     double x = centerX + q * colWidth;
-    // Use column index (q - qMin) to determine stagger so the pattern is always
-    // "even index = straight, odd index = shifted up", regardless of board side.
-    bool isOddColumn = ((q - qMin) % 2 != 0);
+    Q_UNUSED(qMin);
+    // The whole project now uses even-q offset coordinates:
+    // odd columns are drawn half a row higher than even columns.
+    bool isOddColumn = (q % 2 != 0);
     double y = centerY + r * rowHeight - (isOddColumn ? rowHeight / 2.0 : 0.0);
     return QPoint(static_cast<int>(x), static_cast<int>(y));
 }

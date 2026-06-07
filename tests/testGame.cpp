@@ -38,8 +38,8 @@ namespace
         for (std::size_t i = 0; i < cells.size(); ++i)
         {
             const harmonies::model::PatternCell &cell = cells[i];
-            harmonies::utils::HexCoord target(anchor.getQ() + cell.offset.getQ(),
-                                              anchor.getR() + cell.offset.getR());
+            harmonies::utils::HexCoord target =
+                harmonies::utils::addPatternOffset(anchor, cell.offset);
 
             int height = cell.height == harmonies::model::PatternCell::AnyHeight ? 1 : cell.height;
             for (int h = 0; h < height; ++h)
@@ -315,6 +315,60 @@ int main()
                   game.getPlayers()[0]->getAnimalCards()->getCard(0)->getCubesOnCard() ==
                       game.getPlayers()[0]->getAnimalCards()->getCard(0)->totalSlots() - 1,
               "Placing an animal cube through Game should consume one cube from the chosen animal card",
+              failures);
+    }
+
+    {
+        GameConfig config(2, BoardSide::A, false);
+        std::vector<std::string> playerNames;
+        playerNames.push_back("Alice");
+        playerNames.push_back("Bob");
+
+        Game game(config, playerNames);
+        game.initGame();
+
+        std::vector<TokenType> chosenSlot;
+        chosenSlot.push_back(TokenType::BlueWater);
+        chosenSlot.push_back(TokenType::GrayStone);
+        chosenSlot.push_back(TokenType::BrownEarth);
+        game.getCentralBoard()->getSlot(0)->fill(chosenSlot);
+
+        check(game.takeTokensFromSlot(0),
+              "A player should still be able to start a turn normally before chaining cube placements",
+              failures);
+        check(game.placeTokenOnBoard(HexCoord(0, 0), TokenType::BlueWater),
+              "The first mandatory token should still be placeable before multiple cube placements",
+              failures);
+        check(game.placeTokenOnBoard(HexCoord(1, 0), TokenType::GrayStone),
+              "The second mandatory token should still be placeable before multiple cube placements",
+              failures);
+        check(game.placeTokenOnBoard(HexCoord(0, 1), TokenType::BrownEarth),
+              "The third mandatory token should still be placeable before multiple cube placements",
+              failures);
+
+        harmonies::model::Pattern waterPattern(
+            std::vector<harmonies::model::PatternCell>(1, harmonies::model::PatternCell{HexCoord(0, 0), TokenType::BlueWater, harmonies::model::PatternCell::AnyHeight}));
+        harmonies::model::Pattern stonePattern(
+            std::vector<harmonies::model::PatternCell>(1, harmonies::model::PatternCell{HexCoord(0, 0), TokenType::GrayStone, harmonies::model::PatternCell::AnyHeight}));
+
+        game.getPlayers()[0]->getAnimalCards()->addCard(
+            harmonies::model::AnimalCard("Water Test Card", waterPattern, std::vector<int>(1, 2)));
+        game.getPlayers()[0]->getAnimalCards()->addCard(
+            harmonies::model::AnimalCard("Stone Test Card", stonePattern, std::vector<int>(1, 2)));
+
+        check(game.placeAnimalCube(0, HexCoord(0, 0)),
+              "A first animal cube should be placeable during the turn",
+              failures);
+        check(game.placeAnimalCube(1, HexCoord(1, 0)),
+              "A second animal cube from another card should also be placeable in the same turn",
+              failures);
+        check(game.getPlayers()[0]->getBoard()->getCell(HexCoord(0, 0)) != nullptr &&
+                  game.getPlayers()[0]->getBoard()->getCell(HexCoord(0, 0))->hasCube(),
+              "The first anchor should keep its cube after chaining placements",
+              failures);
+        check(game.getPlayers()[0]->getBoard()->getCell(HexCoord(1, 0)) != nullptr &&
+                  game.getPlayers()[0]->getBoard()->getCell(HexCoord(1, 0))->hasCube(),
+              "The second anchor should receive its cube during the same turn",
               failures);
     }
 

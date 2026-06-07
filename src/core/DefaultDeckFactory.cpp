@@ -15,6 +15,11 @@ namespace harmonies
             {
                 return model::Pattern(std::vector<model::PatternCell>(cells));
             }
+
+            utils::HexCoord step(utils::HexDirection direction, int distance)
+            {
+                return utils::advanceInDirection(utils::HexCoord(0, 0), direction, distance);
+            }
         }
 
         std::vector<model::AnimalCard> makeDefaultAnimalCards()
@@ -30,8 +35,8 @@ namespace harmonies
             cards.push_back(model::AnimalCard(
                 "fennec",
                 makePattern({
-                    {utils::HexCoord(-2, 0), model::TokenType::YellowField, 1},
-                    {utils::HexCoord(-1, 0), model::TokenType::GrayStone, 1},
+                    {step(utils::HexDirection::UpLeft, 2), model::TokenType::YellowField, 1},
+                    {step(utils::HexDirection::UpLeft, 1), model::TokenType::GrayStone, 1},
                     {utils::HexCoord(0, 0), model::TokenType::GrayStone, 1},
                 }),
                 std::vector<int>{4, 9, 16}));
@@ -39,9 +44,9 @@ namespace harmonies
             cards.push_back(model::AnimalCard(
                 "raven",
                 makePattern({
-                    {utils::HexCoord(-1, 1), model::TokenType::RedBuilding, 2},
+                    {utils::HexCoord(1, 0), model::TokenType::RedBuilding, 2},
                     {utils::HexCoord(0, 0), model::TokenType::YellowField, 1},
-                    {utils::HexCoord(1, 1), model::TokenType::RedBuilding, 2},
+                    {utils::HexCoord(0, 1), model::TokenType::RedBuilding, 2},
                 }),
                 std::vector<int>{4, 9}));
 
@@ -73,8 +78,8 @@ namespace harmonies
             cards.push_back(model::AnimalCard(
                 "fox",
                 makePattern({
-                    {utils::HexCoord(-2, 0), model::TokenType::GreenTree, 2},
-                    {utils::HexCoord(-1, 0), model::TokenType::BlueWater, 1},
+                    {step(utils::HexDirection::UpLeft, 2), model::TokenType::GreenTree, 2},
+                    {step(utils::HexDirection::UpLeft, 1), model::TokenType::BlueWater, 1},
                     {utils::HexCoord(0, 0), model::TokenType::GrayStone, 3},
                 }),
                 std::vector<int>{2, 4, 9, 16}));

@@ -92,6 +92,7 @@ void PlayerOwnedCardsWidget::updateUI() {
             QLabel *imageLabel = new QLabel(cardFrame);
             imageLabel->setAlignment(Qt::AlignCenter);
             imageLabel->setFixedSize(100, 120);
+            imageLabel->setAttribute(Qt::WA_TransparentForMouseEvents, true);
             QPixmap pixmap(animalCardImagePath(ownedCards[i].getName()));
             if (!pixmap.isNull()) {
                 imageLabel->setPixmap(pixmap.scaled(imageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
@@ -104,6 +105,7 @@ void PlayerOwnedCardsWidget::updateUI() {
             frameLayout->addWidget(imageLabel);
 
             QLabel *nameLabel = new QLabel(cardName, cardFrame);
+            nameLabel->setAttribute(Qt::WA_TransparentForMouseEvents, true);
             nameLabel->setStyleSheet(QString("font-weight: bold; font-size: 10px; color: %1; border: none;")
                                      .arg(complete ? "#546E7A" : "#1B5E20"));
             nameLabel->setAlignment(Qt::AlignCenter);
@@ -114,6 +116,7 @@ void PlayerOwnedCardsWidget::updateUI() {
             int totalCubes = ownedCards[i].totalSlots();
 
             QLabel *cubeStatusLabel = new QLabel(complete ? "Terminee !" : QString("Cubes: %1 / %2").arg(currentCubes).arg(totalCubes), cardFrame);
+            cubeStatusLabel->setAttribute(Qt::WA_TransparentForMouseEvents, true);
             cubeStatusLabel->setStyleSheet(QString("font-size: 10px; color: %1; font-weight: bold; border: none;")
                                            .arg(complete ? "#78909C" : "#2E7D32"));
             cubeStatusLabel->setAlignment(Qt::AlignCenter);
