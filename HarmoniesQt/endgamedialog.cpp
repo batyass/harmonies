@@ -136,9 +136,35 @@ EndGameDialog::EndGameDialog(harmonies::core::Game *game, QWidget *parent)
 
     root->addLayout(columns);
 
-    QPushButton *closeBtn = new QPushButton("Fermer", this);
+    QHBoxLayout *buttonRow = new QHBoxLayout();
+    buttonRow->setSpacing(10);
+
+    QPushButton *newGameBtn = new QPushButton("Nouvelle partie", this);
+    newGameBtn->setStyleSheet(
+        "background-color: #43A047; color: white; font-weight: bold; padding: 8px; border-radius: 4px;");
+    connect(newGameBtn, &QPushButton::clicked, this, [this]() {
+        choice = Choice::NewGame;
+        accept();
+    });
+    buttonRow->addWidget(newGameBtn);
+
+    QPushButton *menuBtn = new QPushButton("Retour au menu", this);
+    menuBtn->setStyleSheet(
+        "background-color: #1E88E5; color: white; font-weight: bold; padding: 8px; border-radius: 4px;");
+    connect(menuBtn, &QPushButton::clicked, this, [this]() {
+        choice = Choice::ReturnToMenu;
+        accept();
+    });
+    buttonRow->addWidget(menuBtn);
+
+    QPushButton *closeBtn = new QPushButton("Rester sur le plateau", this);
     closeBtn->setStyleSheet(
-        "background-color: #E53935; color: white; font-weight: bold; padding: 8px; border-radius: 4px;");
-    connect(closeBtn, &QPushButton::clicked, this, &QDialog::accept);
-    root->addWidget(closeBtn);
+        "background-color: #757575; color: white; font-weight: bold; padding: 8px; border-radius: 4px;");
+    connect(closeBtn, &QPushButton::clicked, this, [this]() {
+        choice = Choice::StayOnBoard;
+        accept();
+    });
+    buttonRow->addWidget(closeBtn);
+
+    root->addLayout(buttonRow);
 }

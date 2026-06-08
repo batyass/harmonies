@@ -2,7 +2,6 @@
 #define GAMESTAGEWIDGET_H
 
 #include <QWidget>
-#include <QPushButton>
 
 // Forward declarations
 class PersonalBoardWidget;
@@ -25,18 +24,21 @@ private:
     PlayerOwnedCardsWidget *ownedCards;
     SpiritCardWidget *spiritCard;
     PlayerInfosWidget *playerInfos;
-    QPushButton *debugEndButton;
 
     bool endGameShown = false;
 
     void clearAnimalCardSelection();
     void showEndGameScreen();
+    void updateInteractionLock();
+
+Q_SIGNALS:
+    void requestNewGame();
+    void requestReturnToMenu();
 
 private Q_SLOTS:
     void onAnimalCardSelected(int index);
     void onCubePlaced();
     void onTurnEnded();
-    void onDebugEndClicked();
 
 public:
     explicit GameStageWidget(harmonies::core::Game *backendGame, QWidget *parent = nullptr);

@@ -2,21 +2,30 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <memory>
+#include "core/Game.h"
 
 // Forward declaration instead of direct inclusion to break the loop
 class GameStageWidget;
 
-namespace harmonies { namespace core { class Game; } }
-
 class MainWindow : public QMainWindow {
     Q_OBJECT
 private:
-    harmonies::core::Game *game;
+    std::unique_ptr<harmonies::core::Game> game;
     GameStageWidget *stageWidget;
 
+    bool runSetupAndCreateGame();
+    void showGameStage();
+
+private Q_SLOTS:
+    void onRequestNewGame();
+    void onRequestReturnToMenu();
+
 public:
-    explicit MainWindow(harmonies::core::Game *backendGame, QWidget *parent = nullptr);
+    explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow() = default;
+
+    bool isReady() const;
 };
 
 #endif // MAINWINDOW_H
