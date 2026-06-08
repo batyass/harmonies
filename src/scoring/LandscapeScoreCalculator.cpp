@@ -321,5 +321,21 @@ namespace harmonies
             return score;
         }
 
+        model::ScoreReport LandscapeScoreReport(const model::PersonalBoard &board)
+        {
+            model::ScoreReport report;
+            report.addTreeScore(computeTreeScore(board));
+            report.addMountainScore(computeMountainScore(board));
+            report.addFieldScore(computeFieldScore(board));
+            report.addBuildingScore(computeBuildingScore(board));
+
+            if (board.getSide() == model::BoardSide::A)
+                report.addWaterScore(riverScore(computeLongestRiverLength(board)));
+            else
+                report.addWaterScore(computeIslandScore(board));
+
+            return report;
+        }
+
     } // namespace scoring
 } // namespace harmonies

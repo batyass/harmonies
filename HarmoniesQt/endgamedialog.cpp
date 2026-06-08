@@ -1,80 +1,144 @@
 #include "endgamedialog.h"
 #include "core/Game.h"
 #include "model/Player.h"
+#include "model/ScoreReport.h"
+#include "scoring/LandscapeScoreCalculator.h"
+#include "scoring/AnimalCardScoreCalculator.h"
+#include "scoring/NatureSpiritScoreCalculator.h"
 #include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
 #include <QFrame>
 #include <algorithm>
 #include <vector>
 
+static harmonies::model::ScoreReport computeReport(const harmonies::model::Player &p)
+{
+    harmonies::model::ScoreReport report = harmonies::scoring::LandscapeScoreReport(*p.getBoard());
+
+    const harmonies::model::PlayerCardCollection *animalCards = p.getAnimalCards();
+    if (animalCards) {
+        for (const auto &card : animalCards->getCards())
+            report.addAnimalsScore(harmonies::scoring::AnimalCardScoreCalculator(card));
+    }
+
+    for (const auto &card : p.getNatureSpiritCards())
+        report.addSpiritScore(harmonies::scoring::NatureSpiritScoreCalculator(card, *p.getBoard()));
+
+    return report;
+}
+
+static QLabel *makeRow(const QString &label, std::size_t pts)
+{
+    QLabel *l = new QLabel(QString("  %1 : %2 pts").arg(label).arg(pts));
+    l->setStyleSheet("font-size: 12px; color: #546E7A; padding: 1px 0;");
+    return l;
+}
+
+struct Entry {
+    const harmonies::model::Player *player;
+    harmonies::model::ScoreReport report;
+};
+
+static void addPlayerCard(QVBoxLayout *col, const Entry &e, std::size_t rank, bool isWinner)
+{
+    QFrame *sep = new QFrame();
+    sep->setFrameShape(QFrame::HLine);
+    sep->setFrameShadow(QFrame::Sunken);
+    col->addWidget(sep);
+
+    const harmonies::model::ScoreReport &r = e.report;
+
+    QLabel *header = new QLabel(
+        QString("%1.  %2  —  %3 pts")
+            .arg(rank)
+            .arg(QString::fromStdString(e.player->getName()))
+            .arg(r.getTotalScore()));
+    header->setStyleSheet(isWinner
+        ? "font-size: 14px; font-weight: bold; color: #2E7D32;"
+        : "font-size: 14px; font-weight: bold; color: #37474F;");
+    col->addWidget(header);
+
+    col->addWidget(makeRow("Arbres",    r.getTreeScore()));
+    col->addWidget(makeRow("Montagnes", r.getMountainScore()));
+    col->addWidget(makeRow("Champs",    r.getFieldScore()));
+    col->addWidget(makeRow("Batiments", r.getBuildingScore()));
+    col->addWidget(makeRow("Eau",       r.getWaterScore()));
+    col->addWidget(makeRow("Animaux",   r.getAnimalsScore()));
+    if (r.getSpiritScore() > 0)
+        col->addWidget(makeRow("Esprit", r.getSpiritScore()));
+}
+
 EndGameDialog::EndGameDialog(harmonies::core::Game *game, QWidget *parent)
     : QDialog(parent)
 {
     setWindowTitle("Fin de Partie");
-    setMinimumWidth(340);
 
     const auto &players = game->getPlayers();
 
-    struct Entry {
-        const harmonies::model::Player *player;
-        int score;
-    };
     std::vector<Entry> entries;
     entries.reserve(players.size());
     for (const auto &p : players)
-        entries.push_back({p.get(), static_cast<int>(game->calculatePlayerScore(*p))});
+        entries.push_back({p.get(), computeReport(*p)});
 
     std::sort(entries.begin(), entries.end(),
-              [](const Entry &a, const Entry &b) { return a.score > b.score; });
+              [](const Entry &a, const Entry &b) {
+                  return a.report.getTotalScore() > b.report.getTotalScore();
+              });
 
     const Entry *winner = entries.empty() ? nullptr : &entries[0];
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
-    layout->setSpacing(8);
+    QVBoxLayout *root = new QVBoxLayout(this);
+    root->setSpacing(8);
 
     QLabel *title = new QLabel("=== FIN DE PARTIE ===", this);
     title->setAlignment(Qt::AlignCenter);
-    title->setStyleSheet("font-size: 20px; font-weight: bold; margin-bottom: 8px;");
-    layout->addWidget(title);
+    title->setStyleSheet("font-size: 20px; font-weight: bold; margin-bottom: 4px;");
+    root->addWidget(title);
 
     if (winner) {
         QLabel *winnerLabel = new QLabel(
             QString("Vainqueur : %1  (%2 pts)")
                 .arg(QString::fromStdString(winner->player->getName()))
-                .arg(winner->score),
-            this);
+                .arg(winner->report.getTotalScore()));
         winnerLabel->setAlignment(Qt::AlignCenter);
         winnerLabel->setStyleSheet(
-            "font-size: 15px; font-weight: bold; color: #E65100; margin-bottom: 4px;");
-        layout->addWidget(winnerLabel);
+            "font-size: 15px; font-weight: bold; color: #E65100; margin-bottom: 2px;");
+        root->addWidget(winnerLabel);
     }
 
-    QFrame *sep = new QFrame(this);
-    sep->setFrameShape(QFrame::HLine);
-    sep->setFrameShadow(QFrame::Sunken);
-    layout->addWidget(sep);
+    QHBoxLayout *columns = new QHBoxLayout();
+    columns->setSpacing(16);
+
+    QVBoxLayout *leftCol  = new QVBoxLayout();
+    QVBoxLayout *rightCol = new QVBoxLayout();
+    leftCol->setSpacing(4);
+    rightCol->setSpacing(4);
 
     for (std::size_t i = 0; i < entries.size(); ++i) {
         bool isWinner = (winner && entries[i].player == winner->player);
-        QLabel *row = new QLabel(
-            QString("%1.  %2  —  %3 pts")
-                .arg(i + 1)
-                .arg(QString::fromStdString(entries[i].player->getName()))
-                .arg(entries[i].score),
-            this);
-        row->setAlignment(Qt::AlignCenter);
-        row->setStyleSheet(isWinner
-            ? "font-size: 14px; font-weight: bold; color: #2E7D32; padding: 2px;"
-            : "font-size: 13px; color: #37474F; padding: 2px;");
-        layout->addWidget(row);
+        QVBoxLayout *target = (i < 2) ? leftCol : rightCol;
+        addPlayerCard(target, entries[i], i + 1, isWinner);
     }
 
-    layout->addStretch();
+    leftCol->addStretch();
+    rightCol->addStretch();
+
+    columns->addLayout(leftCol, 1);
+    if (entries.size() > 2) {
+        QFrame *vSep = new QFrame(this);
+        vSep->setFrameShape(QFrame::VLine);
+        vSep->setFrameShadow(QFrame::Sunken);
+        columns->addWidget(vSep);
+        columns->addLayout(rightCol, 1);
+    }
+
+    root->addLayout(columns);
 
     QPushButton *closeBtn = new QPushButton("Fermer", this);
     closeBtn->setStyleSheet(
         "background-color: #E53935; color: white; font-weight: bold; padding: 8px; border-radius: 4px;");
     connect(closeBtn, &QPushButton::clicked, this, &QDialog::accept);
-    layout->addWidget(closeBtn);
+    root->addWidget(closeBtn);
 }
