@@ -139,7 +139,7 @@ EndGameDialog::EndGameDialog(harmonies::core::Game *game, QWidget *parent)
     QHBoxLayout *buttonRow = new QHBoxLayout();
     buttonRow->setSpacing(10);
 
-    QPushButton *newGameBtn = new QPushButton("Nouvelle partie", this);
+    QPushButton *newGameBtn = new QPushButton("Rejouer", this);
     newGameBtn->setStyleSheet(
         "background-color: #43A047; color: white; font-weight: bold; padding: 8px; border-radius: 4px;");
     connect(newGameBtn, &QPushButton::clicked, this, [this]() {
@@ -148,7 +148,7 @@ EndGameDialog::EndGameDialog(harmonies::core::Game *game, QWidget *parent)
     });
     buttonRow->addWidget(newGameBtn);
 
-    QPushButton *menuBtn = new QPushButton("Retour au menu", this);
+    QPushButton *menuBtn = new QPushButton("Retour a la configuration", this);
     menuBtn->setStyleSheet(
         "background-color: #1E88E5; color: white; font-weight: bold; padding: 8px; border-radius: 4px;");
     connect(menuBtn, &QPushButton::clicked, this, [this]() {

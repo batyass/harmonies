@@ -18,11 +18,26 @@ PlayerInfosWidget::PlayerInfosWidget(harmonies::core::Game *backendGame, QWidget
     currentPlayerLabel->setStyleSheet("font-size: 14px; font-weight: bold; color: #1565C0; border: none;");
     layout->addWidget(currentPlayerLabel);
 
+    turnLabel = new QLabel(this);
+    turnLabel->setStyleSheet("font-size: 12px; color: #455A64; border: none;");
+    layout->addWidget(turnLabel);
+
     gameStateLabel = new QLabel(this);
-    gameStateLabel->setStyleSheet("font-size: 12px; color: #37474F; border: none;");
+    gameStateLabel->setStyleSheet("font-size: 13px; font-weight: bold; color: #37474F; border: none;");
     layout->addWidget(gameStateLabel);
 
-    pendingTitleLabel = new QLabel("Jetons a placer (Cliquez pour choisir) :", this);
+    phaseHintLabel = new QLabel(this);
+    phaseHintLabel->setWordWrap(true);
+    phaseHintLabel->setStyleSheet("font-size: 11px; color: #546E7A; border: none; background: #F5FAFD; padding: 6px; border-radius: 4px;");
+    layout->addWidget(phaseHintLabel);
+
+    finalRoundLabel = new QLabel(this);
+    finalRoundLabel->setWordWrap(true);
+    finalRoundLabel->setStyleSheet("font-size: 11px; font-weight: bold; color: #8A1C1C; background: #FFE8E3; border: 1px solid #F0B7A7; border-radius: 4px; padding: 6px;");
+    finalRoundLabel->hide();
+    layout->addWidget(finalRoundLabel);
+
+    pendingTitleLabel = new QLabel(this);
     pendingTitleLabel->setStyleSheet("font-weight: bold; font-size: 11px; color: #E65100; border: none; margin-top: 5px;");
     layout->addWidget(pendingTitleLabel);
 
@@ -66,25 +81,44 @@ void PlayerInfosWidget::updateUI() {
         currentPlayerLabel->setText(QString("Tour de : %1").arg(QString::fromStdString(current->getName())));
     }
 
-    QString stateStr;
+    if (game->getTurnManager() != nullptr) {
+        turnLabel->setText(QString("Tour de table : %1  |  Joueur %2/%3")
+                               .arg(game->getTurnManager()->getTurnCount())
+                               .arg(getCurrentPlayerPosition())
+                               .arg(static_cast<int>(game->getPlayers().size())));
+    } else {
+        turnLabel->clear();
+    }
+
+    gameStateLabel->setText(buildStateText());
+    phaseHintLabel->setText(buildPhaseHintText());
+    pendingTitleLabel->setText(buildPendingTitleText());
+
     bool enableEndTurn = false;
     switch(game->getState()) {
-    case harmonies::core::GameState::NotStarted: stateStr = "Statut : Non lance"; break;
-    case harmonies::core::GameState::WaitingForSlotChoice: stateStr = "Action : Choisir un slot au centre"; break;
-    case harmonies::core::GameState::WaitingForPlacement: stateStr = "Action : Placer les jetons sur le plateau"; break;
     case harmonies::core::GameState::WaitingForTurnEndChoice:
-        stateStr = "Action : Actions optionnelles ou fin";
         enableEndTurn = true;
         break;
-    case harmonies::core::GameState::GameOver: stateStr = "Statut : Partie terminee !"; break;
+    default:
+        break;
     }
-    gameStateLabel->setText(stateStr);
     endTurnButton->setEnabled(enableEndTurn);
+    endTurnButton->setText(enableEndTurn ? "Passer au joueur suivant" : "Finir le tour");
 
     if(enableEndTurn) {
         endTurnButton->setStyleSheet("background-color: #4CAF50; color: white; font-weight: bold; padding: 6px;");
     } else {
         endTurnButton->setStyleSheet("background-color: #B0BEC5; color: #757575; padding: 6px;");
+    }
+
+    if (game->isFinalRoundTriggered() && !game->isGameOver()) {
+        finalRoundLabel->setText("Dernier tour enclenche : chaque joueur termine encore son tour avant le decompte final.");
+        finalRoundLabel->show();
+    } else if (game->isGameOver()) {
+        finalRoundLabel->setText("La partie est terminee. Consultez le classement final.");
+        finalRoundLabel->show();
+    } else {
+        finalRoundLabel->hide();
     }
 
     // Rebuild the pending token selection area to match the current turn state.
@@ -139,6 +173,69 @@ void PlayerInfosWidget::updateUI() {
             pendingLayout->insertWidget(pendingLayout->count() - 1, circle);
         }
     }
+}
+
+QString PlayerInfosWidget::buildStateText() const {
+    switch (game->getState()) {
+    case harmonies::core::GameState::NotStarted:
+        return "Phase : partie non lancee";
+    case harmonies::core::GameState::WaitingForSlotChoice:
+        return "Phase : choix du groupe de 3 jetons";
+    case harmonies::core::GameState::WaitingForPlacement:
+        return "Phase : placement obligatoire des jetons";
+    case harmonies::core::GameState::WaitingForTurnEndChoice:
+        return "Phase : actions optionnelles ou fin du tour";
+    case harmonies::core::GameState::GameOver:
+        return "Phase : partie terminee";
+    }
+
+    return QString();
+}
+
+QString PlayerInfosWidget::buildPhaseHintText() const {
+    const std::size_t pendingCount = game->getPendingTokens().size();
+
+    switch (game->getState()) {
+    case harmonies::core::GameState::NotStarted:
+        return "La partie n'a pas encore commence.";
+    case harmonies::core::GameState::WaitingForSlotChoice:
+        return "Choisissez un slot du plateau central. Les 3 jetons du slot seront pris d'un coup.";
+    case harmonies::core::GameState::WaitingForPlacement:
+        return QString("Placez vos jetons sur votre plateau personnel. Il en reste %1 a poser.")
+            .arg(pendingCount);
+    case harmonies::core::GameState::WaitingForTurnEndChoice:
+        return "Vous avez fini les actions obligatoires. Vous pouvez encore prendre une carte animale, poser des cubes, ou passer au joueur suivant.";
+    case harmonies::core::GameState::GameOver:
+        return "Le decompte final est termine.";
+    }
+
+    return QString();
+}
+
+QString PlayerInfosWidget::buildPendingTitleText() const {
+    const std::size_t pendingCount = game->getPendingTokens().size();
+
+    if (pendingCount == 0) {
+        return "Jetons en attente : aucun";
+    }
+
+    return QString("Jetons en attente : %1 (cliquez pour choisir l'ordre de pose)").arg(pendingCount);
+}
+
+int PlayerInfosWidget::getCurrentPlayerPosition() const {
+    harmonies::model::Player *current = game->getCurrentPlayer();
+    if (current == nullptr) {
+        return 0;
+    }
+
+    const std::vector<std::unique_ptr<harmonies::model::Player>> &players = game->getPlayers();
+    for (std::size_t i = 0; i < players.size(); ++i) {
+        if (players[i].get() == current) {
+            return static_cast<int>(i + 1);
+        }
+    }
+
+    return 0;
 }
 
 QString PlayerInfosWidget::getColorStyleByTokenType(int typeInt) {

@@ -8,7 +8,13 @@
 #include "setupdialog.h"
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), game(), stageWidget(nullptr)
+    : QMainWindow(parent),
+      game(),
+      stageWidget(nullptr),
+      lastPlayerNames(),
+      lastBoardSide(harmonies::model::BoardSide::A),
+      lastNatureSpiritEnabled(false),
+      hasLastSetup(false)
 {
     this->setWindowTitle("Harmonies - Jalon Qt (Projet LO21)");
     this->resize(1300, 850);
@@ -27,26 +33,27 @@ bool MainWindow::isReady() const
     return game != nullptr && stageWidget != nullptr;
 }
 
-bool MainWindow::runSetupAndCreateGame()
+bool MainWindow::createGameFromConfig(const std::vector<std::string> &playerNames,
+                                      harmonies::model::BoardSide boardSide,
+                                      bool natureSpiritEnabled)
 {
-    SetupDialog setup(this);
-    if (setup.exec() != QDialog::Accepted)
-    {
-        return false;
-    }
-
     try
     {
-        std::vector<std::string> names = setup.getPlayerNames();
         harmonies::model::GameConfig config(
-            names.size(),
-            setup.getBoardSide(),
-            setup.isNatureSpiritEnabled());
+            playerNames.size(),
+            boardSide,
+            natureSpiritEnabled);
 
         std::unique_ptr<harmonies::core::Game> newGame(
-            new harmonies::core::Game(config, names));
+            new harmonies::core::Game(config, playerNames));
         newGame->initGame();
         game = std::move(newGame);
+
+        lastPlayerNames = playerNames;
+        lastBoardSide = boardSide;
+        lastNatureSpiritEnabled = natureSpiritEnabled;
+        hasLastSetup = true;
+
         return true;
     }
     catch (const std::exception &e)
@@ -59,6 +66,30 @@ bool MainWindow::runSetupAndCreateGame()
     }
 
     return false;
+}
+
+bool MainWindow::runSetupAndCreateGame()
+{
+    SetupDialog setup(this);
+    if (setup.exec() != QDialog::Accepted)
+    {
+        return false;
+    }
+
+    return createGameFromConfig(
+        setup.getPlayerNames(),
+        setup.getBoardSide(),
+        setup.isNatureSpiritEnabled());
+}
+
+bool MainWindow::restartWithLastSetup()
+{
+    if (!hasLastSetup)
+    {
+        return runSetupAndCreateGame();
+    }
+
+    return createGameFromConfig(lastPlayerNames, lastBoardSide, lastNatureSpiritEnabled);
 }
 
 void MainWindow::showGameStage()
@@ -78,7 +109,7 @@ void MainWindow::showGameStage()
 
 void MainWindow::onRequestNewGame()
 {
-    if (!runSetupAndCreateGame())
+    if (!restartWithLastSetup())
     {
         return;
     }

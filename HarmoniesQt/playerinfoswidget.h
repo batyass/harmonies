@@ -33,7 +33,10 @@ class PlayerInfosWidget : public QWidget {
 private:
     harmonies::core::Game *game;
     QLabel *currentPlayerLabel;
+    QLabel *turnLabel;
     QLabel *gameStateLabel;
+    QLabel *phaseHintLabel;
+    QLabel *finalRoundLabel;
 
     QLabel *pendingTitleLabel;
     QWidget *pendingContainer;
@@ -45,6 +48,10 @@ private:
     std::size_t selectedTokenIndex;
 
     QString getColorStyleByTokenType(int typeInt);
+    QString buildStateText() const;
+    QString buildPhaseHintText() const;
+    QString buildPendingTitleText() const;
+    int getCurrentPlayerPosition() const;
 
 Q_SIGNALS:
     void turnEnded();

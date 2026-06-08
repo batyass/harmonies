@@ -2,6 +2,10 @@
 #define PERSONALBOARDWIDGET_H
 
 #include <QWidget>
+#include <map>
+
+#include "model/BoardCell.h"
+#include "utils/hexCoord.h"
 
 namespace harmonies { namespace core { class Game; } }
 class PlayerInfosWidget;
@@ -18,7 +22,9 @@ protected:
     void mousePressEvent(QMouseEvent *event) override;
 
 private:
-    QPoint axialToPixel(int q, int r, int radius, int centerX, int centerY, int qMin);
+    QPoint axialToPixel(int q, int r, int radius) const;
+    QPoint buildBoardOffset(const std::map<harmonies::utils::HexCoord, harmonies::model::BoardCell> &cells,
+                            int radius) const;
     QString getColorByTokenType(int typeInt);
 
 Q_SIGNALS:

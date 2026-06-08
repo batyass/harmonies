@@ -9,8 +9,8 @@
 #include <QtMath>
 #include <QMessageBox>
 #include <algorithm>
-#include <climits>
 #include <exception>
+#include <limits>
 
 PersonalBoardWidget::PersonalBoardWidget(harmonies::core::Game *backendGame, QWidget *parent)
     : QWidget(parent), game(backendGame), playerInfosWidget(nullptr)
@@ -43,18 +43,13 @@ void PersonalBoardWidget::paintEvent(QPaintEvent *event) {
     const auto& cells = board->getCells();
 
     int radius = 22;
-    int centerX = width() / 2;
-    int centerY = height() / 2 + 20;
-
-    int qMin = INT_MAX;
-    for (const auto& pair : cells)
-        qMin = std::min(qMin, pair.first.getQ());
+    QPoint boardOffset = buildBoardOffset(cells, radius);
 
     for (const auto& pair : cells) {
         const harmonies::utils::HexCoord& coord = pair.first;
         const harmonies::model::BoardCell& cell = pair.second;
 
-        QPoint pixelPos = axialToPixel(coord.getQ(), coord.getR(), radius, centerX, centerY, qMin);
+        QPoint pixelPos = boardOffset + axialToPixel(coord.getQ(), coord.getR(), radius);
 
         // Aligned with BoardCell.h methods: getTokenStack()
         if (cell.getTokenStack().empty()) {
@@ -95,18 +90,13 @@ void PersonalBoardWidget::mousePressEvent(QMouseEvent *event) {
     if (!game || !game->getCurrentPlayer() || !game->getCurrentPlayer()->getBoard()) return;
 
     int radius = 22;
-    int centerX = width() / 2;
-    int centerY = height() / 2 + 20;
 
     const auto& cells = game->getCurrentPlayer()->getBoard()->getCells();
-
-    int qMin = INT_MAX;
-    for (const auto& pair : cells)
-        qMin = std::min(qMin, pair.first.getQ());
+    QPoint boardOffset = buildBoardOffset(cells, radius);
 
     for (const auto& pair : cells) {
         const harmonies::utils::HexCoord& coord = pair.first;
-        QPoint pixelPos = axialToPixel(coord.getQ(), coord.getR(), radius, centerX, centerY, qMin);
+        QPoint pixelPos = boardOffset + axialToPixel(coord.getQ(), coord.getR(), radius);
 
         int dx = event->pos().x() - pixelPos.x();
         int dy = event->pos().y() - pixelPos.y();
@@ -185,17 +175,49 @@ void PersonalBoardWidget::mousePressEvent(QMouseEvent *event) {
     }
 }
 
-QPoint PersonalBoardWidget::axialToPixel(int q, int r, int radius, int centerX, int centerY, int qMin) {
-    double colWidth  = radius * 2.1;
-    double rowHeight = radius * 2.1;
+QPoint PersonalBoardWidget::axialToPixel(int q, int r, int radius) const {
+    const double verticalStep = radius * 2.1;
+    const double horizontalStep = verticalStep * qSqrt(3.0) / 2.0;
 
-    double x = centerX + q * colWidth;
-    Q_UNUSED(qMin);
-    // The whole project now uses even-q offset coordinates:
+    double x = q * horizontalStep;
+    // The whole project uses even-q offset coordinates:
     // odd columns are drawn half a row higher than even columns.
-    bool isOddColumn = (q % 2 != 0);
-    double y = centerY + r * rowHeight - (isOddColumn ? rowHeight / 2.0 : 0.0);
+    const bool isOddColumn = (q % 2 != 0);
+    double y = r * verticalStep - (isOddColumn ? verticalStep / 2.0 : 0.0);
     return QPoint(static_cast<int>(x), static_cast<int>(y));
+}
+
+QPoint PersonalBoardWidget::buildBoardOffset(
+    const std::map<harmonies::utils::HexCoord, harmonies::model::BoardCell> &cells,
+    int radius) const
+{
+    if (cells.empty()) {
+        return QPoint(width() / 2, height() / 2);
+    }
+
+    int minX = std::numeric_limits<int>::max();
+    int maxX = std::numeric_limits<int>::min();
+    int minY = std::numeric_limits<int>::max();
+    int maxY = std::numeric_limits<int>::min();
+
+    for (const auto &pair : cells) {
+        QPoint rawPos = axialToPixel(pair.first.getQ(), pair.first.getR(), radius);
+        minX = std::min(minX, rawPos.x() - radius);
+        maxX = std::max(maxX, rawPos.x() + radius);
+        minY = std::min(minY, rawPos.y() - radius);
+        maxY = std::max(maxY, rawPos.y() + radius);
+    }
+
+    const int boardWidth = maxX - minX;
+    const int boardHeight = maxY - minY;
+    const int topReserved = 48;
+    const int bottomMargin = 12;
+    const int availableHeight = std::max(0, height() - topReserved - bottomMargin);
+
+    const int offsetX = (width() - boardWidth) / 2 - minX;
+    const int offsetY = topReserved + (availableHeight - boardHeight) / 2 - minY;
+
+    return QPoint(offsetX, offsetY);
 }
 
 QString PersonalBoardWidget::getColorByTokenType(int typeInt) {
