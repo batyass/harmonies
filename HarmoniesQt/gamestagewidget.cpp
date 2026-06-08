@@ -14,23 +14,31 @@ GameStageWidget::GameStageWidget(harmonies::core::Game *backendGame, QWidget *pa
     : QWidget(parent), game(backendGame)
 {
     QHBoxLayout *mainLayout = new QHBoxLayout(this);
+    mainLayout->setContentsMargins(6, 6, 6, 6);
+    mainLayout->setSpacing(8);
+
+    QVBoxLayout *leftColumn = new QVBoxLayout();
+    leftColumn->setSpacing(8);
 
     personalBoard = new PersonalBoardWidget(game, this);
-    mainLayout->addWidget(personalBoard, 4);
+    leftColumn->addWidget(personalBoard, 5);
+
+    spiritCard = new SpiritCardWidget(game, this);
+    leftColumn->addWidget(spiritCard, 2);
+
+    mainLayout->addLayout(leftColumn, 4);
 
     centralBoard = new CentralBoardWidget(game, this);
     mainLayout->addWidget(centralBoard, 4);
 
     QVBoxLayout *rightColumn = new QVBoxLayout();
+    rightColumn->setSpacing(8);
 
     cardMarket = new CardMarketWidget(game, this);
     rightColumn->addWidget(cardMarket, 6);
 
     ownedCards = new PlayerOwnedCardsWidget(game, this);
     rightColumn->addWidget(ownedCards, 4);
-
-    spiritCard = new SpiritCardWidget(game, this);
-    rightColumn->addWidget(spiritCard, 2);
 
     playerInfos = new PlayerInfosWidget(game, this);
     rightColumn->addWidget(playerInfos, 4);

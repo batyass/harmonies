@@ -6,6 +6,13 @@
         <file>assets/cards/animal/parrot.png</file>
         <file>assets/cards/animal/raven.png</file>
         <file>assets/cards/animal/squirrel.png</file>
+        <file>assets/cards/spirit/brook.png</file>
+        <file>assets/cards/spirit/clay.png</file>
+        <file>assets/cards/spirit/field.png</file>
+        <file>assets/cards/spirit/grove.png</file>
         <file>assets/cards/spirit/lion.png</file>
+        <file>assets/cards/spirit/peak.png</file>
+        <file>assets/cards/spirit/spring.png</file>
+        <file>assets/cards/spirit/tower.png</file>
     </qresource>
 </RCC>

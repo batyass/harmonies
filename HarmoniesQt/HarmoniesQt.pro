@@ -21,6 +21,7 @@ SOURCES += main.cpp \
            personalboardwidget.cpp \
            playerownedcardswidget.cpp \
            playerinfoswidget.cpp \
+           spiritcardwidget.cpp \
            $$PWD/../src/core/Game.cpp \
            $$PWD/../src/core/TurnManager.cpp \
            $$PWD/../src/core/DefaultDeckFactory.cpp \
