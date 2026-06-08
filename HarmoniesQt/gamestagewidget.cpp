@@ -5,6 +5,7 @@
 #include "playerownedcardswidget.h"
 #include "playerinfoswidget.h"
 #include "spiritcardwidget.h"
+#include "endgamedialog.h"
 #include "core/Game.h"
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -34,6 +35,11 @@ GameStageWidget::GameStageWidget(harmonies::core::Game *backendGame, QWidget *pa
     playerInfos = new PlayerInfosWidget(game, this);
     rightColumn->addWidget(playerInfos, 4);
 
+    debugEndButton = new QPushButton("Fin de partie (debug)", this);
+    debugEndButton->setStyleSheet(
+        "background-color: #7B1FA2; color: white; font-size: 11px; padding: 4px; border-radius: 3px;");
+    rightColumn->addWidget(debugEndButton);
+
     personalBoard->setPlayerInfosWidget(playerInfos);
 
     mainLayout->addLayout(rightColumn, 3);
@@ -43,6 +49,7 @@ GameStageWidget::GameStageWidget(harmonies::core::Game *backendGame, QWidget *pa
     connect(cardMarket, &CardMarketWidget::marketUpdated, this, &GameStageWidget::refreshAllComponents);
     connect(spiritCard, &SpiritCardWidget::spiritChosen, this, &GameStageWidget::refreshAllComponents);
     connect(playerInfos, &PlayerInfosWidget::turnEnded, this, &GameStageWidget::onTurnEnded);
+    connect(debugEndButton, &QPushButton::clicked, this, &GameStageWidget::onDebugEndClicked);
 
     // Câblage Placement Cube Animal
     connect(ownedCards, &PlayerOwnedCardsWidget::cardClicked, this, &GameStageWidget::onAnimalCardSelected);
@@ -75,4 +82,18 @@ void GameStageWidget::refreshAllComponents() {
     ownedCards->updateUI();
     spiritCard->updateUI();
     playerInfos->updateUI();
+
+    if (game->isGameOver() && !endGameShown) {
+        endGameShown = true;
+        showEndGameScreen();
+    }
+}
+
+void GameStageWidget::showEndGameScreen() {
+    EndGameDialog dlg(game, this);
+    dlg.exec();
+}
+
+void GameStageWidget::onDebugEndClicked() {
+    showEndGameScreen();
 }

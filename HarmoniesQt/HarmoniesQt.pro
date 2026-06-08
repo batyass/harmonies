@@ -14,6 +14,7 @@ INCLUDEPATH += $$PWD/../include
 SOURCES += main.cpp \
            mainwindow.cpp \
            setupdialog.cpp \
+           endgamedialog.cpp \
            cardmarketwidget.cpp \
            centralboardwidget.cpp \
            gamestagewidget.cpp \
@@ -55,6 +56,7 @@ SOURCES += main.cpp \
 # 4. Target UI Headers layout view
 HEADERS += mainwindow.h \
            setupdialog.h \
+           endgamedialog.h \
            cardmarketwidget.h \
            centralboardwidget.h \
            gamestagewidget.h \
