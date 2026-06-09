@@ -31,6 +31,7 @@ private:
 private Q_SLOTS:
     void onRequestNewGame();
     void onRequestReturnToMenu();
+    void onRequestQuitApplication();
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);

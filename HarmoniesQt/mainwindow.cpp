@@ -168,6 +168,7 @@ void MainWindow::showGameStage()
     GameStageWidget *newStage = new GameStageWidget(game.get(), this);
     connect(newStage, &GameStageWidget::requestNewGame, this, &MainWindow::onRequestNewGame);
     connect(newStage, &GameStageWidget::requestReturnToMenu, this, &MainWindow::onRequestReturnToMenu);
+    connect(newStage, &GameStageWidget::requestQuitApplication, this, &MainWindow::onRequestQuitApplication);
 
     setCentralWidget(newStage);
     stageWidget = newStage;
@@ -194,4 +195,9 @@ void MainWindow::onRequestReturnToMenu()
     }
 
     showGameStage();
+}
+
+void MainWindow::onRequestQuitApplication()
+{
+    close();
 }

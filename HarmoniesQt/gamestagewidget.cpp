@@ -51,6 +51,7 @@ GameStageWidget::GameStageWidget(harmonies::core::Game *backendGame, QWidget *pa
     connect(personalBoard, &PersonalBoardWidget::boardUpdated, this, &GameStageWidget::refreshAllComponents);
     connect(cardMarket, &CardMarketWidget::marketUpdated, this, &GameStageWidget::refreshAllComponents);
     connect(spiritCard, &SpiritCardWidget::spiritChosen, this, &GameStageWidget::refreshAllComponents);
+    connect(spiritCard, &SpiritCardWidget::spiritCubePlacementRequested, this, &GameStageWidget::onSpiritCubePlacementRequested);
     connect(playerInfos, &PlayerInfosWidget::turnEnded, this, &GameStageWidget::onTurnEnded);
 
     // Câblage Placement Cube Animal
@@ -61,22 +62,36 @@ GameStageWidget::GameStageWidget(harmonies::core::Game *backendGame, QWidget *pa
 }
 
 void GameStageWidget::onAnimalCardSelected(int index) {
+    clearSpiritCubeSelection();
     personalBoard->setSelectedAnimalCardIndex(index);
     ownedCards->setSelectedIndex(index);
 }
 
+void GameStageWidget::onSpiritCubePlacementRequested() {
+    clearAnimalCardSelection();
+    personalBoard->setSelectedSpiritCube(true);
+    spiritCard->setCubePlacementSelected(true);
+}
+
 void GameStageWidget::onCubePlaced() {
     clearAnimalCardSelection();
+    clearSpiritCubeSelection();
 }
 
 void GameStageWidget::onTurnEnded() {
     clearAnimalCardSelection();
+    clearSpiritCubeSelection();
     refreshAllComponents();
 }
 
 void GameStageWidget::clearAnimalCardSelection() {
     personalBoard->setSelectedAnimalCardIndex(-1);
     ownedCards->setSelectedIndex(-1);
+}
+
+void GameStageWidget::clearSpiritCubeSelection() {
+    personalBoard->setSelectedSpiritCube(false);
+    spiritCard->setCubePlacementSelected(false);
 }
 
 void GameStageWidget::refreshAllComponents() {
@@ -103,6 +118,8 @@ void GameStageWidget::showEndGameScreen() {
         Q_EMIT requestNewGame();
     } else if (dlg.getChoice() == EndGameDialog::Choice::ReturnToMenu) {
         Q_EMIT requestReturnToMenu();
+    } else if (dlg.getChoice() == EndGameDialog::Choice::QuitApplication) {
+        Q_EMIT requestQuitApplication();
     }
 }
 

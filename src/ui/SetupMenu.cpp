@@ -95,9 +95,7 @@ namespace harmonies
             model::BoardSide side = (readChar("Board side (A/B): ", 'a', 'b') == 'a')
                 ? model::BoardSide::A : model::BoardSide::B;
 
-            bool spirit = false;
-            if (nb > 1)
-                spirit = (readChar("Enable Nature Spirit option? (y/n): ", 'y', 'n') == 'y');
+            bool spirit = (readChar("Enable Nature Spirit option? (y/n): ", 'y', 'n') == 'y');
 
             std::cout << '\n';
             playerNames.clear();
