@@ -23,6 +23,7 @@ private:
     bool createGameFromConfig(const std::vector<std::string> &playerNames,
                               harmonies::model::BoardSide boardSide,
                               bool natureSpiritEnabled);
+    bool chooseStartingPlayer(std::vector<std::string> &playerNames);
     bool runSetupAndCreateGame();
     bool restartWithLastSetup();
     void showGameStage();

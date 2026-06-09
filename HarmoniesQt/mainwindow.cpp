@@ -1,6 +1,14 @@
 #include "mainwindow.h"
 
+#include <QButtonGroup>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QLabel>
 #include <QMessageBox>
+#include <QRadioButton>
+#include <QVBoxLayout>
+
+#include <algorithm>
 
 #include "core/Game.h"
 #include "gamestagewidget.h"
@@ -68,6 +76,58 @@ bool MainWindow::createGameFromConfig(const std::vector<std::string> &playerName
     return false;
 }
 
+bool MainWindow::chooseStartingPlayer(std::vector<std::string> &playerNames)
+{
+    if (playerNames.size() <= 1)
+    {
+        return true;
+    }
+
+    QDialog dialog(this);
+    dialog.setWindowTitle("Premier joueur");
+
+    QVBoxLayout *layout = new QVBoxLayout(&dialog);
+
+    QLabel *label = new QLabel("Quel est le dernier joueur ayant vu un paysage magnifique ?", &dialog);
+    label->setWordWrap(true);
+    layout->addWidget(label);
+
+    QButtonGroup *group = new QButtonGroup(&dialog);
+    group->setExclusive(true);
+
+    for (std::size_t i = 0; i < playerNames.size(); ++i)
+    {
+        QRadioButton *button = new QRadioButton(QString::fromStdString(playerNames[i]), &dialog);
+        group->addButton(button, static_cast<int>(i));
+        layout->addWidget(button);
+
+        if (i == 0)
+        {
+            button->setChecked(true);
+        }
+    }
+
+    QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
+    QObject::connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    QObject::connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+    layout->addWidget(buttons);
+
+    if (dialog.exec() != QDialog::Accepted)
+    {
+        return false;
+    }
+
+    const int selectedId = group->checkedId();
+    if (selectedId > 0)
+    {
+        std::rotate(playerNames.begin(),
+                    playerNames.begin() + selectedId,
+                    playerNames.end());
+    }
+
+    return true;
+}
+
 bool MainWindow::runSetupAndCreateGame()
 {
     SetupDialog setup(this);
@@ -76,8 +136,14 @@ bool MainWindow::runSetupAndCreateGame()
         return false;
     }
 
+    std::vector<std::string> playerNames = setup.getPlayerNames();
+    if (!chooseStartingPlayer(playerNames))
+    {
+        return false;
+    }
+
     return createGameFromConfig(
-        setup.getPlayerNames(),
+        playerNames,
         setup.getBoardSide(),
         setup.isNatureSpiritEnabled());
 }
