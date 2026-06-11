@@ -186,8 +186,6 @@ void MainWindow::onRequestNewGame()
 
 void MainWindow::onRequestReturnToMenu()
 {
-    game.reset();
-
     if (!runSetupAndCreateGame())
     {
         close();
