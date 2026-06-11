@@ -117,9 +117,10 @@ void CardMarketWidget::onMarketCardClicked(std::size_t index) {
         }
 
         const harmonies::model::Player *cp = game->getCurrentPlayer();
-        const std::size_t totalCards = cp->getAnimalCards()->getCardCount()
-                                     + cp->getNatureSpiritCardCount();
-        if (totalCards >= 4) {
+        const std::size_t activeCards =
+            cp->getActiveAnimalCardCount() +
+            (cp->hasUnplacedChosenNatureSpiritCard() ? 1u : 0u);
+        if (activeCards >= 4) {
             QMessageBox::warning(this, "Limite atteinte",
                 "Vous avez deja 4 cartes.");
             return;
