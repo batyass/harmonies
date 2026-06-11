@@ -176,6 +176,12 @@ void MainWindow::showGameStage()
 
 void MainWindow::onRequestNewGame()
 {
+    if (QWidget *oldCentral = takeCentralWidget())
+    {
+        oldCentral->deleteLater();
+        stageWidget = nullptr;
+    }
+
     if (!restartWithLastSetup())
     {
         return;
@@ -186,6 +192,14 @@ void MainWindow::onRequestNewGame()
 
 void MainWindow::onRequestReturnToMenu()
 {
+    if (QWidget *oldCentral = takeCentralWidget())
+    {
+        oldCentral->deleteLater();
+        stageWidget = nullptr;
+    }
+
+    game.reset();
+
     if (!runSetupAndCreateGame())
     {
         close();
