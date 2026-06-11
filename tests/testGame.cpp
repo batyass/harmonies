@@ -259,6 +259,65 @@ int main()
     }
 
     {
+        GameConfig config(2, BoardSide::A, true);
+        std::vector<std::string> playerNames;
+        playerNames.push_back("Alice");
+        playerNames.push_back("Bob");
+
+        Game game(config, playerNames);
+        game.initGame();
+        check(game.chooseNatureSpiritCard(0),
+              "The current player should be able to choose one nature spirit card before testing the active card limit",
+              failures);
+
+        harmonies::model::Player *player = game.getCurrentPlayer();
+        for (int i = 0; i < 3; ++i)
+        {
+            player->getAnimalCards()->addCard(game.getAnimalCardDeck()->takeVisible(0));
+        }
+
+        check(!game.takeVisibleAnimalCard(0),
+              "An unplaced chosen nature spirit card should count in the limit of 4 active cards",
+              failures);
+
+        buildAnimalPatternOnBoard(*player->getBoard(),
+                                  HexCoord(0, 0),
+                                  player->getNatureSpiritCard(0)->getPattern());
+        check(game.placeNatureSpiritCube(HexCoord(0, 0)),
+              "The chosen nature spirit card should be placeable to free its active card slot",
+              failures);
+        check(game.takeVisibleAnimalCard(0),
+              "Once the nature spirit cube is placed, the spirit card should no longer count in the 4 active cards limit",
+              failures);
+    }
+
+    {
+        GameConfig config(2, BoardSide::A, false);
+        std::vector<std::string> playerNames;
+        playerNames.push_back("Alice");
+        playerNames.push_back("Bob");
+
+        Game game(config, playerNames);
+        game.initGame();
+
+        harmonies::model::Player *player = game.getCurrentPlayer();
+        harmonies::model::AnimalCard completedCard = game.getAnimalCardDeck()->takeVisible(0);
+        while (completedCard.placeNextCube())
+        {
+        }
+        player->getAnimalCards()->addCard(completedCard);
+
+        for (int i = 0; i < 3; ++i)
+        {
+            player->getAnimalCards()->addCard(game.getAnimalCardDeck()->takeVisible(0));
+        }
+
+        check(game.takeVisibleAnimalCard(0),
+              "A completed animal card should not count toward the 4 active cards limit",
+              failures);
+    }
+
+    {
         GameConfig config(2, BoardSide::A, false);
         std::vector<std::string> playerNames;
         playerNames.push_back("Alice");

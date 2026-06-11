@@ -42,6 +42,8 @@ namespace harmonies
             const PlayerCardCollection *getAnimalCards() const;
             void addNatureSpiritCard(const NatureSpiritCard &card);
             std::size_t getNatureSpiritCardCount() const;
+            std::size_t getActiveAnimalCardCount() const;
+            bool hasUnplacedChosenNatureSpiritCard() const;
             NatureSpiritCard *getNatureSpiritCard(std::size_t index);
             const std::vector<NatureSpiritCard> &getNatureSpiritCards() const;
             bool chooseNatureSpiritCard(std::size_t index);

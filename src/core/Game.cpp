@@ -253,9 +253,13 @@ namespace harmonies
                 return false;
             }
 
-            static constexpr std::size_t MAX_ANIMAL_CARDS = 4;
+            static constexpr std::size_t MAX_ACTIVE_CARDS = 4;
             model::Player *cp = turnManager->getCurrentPlayer();
-            if (cp->getAnimalCards()->getCardCount() + cp->getNatureSpiritCardCount() >= MAX_ANIMAL_CARDS)
+            const std::size_t activeCards =
+                cp->getActiveAnimalCardCount() +
+                (cp->hasUnplacedChosenNatureSpiritCard() ? 1u : 0u);
+
+            if (activeCards >= MAX_ACTIVE_CARDS)
             {
                 return false;
             }
