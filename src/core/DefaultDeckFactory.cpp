@@ -24,15 +24,15 @@ namespace harmonies
 
         std::vector<model::AnimalCard> makeDefaultAnimalCards()
         {
-            std::vector<model::AnimalCard> cards;
+            std::vector<model::AnimalCard> templateCards;
 
             // Convention: stable lowercase names, with underscores only when needed.
             // These names are intended to stay machine-friendly so the UI can derive
             // asset paths such as cards/animal/<name>.png without extra translation.
             //
-            // The six cards below now match the actual illustrated motifs used in the
-            // Qt assets instead of the previous single-cell placeholder patterns.
-            cards.push_back(model::AnimalCard(
+            // Each pattern below follows the illustrated motif shown on the animal card.
+            // The cube is always represented by the anchor cell at (0,0).
+            templateCards.push_back(model::AnimalCard(
                 "fennec",
                 makePattern({
                     {step(utils::HexDirection::UpLeft, 2), model::TokenType::YellowField, 1},
@@ -41,16 +41,25 @@ namespace harmonies
                 }),
                 std::vector<int>{4, 9, 16}));
 
-            cards.push_back(model::AnimalCard(
+            templateCards.push_back(model::AnimalCard(
                 "raven",
                 makePattern({
-                    {utils::HexCoord(1, 0), model::TokenType::RedBuilding, 2},
                     {utils::HexCoord(0, 0), model::TokenType::YellowField, 1},
-                    {utils::HexCoord(0, 1), model::TokenType::RedBuilding, 2},
+                    {step(utils::HexDirection::Up, 1), model::TokenType::RedBuilding, 2},
+                    {step(utils::HexDirection::DownLeft, 1), model::TokenType::RedBuilding, 2},
                 }),
                 std::vector<int>{4, 9}));
 
-            cards.push_back(model::AnimalCard(
+            templateCards.push_back(model::AnimalCard(
+                "raven2",
+                makePattern({
+                    {utils::HexCoord(0, 0), model::TokenType::YellowField, 1},
+                    {step(utils::HexDirection::Up, 1), model::TokenType::RedBuilding, 2},
+                    {step(utils::HexDirection::DownLeft, 1), model::TokenType::RedBuilding, 2},
+                }),
+                std::vector<int>{3, 6, 11, 17}));
+
+            templateCards.push_back(model::AnimalCard(
                 "squirrel",
                 makePattern({
                     {utils::HexCoord(-1, 0), model::TokenType::GreenTree, 3},
@@ -58,7 +67,7 @@ namespace harmonies
                 }),
                 std::vector<int>{4, 9, 15}));
 
-            cards.push_back(model::AnimalCard(
+            templateCards.push_back(model::AnimalCard(
                 "parrot",
                 makePattern({
                     {utils::HexCoord(-1, 0), model::TokenType::BlueWater, 1},
@@ -67,7 +76,7 @@ namespace harmonies
                 }),
                 std::vector<int>{4, 9, 14}));
 
-            cards.push_back(model::AnimalCard(
+            templateCards.push_back(model::AnimalCard(
                 "duck",
                 makePattern({
                     {utils::HexCoord(-1, 0), model::TokenType::RedBuilding, 2},
@@ -75,7 +84,7 @@ namespace harmonies
                 }),
                 std::vector<int>{2, 4, 8, 13}));
 
-            cards.push_back(model::AnimalCard(
+            templateCards.push_back(model::AnimalCard(
                 "fox",
                 makePattern({
                     {step(utils::HexDirection::UpLeft, 2), model::TokenType::GreenTree, 2},
@@ -83,6 +92,42 @@ namespace harmonies
                     {utils::HexCoord(0, 0), model::TokenType::GrayStone, 3},
                 }),
                 std::vector<int>{2, 4, 9, 16}));
+
+            templateCards.push_back(model::AnimalCard(
+                "otter",
+                makePattern({
+                    {step(utils::HexDirection::UpLeft, 1), model::TokenType::BlueWater, 1},
+                    {utils::HexCoord(0, 0), model::TokenType::BlueWater, 1},
+                    {step(utils::HexDirection::DownRight, 1), model::TokenType::BlueWater, 1},
+                }),
+                std::vector<int>{1, 4, 8, 14}));
+
+            templateCards.push_back(model::AnimalCard(
+                "deer",
+                makePattern({
+                    {step(utils::HexDirection::UpLeft, 2), model::TokenType::GreenTree, 2},
+                    {step(utils::HexDirection::UpLeft, 1), model::TokenType::GreenTree, 2},
+                    {utils::HexCoord(0, 0), model::TokenType::YellowField, 1},
+                }),
+                std::vector<int>{2, 5, 10, 15}));
+
+            templateCards.push_back(model::AnimalCard(
+                "goat",
+                makePattern({
+                    {utils::HexCoord(0, 0), model::TokenType::GrayStone, 3},
+                    {step(utils::HexDirection::DownRight, 1), model::TokenType::BlueWater, 1},
+                    {step(utils::HexDirection::DownRight, 2), model::TokenType::GreenTree, 2},
+                }),
+                std::vector<int>{3, 7, 12, 18}));
+
+            std::vector<model::AnimalCard> cards;
+            cards.reserve(30);
+
+            // Build a larger playable deck by repeating the illustrated cards.
+            for (int copy = 0; copy < 3; ++copy)
+            {
+                cards.insert(cards.end(), templateCards.begin(), templateCards.end());
+            }
 
             return cards;
         }
@@ -191,7 +236,7 @@ namespace harmonies
                 makePattern({
                     {utils::HexCoord(-1, 0), model::TokenType::RedBuilding, 2},
                     {utils::HexCoord(0, 0), model::TokenType::YellowField, 1},
-                    {utils::HexCoord(1, 0), model::TokenType::RedBuilding, 2},
+                    {utils::HexCoord(1, 1), model::TokenType::RedBuilding, 2},
                 }),
                 connectedEffect({
                     {model::TokenType::RedBuilding, 1, 1, 5},

@@ -175,11 +175,15 @@ void SpiritCardWidget::rebuildChoiceView()
         "border-radius: 6px; padding: 6px; font-size: 10px; font-weight: bold;");
     contentLayout->addWidget(hintLabel);
 
-    QHBoxLayout *row = new QHBoxLayout();
+    QWidget *rowContainer = new QWidget(this);
+    rowContainer->setStyleSheet("border: none; background: transparent;");
+
+    QHBoxLayout *row = new QHBoxLayout(rowContainer);
+    row->setContentsMargins(0, 0, 0, 0);
     row->setSpacing(8);
 
     for (std::size_t i = 0; i < spirits.size(); ++i) {
-        QFrame *cardFrame = new QFrame(this);
+        QFrame *cardFrame = new QFrame(rowContainer);
         cardFrame->setStyleSheet("background-color: #FFFDF6; border: 2px solid #D7C089; border-radius: 6px;");
         cardFrame->setFixedSize(128, 222);
 
@@ -230,7 +234,7 @@ void SpiritCardWidget::rebuildChoiceView()
         row->addWidget(cardFrame);
     }
 
-    contentLayout->addLayout(row);
+    contentLayout->addWidget(rowContainer);
 }
 
 void SpiritCardWidget::rebuildSelectedView()
