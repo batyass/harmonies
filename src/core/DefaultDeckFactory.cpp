@@ -146,7 +146,7 @@ namespace harmonies
             cards.push_back(model::NatureSpiritCard(
                 "brook",
                 makePattern({
-                    {utils::HexCoord(-2, 0), model::TokenType::BlueWater, 1},
+                    {utils::HexCoord(-2, -1), model::TokenType::BlueWater, 1},
                     {utils::HexCoord(-1, 0), model::TokenType::BlueWater, 1},
                     {utils::HexCoord(0, 0), model::TokenType::YellowField, 1},
                 }),
@@ -173,7 +173,7 @@ namespace harmonies
                 makePattern({
                     {utils::HexCoord(-1, 0), model::TokenType::YellowField, 1},
                     {utils::HexCoord(0, 0), model::TokenType::YellowField, 1},
-                    {utils::HexCoord(1, 0), model::TokenType::YellowField, 1},
+                    {utils::HexCoord(1, 1), model::TokenType::YellowField, 1},
                 }),
                 connectedEffect({
                     {model::TokenType::YellowField, 1, 1, 2},
@@ -186,7 +186,7 @@ namespace harmonies
                 makePattern({
                     {utils::HexCoord(0, 0), model::TokenType::GreenTree, 2},
                     {utils::HexCoord(1, 0), model::TokenType::GreenTree, 1},
-                    {utils::HexCoord(2, 0), model::TokenType::YellowField, 1},
+                    {utils::HexCoord(2, -1), model::TokenType::YellowField, 1},
                 }),
                 connectedEffect({
                     {model::TokenType::GreenTree, 1, 1, 3},
@@ -199,7 +199,7 @@ namespace harmonies
                 makePattern({
                     {utils::HexCoord(-1, 0), model::TokenType::GreenTree, 2},
                     {utils::HexCoord(0, 0), model::TokenType::YellowField, 1},
-                    {utils::HexCoord(1, 0), model::TokenType::YellowField, 1},
+                    {utils::HexCoord(1, 1), model::TokenType::YellowField, 1},
                 }),
                 connectedEffect({
                     {model::TokenType::YellowField, 1, 2, 2},

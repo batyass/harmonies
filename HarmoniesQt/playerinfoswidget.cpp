@@ -257,7 +257,13 @@ void PlayerInfosWidget::onEndTurnClicked() {
             resetSelection();
             Q_EMIT turnEnded();
         } else {
-            QMessageBox::warning(this, "Erreur", "Impossible de finir le tour maintenant.");
+            const bool mustChooseSpirit = game->isNatureSpiritEnabled() &&
+                                         game->getTurnManager()->getTurnCount() == 1 &&
+                                         game->getCurrentPlayer()->getNatureSpiritCardCount() > 1;
+            if (mustChooseSpirit)
+                QMessageBox::warning(this, "Action requise", "Vous devez choisir votre carte Esprit avant de finir le tour.");
+            else
+                QMessageBox::warning(this, "Erreur", "Impossible de finir le tour maintenant.");
         }
     } catch (const std::exception &e) {
         QMessageBox::critical(this, "Erreur du moteur", QString::fromUtf8(e.what()));
