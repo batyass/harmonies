@@ -112,6 +112,12 @@ SpiritCardWidget::SpiritCardWidget(harmonies::core::Game *backendGame, QWidget *
     updateUI();
 }
 
+void SpiritCardWidget::setCubePlacementSelected(bool selected)
+{
+    cubePlacementSelected = selected;
+    updateUI();
+}
+
 void SpiritCardWidget::clearContent()
 {
     while (QLayoutItem *item = contentLayout->takeAt(0)) {
@@ -234,7 +240,10 @@ void SpiritCardWidget::rebuildSelectedView()
     const harmonies::model::NatureSpiritCard &card = spirits[0];
 
     QFrame *cardFrame = new QFrame(this);
-    cardFrame->setStyleSheet("background-color: #FFFDF6; border: 2px solid #D7C089; border-radius: 6px;");
+    cardFrame->setStyleSheet(QString(
+        "background-color: %1; border: %2; border-radius: 6px;")
+                                 .arg(cubePlacementSelected ? "#FFF8E1" : "#FFFDF6")
+                                 .arg(cubePlacementSelected ? "3px solid #C79E34" : "2px solid #D7C089"));
 
     QVBoxLayout *frameLayout = new QVBoxLayout(cardFrame);
     frameLayout->setContentsMargins(6, 6, 6, 6);
@@ -267,6 +276,23 @@ void SpiritCardWidget::rebuildSelectedView()
     effectLabel->setAlignment(Qt::AlignCenter);
     effectLabel->setStyleSheet("font-size: 8px; color: #5D4037; border: none;");
     frameLayout->addWidget(effectLabel);
+
+    if (!card.isCubePlaced()) {
+        QPushButton *selectButton = new QPushButton(
+            cubePlacementSelected ? "Cube esprit selectionne" : "Selectionner le cube esprit",
+            cardFrame);
+        selectButton->setStyleSheet(
+            QString("QPushButton { background-color: %1; color: white; font-weight: bold; border-radius: 4px; padding: 4px; font-size: 10px; }"
+                    "QPushButton:hover { background-color: %2; }")
+                .arg(cubePlacementSelected ? "#8D6E63" : "#D7B55C")
+                .arg(cubePlacementSelected ? "#795548" : "#C79E34"));
+        connect(selectButton, &QPushButton::clicked, this, [this]() {
+            cubePlacementSelected = true;
+            Q_EMIT spiritCubePlacementRequested();
+            updateUI();
+        });
+        frameLayout->addWidget(selectButton);
+    }
 
     contentLayout->addWidget(cardFrame);
 }

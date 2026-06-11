@@ -12,6 +12,7 @@ class SpiritCardWidget : public QWidget {
 private:
     harmonies::core::Game *game;
     QVBoxLayout *contentLayout;
+    bool cubePlacementSelected = false;
 
     void clearContent();
     void rebuildChoiceView();
@@ -19,11 +20,13 @@ private:
 
 Q_SIGNALS:
     void spiritChosen();
+    void spiritCubePlacementRequested();
 
 public:
     explicit SpiritCardWidget(harmonies::core::Game *backendGame, QWidget *parent = nullptr);
     ~SpiritCardWidget() = default;
 
+    void setCubePlacementSelected(bool selected);
     void updateUI();
 };
 

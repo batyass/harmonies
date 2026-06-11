@@ -9,6 +9,7 @@
 #include "ui/ConsoleRenderer.h"
 #include "model/Player.h"
 #include "model/GameConfig.h"
+#include "scoring/SoloScoreEvaluator.h"
 
 int main() {
     try {
@@ -41,6 +42,18 @@ int main() {
         }
 
         renderer.displayEndGame(playersPtrs);
+
+        if (config.getNbPlayer() == 1 && !playersPtrs.empty())
+        {
+            const harmonies::model::Player *soloPlayer = playersPtrs[0];
+            const std::size_t suns = harmonies::scoring::evaluateSoloScore(
+                static_cast<std::size_t>(soloPlayer->getScore()),
+                soloPlayer->getBoard()->getSide(),
+                config.getNatureSpiritOption());
+
+            std::cout << "\nEvaluation solo : " << soloPlayer->getScore()
+                      << " points = " << suns << " soleil(s)\n";
+        }
 
     } catch (const std::exception& e) {
         std::cerr << "Une erreur inattendue est survenue : " << e.what() << std::endl;

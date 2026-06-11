@@ -11,7 +11,8 @@ public:
     enum class Choice {
         StayOnBoard,
         NewGame,
-        ReturnToMenu
+        ReturnToMenu,
+        QuitApplication
     };
 
 private:

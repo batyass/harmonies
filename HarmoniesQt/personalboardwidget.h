@@ -16,6 +16,7 @@ private:
     harmonies::core::Game *game;
     PlayerInfosWidget *playerInfosWidget;
     int selectedAnimalCardIndex = -1;
+    bool selectedSpiritCube = false;
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -37,6 +38,7 @@ public:
 
     void setPlayerInfosWidget(PlayerInfosWidget *infosWidget);
     void setSelectedAnimalCardIndex(int index) { selectedAnimalCardIndex = index; }
+    void setSelectedSpiritCube(bool selected) { selectedSpiritCube = selected; }
     void updateUI();
 };
 

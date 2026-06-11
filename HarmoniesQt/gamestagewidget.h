@@ -28,15 +28,18 @@ private:
     bool endGameShown = false;
 
     void clearAnimalCardSelection();
+    void clearSpiritCubeSelection();
     void showEndGameScreen();
     void updateInteractionLock();
 
 Q_SIGNALS:
     void requestNewGame();
     void requestReturnToMenu();
+    void requestQuitApplication();
 
 private Q_SLOTS:
     void onAnimalCardSelected(int index);
+    void onSpiritCubePlacementRequested();
     void onCubePlaced();
     void onTurnEnded();
 

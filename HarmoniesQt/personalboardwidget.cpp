@@ -108,6 +108,31 @@ void PersonalBoardWidget::mousePressEvent(QMouseEvent *event) {
                 state == harmonies::core::GameState::WaitingForPlacement ||
                 state == harmonies::core::GameState::WaitingForTurnEndChoice;
 
+            if (selectedSpiritCube) {
+                if (!canPlaceAnimalCube) {
+                    return;
+                }
+
+                try {
+                    if (game->placeNatureSpiritCube(coord)) {
+                        selectedSpiritCube = false;
+                        Q_EMIT cubePlaced();
+                        Q_EMIT boardUpdated();
+                        return;
+                    } else {
+                        QMessageBox::warning(this, "Erreur", "Placement de cube esprit non valide pour cette carte.");
+                        selectedSpiritCube = false;
+                        Q_EMIT cubePlaced();
+                        return;
+                    }
+                } catch (const std::exception &e) {
+                    QMessageBox::critical(this, "Erreur du moteur", QString::fromUtf8(e.what()));
+                    selectedSpiritCube = false;
+                    Q_EMIT cubePlaced();
+                    return;
+                }
+            }
+
             // If an animal card is selected, the next click on the board targets cube placement.
             if (selectedAnimalCardIndex != -1) {
                 if (!canPlaceAnimalCube) {

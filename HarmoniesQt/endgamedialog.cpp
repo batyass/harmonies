@@ -5,6 +5,7 @@
 #include "scoring/LandscapeScoreCalculator.h"
 #include "scoring/AnimalCardScoreCalculator.h"
 #include "scoring/NatureSpiritScoreCalculator.h"
+#include "scoring/SoloScoreEvaluator.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -108,6 +109,24 @@ EndGameDialog::EndGameDialog(harmonies::core::Game *game, QWidget *parent)
         root->addWidget(winnerLabel);
     }
 
+    if (players.size() == 1 && !entries.empty()) {
+        const harmonies::model::Player *soloPlayer = entries[0].player;
+        const std::size_t suns = harmonies::scoring::evaluateSoloScore(
+            entries[0].report.getTotalScore(),
+            soloPlayer->getBoard()->getSide(),
+            game->isNatureSpiritEnabled());
+
+        QLabel *soloLabel = new QLabel(
+            QString("Resultat solo : %1 soleil(s)")
+                .arg(suns),
+            this);
+        soloLabel->setAlignment(Qt::AlignCenter);
+        soloLabel->setStyleSheet(
+            "font-size: 14px; font-weight: bold; color: #C68A00; "
+            "background-color: #FFF8E1; border: 1px solid #F0D27A; border-radius: 6px; padding: 6px;");
+        root->addWidget(soloLabel);
+    }
+
     QHBoxLayout *columns = new QHBoxLayout();
     columns->setSpacing(16);
 
@@ -165,6 +184,15 @@ EndGameDialog::EndGameDialog(harmonies::core::Game *game, QWidget *parent)
         accept();
     });
     buttonRow->addWidget(closeBtn);
+
+    QPushButton *quitBtn = new QPushButton("Quitter", this);
+    quitBtn->setStyleSheet(
+        "background-color: #C62828; color: white; font-weight: bold; padding: 8px; border-radius: 4px;");
+    connect(quitBtn, &QPushButton::clicked, this, [this]() {
+        choice = Choice::QuitApplication;
+        accept();
+    });
+    buttonRow->addWidget(quitBtn);
 
     root->addLayout(buttonRow);
 }

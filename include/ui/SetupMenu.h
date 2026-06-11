@@ -19,6 +19,7 @@ namespace harmonies
                 static int         readInt(const std::string &prompt, int min, int max);
                 static char        readChar(const std::string &prompt, char opt1, char opt2);
                 static std::string readLine(const std::string &prompt);
+                void rotatePlayerOrder(std::size_t startingPlayerIndex);
 
             public:
                 model::GameConfig run();
