@@ -45,8 +45,8 @@ namespace harmonies
                 "raven",
                 makePattern({
                     {utils::HexCoord(0, 0), model::TokenType::YellowField, 1},
-                    {step(utils::HexDirection::Up, 1), model::TokenType::RedBuilding, 2},
-                    {step(utils::HexDirection::DownLeft, 1), model::TokenType::RedBuilding, 2},
+                    {utils::HexCoord(-1, 0), model::TokenType::RedBuilding, 2},
+                    {utils::HexCoord(1, 0), model::TokenType::RedBuilding, 2},
                 }),
                 std::vector<int>{4, 9}));
 
@@ -54,8 +54,8 @@ namespace harmonies
                 "raven2",
                 makePattern({
                     {utils::HexCoord(0, 0), model::TokenType::YellowField, 1},
-                    {step(utils::HexDirection::Up, 1), model::TokenType::RedBuilding, 2},
-                    {step(utils::HexDirection::DownLeft, 1), model::TokenType::RedBuilding, 2},
+                    {utils::HexCoord(-1, 0), model::TokenType::RedBuilding, 2},
+                    {utils::HexCoord(1, 0), model::TokenType::RedBuilding, 2},
                 }),
                 std::vector<int>{3, 6, 11, 17}));
 
