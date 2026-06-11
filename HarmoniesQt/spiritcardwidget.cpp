@@ -123,6 +123,11 @@ void SpiritCardWidget::clearContent()
     while (QLayoutItem *item = contentLayout->takeAt(0)) {
         if (QWidget *w = item->widget()) {
             w->deleteLater();
+        } else if (QLayout *l = item->layout()) {
+            while (QLayoutItem *sub = l->takeAt(0)) {
+                if (QWidget *w = sub->widget()) w->deleteLater();
+                delete sub;
+            }
         }
         delete item;
     }
