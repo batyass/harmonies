@@ -14,12 +14,14 @@ INCLUDEPATH += $$PWD/../include
 SOURCES += main.cpp \
            mainwindow.cpp \
            setupdialog.cpp \
+           endgamedialog.cpp \
            cardmarketwidget.cpp \
            centralboardwidget.cpp \
            gamestagewidget.cpp \
            personalboardwidget.cpp \
            playerownedcardswidget.cpp \
            playerinfoswidget.cpp \
+           spiritcardwidget.cpp \
            $$PWD/../src/core/Game.cpp \
            $$PWD/../src/core/TurnManager.cpp \
            $$PWD/../src/core/DefaultDeckFactory.cpp \
@@ -55,6 +57,7 @@ SOURCES += main.cpp \
 # 4. Target UI Headers layout view
 HEADERS += mainwindow.h \
            setupdialog.h \
+           endgamedialog.h \
            cardmarketwidget.h \
            centralboardwidget.h \
            gamestagewidget.h \
@@ -62,3 +65,5 @@ HEADERS += mainwindow.h \
            playerownedcardswidget.h \
            playerinfoswidget.h \
            spiritcardwidget.h
+
+RESOURCES += resources.qrc

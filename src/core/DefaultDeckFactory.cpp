@@ -11,23 +11,123 @@ namespace harmonies
     {
         namespace
         {
-            model::Pattern singleCellPattern(model::TokenType type)
+            model::Pattern makePattern(std::initializer_list<model::PatternCell> cells)
             {
-                return model::Pattern(std::vector<model::PatternCell>(
-                    1, model::PatternCell{utils::HexCoord(0, 0), type, model::PatternCell::AnyHeight}));
+                return model::Pattern(std::vector<model::PatternCell>(cells));
+            }
+
+            utils::HexCoord step(utils::HexDirection direction, int distance)
+            {
+                return utils::advanceInDirection(utils::HexCoord(0, 0), direction, distance);
             }
         }
 
         std::vector<model::AnimalCard> makeDefaultAnimalCards()
         {
-            std::vector<model::AnimalCard> cards;
+            std::vector<model::AnimalCard> templateCards;
 
-            cards.push_back(model::AnimalCard("Fox", singleCellPattern(model::TokenType::BrownEarth), std::vector<int>(1, 3)));
-            cards.push_back(model::AnimalCard("Bear", singleCellPattern(model::TokenType::GrayStone), std::vector<int>(1, 4)));
-            cards.push_back(model::AnimalCard("Deer", singleCellPattern(model::TokenType::GreenTree), std::vector<int>(1, 5)));
-            cards.push_back(model::AnimalCard("Hedgehog", singleCellPattern(model::TokenType::YellowField), std::vector<int>(1, 6)));
-            cards.push_back(model::AnimalCard("Otter", singleCellPattern(model::TokenType::BlueWater), std::vector<int>(1, 7)));
-            cards.push_back(model::AnimalCard("Rabbit", singleCellPattern(model::TokenType::RedBuilding), std::vector<int>(1, 8)));
+            // Convention: stable lowercase names, with underscores only when needed.
+            // These names are intended to stay machine-friendly so the UI can derive
+            // asset paths such as cards/animal/<name>.png without extra translation.
+            //
+            // Each pattern below follows the illustrated motif shown on the animal card.
+            // The cube is always represented by the anchor cell at (0,0).
+            templateCards.push_back(model::AnimalCard(
+                "fennec",
+                makePattern({
+                    {step(utils::HexDirection::UpLeft, 2), model::TokenType::YellowField, 1},
+                    {step(utils::HexDirection::UpLeft, 1), model::TokenType::GrayStone, 1},
+                    {utils::HexCoord(0, 0), model::TokenType::GrayStone, 1},
+                }),
+                std::vector<int>{4, 9, 16}));
+
+            templateCards.push_back(model::AnimalCard(
+                "raven",
+                makePattern({
+                    {utils::HexCoord(0, 0), model::TokenType::YellowField, 1},
+                    {utils::HexCoord(-1, 0), model::TokenType::RedBuilding, 2},
+                    {utils::HexCoord(1, 0), model::TokenType::RedBuilding, 2},
+                }),
+                std::vector<int>{4, 9}));
+
+            templateCards.push_back(model::AnimalCard(
+                "raven2",
+                makePattern({
+                    {utils::HexCoord(0, 0), model::TokenType::YellowField, 1},
+                    {utils::HexCoord(-1, 0), model::TokenType::RedBuilding, 2},
+                    {utils::HexCoord(1, 0), model::TokenType::RedBuilding, 2},
+                }),
+                std::vector<int>{3, 6, 11, 17}));
+
+            templateCards.push_back(model::AnimalCard(
+                "squirrel",
+                makePattern({
+                    {utils::HexCoord(-1, 0), model::TokenType::GreenTree, 3},
+                    {utils::HexCoord(0, 0), model::TokenType::RedBuilding, 2},
+                }),
+                std::vector<int>{4, 9, 15}));
+
+            templateCards.push_back(model::AnimalCard(
+                "parrot",
+                makePattern({
+                    {utils::HexCoord(-1, 0), model::TokenType::BlueWater, 1},
+                    {utils::HexCoord(-1, 1), model::TokenType::BlueWater, 1},
+                    {utils::HexCoord(0, 0), model::TokenType::GreenTree, 2},
+                }),
+                std::vector<int>{4, 9, 14}));
+
+            templateCards.push_back(model::AnimalCard(
+                "duck",
+                makePattern({
+                    {utils::HexCoord(-1, 0), model::TokenType::RedBuilding, 2},
+                    {utils::HexCoord(0, 0), model::TokenType::BlueWater, 1},
+                }),
+                std::vector<int>{2, 4, 8, 13}));
+
+            templateCards.push_back(model::AnimalCard(
+                "fox",
+                makePattern({
+                    {step(utils::HexDirection::UpLeft, 2), model::TokenType::GreenTree, 2},
+                    {step(utils::HexDirection::UpLeft, 1), model::TokenType::BlueWater, 1},
+                    {utils::HexCoord(0, 0), model::TokenType::GrayStone, 3},
+                }),
+                std::vector<int>{2, 4, 9, 16}));
+
+            templateCards.push_back(model::AnimalCard(
+                "otter",
+                makePattern({
+                    {step(utils::HexDirection::UpLeft, 1), model::TokenType::BlueWater, 1},
+                    {utils::HexCoord(0, 0), model::TokenType::BlueWater, 1},
+                    {step(utils::HexDirection::DownRight, 1), model::TokenType::BlueWater, 1},
+                }),
+                std::vector<int>{1, 4, 8, 14}));
+
+            templateCards.push_back(model::AnimalCard(
+                "deer",
+                makePattern({
+                    {step(utils::HexDirection::UpLeft, 2), model::TokenType::GreenTree, 2},
+                    {step(utils::HexDirection::UpLeft, 1), model::TokenType::GreenTree, 2},
+                    {utils::HexCoord(0, 0), model::TokenType::YellowField, 1},
+                }),
+                std::vector<int>{2, 5, 10, 15}));
+
+            templateCards.push_back(model::AnimalCard(
+                "goat",
+                makePattern({
+                    {utils::HexCoord(0, 0), model::TokenType::GrayStone, 3},
+                    {step(utils::HexDirection::DownRight, 1), model::TokenType::BlueWater, 1},
+                    {step(utils::HexDirection::DownRight, 2), model::TokenType::GreenTree, 2},
+                }),
+                std::vector<int>{3, 7, 12, 18}));
+
+            std::vector<model::AnimalCard> cards;
+            cards.reserve(30);
+
+            // Build a larger playable deck by repeating the illustrated cards.
+            for (int copy = 0; copy < 3; ++copy)
+            {
+                cards.insert(cards.end(), templateCards.begin(), templateCards.end());
+            }
 
             return cards;
         }
@@ -35,16 +135,114 @@ namespace harmonies
         std::vector<model::NatureSpiritCard> makeDefaultNatureSpiritCards()
         {
             std::vector<model::NatureSpiritCard> cards;
-            scoring::NatureSpiritEffect effect;
 
-            cards.push_back(model::NatureSpiritCard("Brook Spirit", singleCellPattern(model::TokenType::BlueWater), effect));
-            cards.push_back(model::NatureSpiritCard("Peak Spirit", singleCellPattern(model::TokenType::GrayStone), effect));
-            cards.push_back(model::NatureSpiritCard("Grove Spirit", singleCellPattern(model::TokenType::GreenTree), effect));
-            cards.push_back(model::NatureSpiritCard("Field Spirit", singleCellPattern(model::TokenType::YellowField), effect));
-            cards.push_back(model::NatureSpiritCard("Clay Spirit", singleCellPattern(model::TokenType::BrownEarth), effect));
-            cards.push_back(model::NatureSpiritCard("Tower Spirit", singleCellPattern(model::TokenType::RedBuilding), effect));
-            cards.push_back(model::NatureSpiritCard("Spring Spirit", singleCellPattern(model::TokenType::BlueWater), effect));
-            cards.push_back(model::NatureSpiritCard("Forest Spirit", singleCellPattern(model::TokenType::GreenTree), effect));
+            auto connectedEffect = [](std::initializer_list<scoring::ConnectedGroupRule> rules) {
+                scoring::NatureSpiritEffect effect;
+                effect.type = scoring::NSEffectType::CountConnectedGroups;
+                effect.connectedRules = std::vector<scoring::ConnectedGroupRule>(rules);
+                return effect;
+            };
+
+            cards.push_back(model::NatureSpiritCard(
+                "brook",
+                makePattern({
+                    {utils::HexCoord(-2, -1), model::TokenType::BlueWater, 1},
+                    {utils::HexCoord(-1, 0), model::TokenType::BlueWater, 1},
+                    {utils::HexCoord(0, 0), model::TokenType::YellowField, 1},
+                }),
+                connectedEffect({
+                    {model::TokenType::BlueWater, 1, 1, 2},
+                    {model::TokenType::BlueWater, 2, 2, 5},
+                    {model::TokenType::BlueWater, 3, 0, 9},
+                })));
+
+            cards.push_back(model::NatureSpiritCard(
+                "clay",
+                makePattern({
+                    {utils::HexCoord(0, 0), model::TokenType::GreenTree, 2},
+                    {utils::HexCoord(1, 0), model::TokenType::RedBuilding, 1},
+                }),
+                connectedEffect({
+                    {model::TokenType::BrownEarth, 1, 1, 4},
+                    {model::TokenType::BrownEarth, 2, 2, 8},
+                    {model::TokenType::BrownEarth, 3, 0, 12},
+                })));
+
+            cards.push_back(model::NatureSpiritCard(
+                "field",
+                makePattern({
+                    {utils::HexCoord(-1, 0), model::TokenType::YellowField, 1},
+                    {utils::HexCoord(0, 0), model::TokenType::YellowField, 1},
+                    {utils::HexCoord(1, 1), model::TokenType::YellowField, 1},
+                }),
+                connectedEffect({
+                    {model::TokenType::YellowField, 1, 1, 2},
+                    {model::TokenType::YellowField, 2, 2, 4},
+                    {model::TokenType::YellowField, 3, 0, 8},
+                })));
+
+            cards.push_back(model::NatureSpiritCard(
+                "grove",
+                makePattern({
+                    {utils::HexCoord(0, 0), model::TokenType::GreenTree, 2},
+                    {utils::HexCoord(1, 0), model::TokenType::GreenTree, 1},
+                    {utils::HexCoord(2, -1), model::TokenType::YellowField, 1},
+                }),
+                connectedEffect({
+                    {model::TokenType::GreenTree, 1, 1, 3},
+                    {model::TokenType::GreenTree, 2, 2, 6},
+                    {model::TokenType::GreenTree, 3, 0, 10},
+                })));
+
+            cards.push_back(model::NatureSpiritCard(
+                "lion",
+                makePattern({
+                    {utils::HexCoord(-1, 0), model::TokenType::GreenTree, 2},
+                    {utils::HexCoord(0, 0), model::TokenType::YellowField, 1},
+                    {utils::HexCoord(1, 1), model::TokenType::YellowField, 1},
+                }),
+                connectedEffect({
+                    {model::TokenType::YellowField, 1, 2, 2},
+                    {model::TokenType::YellowField, 3, 0, 10},
+                })));
+
+            cards.push_back(model::NatureSpiritCard(
+                "peak",
+                makePattern({
+                    {utils::HexCoord(0, 0), model::TokenType::GrayStone, 3},
+                    {utils::HexCoord(1, 0), model::TokenType::GrayStone, 2},
+                }),
+                connectedEffect({
+                    {model::TokenType::GrayStone, 1, 1, 4},
+                    {model::TokenType::GrayStone, 2, 2, 7},
+                    {model::TokenType::GrayStone, 3, 0, 11},
+                })));
+
+            cards.push_back(model::NatureSpiritCard(
+                "spring",
+                makePattern({
+                    {utils::HexCoord(1, 0), model::TokenType::BlueWater, 1},
+                    {utils::HexCoord(0, 0), model::TokenType::GreenTree, 1},
+                    {utils::HexCoord(0, 1), model::TokenType::BlueWater, 1},
+                }),
+                connectedEffect({
+                    {model::TokenType::BlueWater, 1, 1, 3},
+                    {model::TokenType::BlueWater, 2, 2, 7},
+                    {model::TokenType::BlueWater, 3, 0, 12},
+                })));
+
+            cards.push_back(model::NatureSpiritCard(
+                "tower",
+                makePattern({
+                    {utils::HexCoord(-1, 0), model::TokenType::RedBuilding, 2},
+                    {utils::HexCoord(0, 0), model::TokenType::YellowField, 1},
+                    {utils::HexCoord(1, 1), model::TokenType::RedBuilding, 2},
+                }),
+                connectedEffect({
+                    {model::TokenType::RedBuilding, 1, 1, 5},
+                    {model::TokenType::RedBuilding, 2, 2, 9},
+                    {model::TokenType::RedBuilding, 3, 0, 14},
+                })));
 
             return cards;
         }

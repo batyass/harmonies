@@ -32,9 +32,9 @@ int main()
     int failures = 0;
 
     Pattern pattern({{HexCoord(0, 0), TokenType::BrownEarth, PatternCell::AnyHeight}});
-    AnimalCard card("Fox", pattern, {3, 5, 8});
+    AnimalCard card("fox", pattern, {3, 5, 8});
 
-    check(card.getName() == "Fox",
+    check(card.getName() == "fox",
           "An animal card should expose its name",
           failures);
     check(card.getPattern().getCells().size() == 1,

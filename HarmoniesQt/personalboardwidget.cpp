@@ -9,8 +9,8 @@
 #include <QtMath>
 #include <QMessageBox>
 #include <algorithm>
-#include <climits>
 #include <exception>
+#include <limits>
 
 PersonalBoardWidget::PersonalBoardWidget(harmonies::core::Game *backendGame, QWidget *parent)
     : QWidget(parent), game(backendGame), playerInfosWidget(nullptr)
@@ -43,18 +43,13 @@ void PersonalBoardWidget::paintEvent(QPaintEvent *event) {
     const auto& cells = board->getCells();
 
     int radius = 22;
-    int centerX = width() / 2;
-    int centerY = height() / 2 + 20;
-
-    int qMin = INT_MAX;
-    for (const auto& pair : cells)
-        qMin = std::min(qMin, pair.first.getQ());
+    QPoint boardOffset = buildBoardOffset(cells, radius);
 
     for (const auto& pair : cells) {
         const harmonies::utils::HexCoord& coord = pair.first;
         const harmonies::model::BoardCell& cell = pair.second;
 
-        QPoint pixelPos = axialToPixel(coord.getQ(), coord.getR(), radius, centerX, centerY, qMin);
+        QPoint pixelPos = boardOffset + axialToPixel(coord.getQ(), coord.getR(), radius);
 
         // Aligned with BoardCell.h methods: getTokenStack()
         if (cell.getTokenStack().empty()) {
@@ -76,32 +71,74 @@ void PersonalBoardWidget::paintEvent(QPaintEvent *event) {
                 painter.drawEllipse(pixelPos, r, r);
             }
         }
+
+        if (cell.hasCube()) {
+            QRect cubeRect(pixelPos.x() - 8, pixelPos.y() - 8, 16, 16);
+            painter.setPen(QPen(QColor("#5D4037"), 1));
+            painter.setBrush(QColor("#FFB74D"));
+            painter.drawRoundedRect(cubeRect, 3, 3);
+
+            // Small highlight to keep the cube visible on both dark and light stacks.
+            painter.setPen(Qt::NoPen);
+            painter.setBrush(QColor(255, 255, 255, 140));
+            painter.drawEllipse(pixelPos.x() - 3, pixelPos.y() - 3, 5, 5);
+        }
     }
 }
 
 void PersonalBoardWidget::mousePressEvent(QMouseEvent *event) {
-    if (!game) return;
+    if (!game || !game->getCurrentPlayer() || !game->getCurrentPlayer()->getBoard()) return;
 
     int radius = 22;
-    int centerX = width() / 2;
-    int centerY = height() / 2 + 20;
 
     const auto& cells = game->getCurrentPlayer()->getBoard()->getCells();
-
-    int qMin = INT_MAX;
-    for (const auto& pair : cells)
-        qMin = std::min(qMin, pair.first.getQ());
+    QPoint boardOffset = buildBoardOffset(cells, radius);
 
     for (const auto& pair : cells) {
         const harmonies::utils::HexCoord& coord = pair.first;
-        QPoint pixelPos = axialToPixel(coord.getQ(), coord.getR(), radius, centerX, centerY, qMin);
+        QPoint pixelPos = boardOffset + axialToPixel(coord.getQ(), coord.getR(), radius);
 
         int dx = event->pos().x() - pixelPos.x();
         int dy = event->pos().y() - pixelPos.y();
 
         if ((dx * dx + dy * dy) < (radius * radius)) {
-            // STEP 3: Handle Animal Cube Placement if a card is selected
+            auto state = game->getState();
+            bool canPlaceAnimalCube =
+                state == harmonies::core::GameState::WaitingForSlotChoice ||
+                state == harmonies::core::GameState::WaitingForPlacement ||
+                state == harmonies::core::GameState::WaitingForTurnEndChoice;
+
+            if (selectedSpiritCube) {
+                if (!canPlaceAnimalCube) {
+                    return;
+                }
+
+                try {
+                    if (game->placeNatureSpiritCube(coord)) {
+                        selectedSpiritCube = false;
+                        Q_EMIT cubePlaced();
+                        Q_EMIT boardUpdated();
+                        return;
+                    } else {
+                        QMessageBox::warning(this, "Erreur", "Placement de cube esprit non valide pour cette carte.");
+                        selectedSpiritCube = false;
+                        Q_EMIT cubePlaced();
+                        return;
+                    }
+                } catch (const std::exception &e) {
+                    QMessageBox::critical(this, "Erreur du moteur", QString::fromUtf8(e.what()));
+                    selectedSpiritCube = false;
+                    Q_EMIT cubePlaced();
+                    return;
+                }
+            }
+
+            // If an animal card is selected, the next click on the board targets cube placement.
             if (selectedAnimalCardIndex != -1) {
+                if (!canPlaceAnimalCube) {
+                    return;
+                }
+
                 try {
                     if (game->placeAnimalCube(static_cast<std::size_t>(selectedAnimalCardIndex), coord)) {
                         selectedAnimalCardIndex = -1;
@@ -123,8 +160,8 @@ void PersonalBoardWidget::mousePressEvent(QMouseEvent *event) {
                 }
             }
 
-            // FALLBACK: Normal Token Placement logic
-            if (game->getState() != harmonies::core::GameState::WaitingForPlacement) return;
+            // Otherwise, a board click is interpreted as normal token placement.
+            if (state != harmonies::core::GameState::WaitingForPlacement) return;
 
             const auto& pending = game->getPendingTokens();
             if (!pending.empty()) {
@@ -163,16 +200,49 @@ void PersonalBoardWidget::mousePressEvent(QMouseEvent *event) {
     }
 }
 
-QPoint PersonalBoardWidget::axialToPixel(int q, int r, int radius, int centerX, int centerY, int qMin) {
-    double colWidth  = radius * 2.1;
-    double rowHeight = radius * 2.1;
+QPoint PersonalBoardWidget::axialToPixel(int q, int r, int radius) const {
+    const double verticalStep = radius * 2.1;
+    const double horizontalStep = verticalStep * qSqrt(3.0) / 2.0;
 
-    double x = centerX + q * colWidth;
-    // Use column index (q - qMin) to determine stagger so the pattern is always
-    // "even index = straight, odd index = shifted up", regardless of board side.
-    bool isOddColumn = ((q - qMin) % 2 != 0);
-    double y = centerY + r * rowHeight - (isOddColumn ? rowHeight / 2.0 : 0.0);
+    double x = q * horizontalStep;
+    // The whole project uses even-q offset coordinates:
+    // odd columns are drawn half a row higher than even columns.
+    const bool isOddColumn = (q % 2 != 0);
+    double y = r * verticalStep - (isOddColumn ? verticalStep / 2.0 : 0.0);
     return QPoint(static_cast<int>(x), static_cast<int>(y));
+}
+
+QPoint PersonalBoardWidget::buildBoardOffset(
+    const std::map<harmonies::utils::HexCoord, harmonies::model::BoardCell> &cells,
+    int radius) const
+{
+    if (cells.empty()) {
+        return QPoint(width() / 2, height() / 2);
+    }
+
+    int minX = std::numeric_limits<int>::max();
+    int maxX = std::numeric_limits<int>::min();
+    int minY = std::numeric_limits<int>::max();
+    int maxY = std::numeric_limits<int>::min();
+
+    for (const auto &pair : cells) {
+        QPoint rawPos = axialToPixel(pair.first.getQ(), pair.first.getR(), radius);
+        minX = std::min(minX, rawPos.x() - radius);
+        maxX = std::max(maxX, rawPos.x() + radius);
+        minY = std::min(minY, rawPos.y() - radius);
+        maxY = std::max(maxY, rawPos.y() + radius);
+    }
+
+    const int boardWidth = maxX - minX;
+    const int boardHeight = maxY - minY;
+    const int topReserved = 48;
+    const int bottomMargin = 12;
+    const int availableHeight = std::max(0, height() - topReserved - bottomMargin);
+
+    const int offsetX = (width() - boardWidth) / 2 - minX;
+    const int offsetY = topReserved + (availableHeight - boardHeight) / 2 - minY;
+
+    return QPoint(offsetX, offsetY);
 }
 
 QString PersonalBoardWidget::getColorByTokenType(int typeInt) {

@@ -45,11 +45,11 @@ namespace harmonies
                 // Face B : 4, 3, 4, 3, 4, 3, 4 = 25 cases
                 columns = {
                     {-3, -2, 4},
-                    {-2, -1, 3},
+                    {-2, -2, 3},
                     {-1, -2, 4},
-                    {0, -1, 3},
+                    {0, -2, 3},
                     {1, -2, 4},
-                    {2, -1, 3},
+                    {2, -2, 3},
                     {3, -2, 4}};
             }
             else
@@ -112,15 +112,24 @@ namespace harmonies
 
         std::vector<model::BoardCell *> PersonalBoard::getAdjacentCells(const utils::HexCoord &coord)
         {
-            static const std::array<std::pair<int, int>, 6> directions = {{
+            static const std::array<std::pair<int, int>, 6> evenColumnDirections = {{
+                std::make_pair(1, 1),
                 std::make_pair(1, 0),
-                std::make_pair(1, -1),
                 std::make_pair(0, -1),
                 std::make_pair(-1, 0),
                 std::make_pair(-1, 1),
                 std::make_pair(0, 1)}};
+            static const std::array<std::pair<int, int>, 6> oddColumnDirections = {{
+                std::make_pair(1, 0),
+                std::make_pair(1, -1),
+                std::make_pair(0, -1),
+                std::make_pair(-1, -1),
+                std::make_pair(-1, 0),
+                std::make_pair(0, 1)}};
 
             std::vector<model::BoardCell *> adjacentCells;
+            const std::array<std::pair<int, int>, 6> &directions =
+                (coord.getQ() % 2 == 0) ? evenColumnDirections : oddColumnDirections;
 
             for (std::size_t i = 0; i < directions.size(); ++i)
             {
@@ -141,15 +150,24 @@ namespace harmonies
 
         std::vector<const model::BoardCell *> PersonalBoard::getAdjacentCells(const utils::HexCoord &coord) const
         {
-            static const std::array<std::pair<int, int>, 6> directions = {{
+            static const std::array<std::pair<int, int>, 6> evenColumnDirections = {{
+                std::make_pair(1, 1),
                 std::make_pair(1, 0),
-                std::make_pair(1, -1),
                 std::make_pair(0, -1),
                 std::make_pair(-1, 0),
                 std::make_pair(-1, 1),
                 std::make_pair(0, 1)}};
+            static const std::array<std::pair<int, int>, 6> oddColumnDirections = {{
+                std::make_pair(1, 0),
+                std::make_pair(1, -1),
+                std::make_pair(0, -1),
+                std::make_pair(-1, -1),
+                std::make_pair(-1, 0),
+                std::make_pair(0, 1)}};
 
             std::vector<const model::BoardCell *> adjacentCells;
+            const std::array<std::pair<int, int>, 6> &directions =
+                (coord.getQ() % 2 == 0) ? evenColumnDirections : oddColumnDirections;
 
             for (std::size_t i = 0; i < directions.size(); ++i)
             {

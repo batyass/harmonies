@@ -15,9 +15,8 @@ namespace harmonies
                 for (std::size_t i = 0; i < patternCells.size(); ++i)
                 {
                     const model::PatternCell &pCell = patternCells[i];
-                    // Calculate absolute coordinate: anchor + offset
-                    utils::HexCoord targetCoord(anchor.getQ() + pCell.offset.getQ(),
-                                                anchor.getR() + pCell.offset.getR());
+                    // Pattern offsets are geometric offsets, not raw q/r deltas.
+                    utils::HexCoord targetCoord = utils::addPatternOffset(anchor, pCell.offset);
 
                     // 1. Verify coordinate existence
                     if (!board.contains(targetCoord))

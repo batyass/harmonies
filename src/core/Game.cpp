@@ -253,6 +253,17 @@ namespace harmonies
                 return false;
             }
 
+            static constexpr std::size_t MAX_ACTIVE_CARDS = 4;
+            model::Player *cp = turnManager->getCurrentPlayer();
+            const std::size_t activeCards =
+                cp->getActiveAnimalCardCount() +
+                (cp->hasUnplacedChosenNatureSpiritCard() ? 1u : 0u);
+
+            if (activeCards >= MAX_ACTIVE_CARDS)
+            {
+                return false;
+            }
+
             model::AnimalCard takenCard = animalCardDeck.takeVisible(index);
             turnManager->getCurrentPlayer()->getAnimalCards()->addCard(takenCard);
             context.hasTakenAnimalCard = true;
@@ -360,6 +371,13 @@ namespace harmonies
             if (state != GameState::WaitingForTurnEndChoice)
             {
                 throw std::logic_error("Game::endTurn: Action illegale dans la phase actuelle.");
+            }
+
+            if (config.getNatureSpiritOption() &&
+                turnManager->getTurnCount() == 1 &&
+                turnManager->getCurrentPlayer()->getNatureSpiritCardCount() > 1)
+            {
+                return false;
             }
 
             finishTurn();

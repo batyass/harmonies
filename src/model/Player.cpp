@@ -47,6 +47,27 @@ namespace harmonies
             return natureSpiritCards.size();
         }
 
+        std::size_t Player::getActiveAnimalCardCount() const
+        {
+            std::size_t activeCount = 0;
+
+            const std::vector<AnimalCard> &cards = animalCards.getCards();
+            for (std::size_t i = 0; i < cards.size(); ++i)
+            {
+                if (!cards[i].isComplete())
+                {
+                    ++activeCount;
+                }
+            }
+
+            return activeCount;
+        }
+
+        bool Player::hasUnplacedChosenNatureSpiritCard() const
+        {
+            return natureSpiritCards.size() == 1 && !natureSpiritCards[0].isCubePlaced();
+        }
+
         NatureSpiritCard *Player::getNatureSpiritCard(std::size_t index)
         {
             if (index >= natureSpiritCards.size())

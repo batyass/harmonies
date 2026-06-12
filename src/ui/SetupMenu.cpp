@@ -2,6 +2,7 @@
 #include <cctype>
 #include <iostream>
 #include <limits>
+#include <algorithm>
 #include <stdexcept>
 
 namespace harmonies
@@ -73,6 +74,18 @@ namespace harmonies
             }
         }
 
+        void SetupMenu::rotatePlayerOrder(std::size_t startingPlayerIndex)
+        {
+            if (playerNames.empty() || startingPlayerIndex >= playerNames.size())
+            {
+                return;
+            }
+
+            std::rotate(playerNames.begin(),
+                        playerNames.begin() + static_cast<std::ptrdiff_t>(startingPlayerIndex),
+                        playerNames.end());
+        }
+
         model::GameConfig SetupMenu::run()
         {
             std::cout << "=== Harmonies - Game Setup ===\n\n";
@@ -82,9 +95,7 @@ namespace harmonies
             model::BoardSide side = (readChar("Board side (A/B): ", 'a', 'b') == 'a')
                 ? model::BoardSide::A : model::BoardSide::B;
 
-            bool spirit = false;
-            if (nb > 1)
-                spirit = (readChar("Enable Nature Spirit option? (y/n): ", 'y', 'n') == 'y');
+            bool spirit = (readChar("Enable Nature Spirit option? (y/n): ", 'y', 'n') == 'y');
 
             std::cout << '\n';
             playerNames.clear();
@@ -109,10 +120,28 @@ namespace harmonies
                 playerNames.push_back(name);
             }
 
+            if (playerNames.size() > 1)
+            {
+                std::cout << "\nQui est le dernier joueur ayant vu un paysage magnifique ?\n";
+                for (std::size_t i = 0; i < playerNames.size(); ++i)
+                {
+                    std::cout << "  " << (i + 1) << ". " << playerNames[i] << '\n';
+                }
+
+                int startingPlayerChoice = readInt("Choisissez le joueur qui commence (1-" + std::to_string(playerNames.size()) + ") : ",
+                                                   1,
+                                                   static_cast<int>(playerNames.size()));
+                rotatePlayerOrder(static_cast<std::size_t>(startingPlayerChoice - 1));
+            }
+
             std::cout << "\n--- Setup complete ---\n";
             std::cout << "Players : " << nb << '\n';
             std::cout << "Board   : Side " << (side == model::BoardSide::A ? 'A' : 'B') << '\n';
             std::cout << "Spirit  : " << (spirit ? "enabled" : "disabled") << '\n';
+            if (!playerNames.empty())
+            {
+                std::cout << "Starter : " << playerNames[0] << '\n';
+            }
             std::cout << "Names   : ";
             for (std::size_t i = 0; i < playerNames.size(); i++)
             {

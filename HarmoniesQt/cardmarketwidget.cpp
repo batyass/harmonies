@@ -2,7 +2,16 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QMessageBox>
+#include <QPixmap>
 #include <exception>
+
+namespace
+{
+    QString animalCardImagePath(const std::string &cardName)
+    {
+        return QString(":/assets/cards/animal/%1.png").arg(QString::fromStdString(cardName));
+    }
+}
 
 CardMarketWidget::CardMarketWidget(harmonies::core::Game *backendGame, QWidget *parent)
     : QWidget(parent), game(backendGame)
@@ -49,7 +58,7 @@ void CardMarketWidget::updateUI() {
 
     for (std::size_t i = 0; i < visibleCards.size(); ++i) {
         ClickableCardLabel *cardLabel = new ClickableCardLabel(i, this);
-        cardLabel->setFixedSize(90, 130);
+        cardLabel->setFixedSize(100, 170);
         cardLabel->setAlignment(Qt::AlignCenter);
 
         // Fetch real descriptive parameters from backend structures
@@ -62,11 +71,23 @@ void CardMarketWidget::updateUI() {
             scoreStr += QString::number(s);
         }
 
-        cardLabel->setText(QString("%1\n\n[Pts: %2]").arg(animalName).arg(scoreStr));
-        cardLabel->setStyleSheet(
-            "background-color: #FFF59D; border: 2px solid #FBC02D; "
-            "border-radius: 6px; font-weight: bold; color: #5D4037; font-size: 11px;"
-            );
+        const QString imagePath = animalCardImagePath(visibleCards[i].getName());
+        QPixmap pixmap(imagePath);
+
+        cardLabel->setToolTip(QString("%1\nPoints : %2").arg(animalName).arg(scoreStr));
+        if (!pixmap.isNull()) {
+            cardLabel->setPixmap(pixmap.scaled(cardLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+            cardLabel->setStyleSheet(
+                "background-color: white; border: 2px solid #FBC02D; "
+                "border-radius: 6px; padding: 2px;"
+                );
+        } else {
+            cardLabel->setText(QString("%1\n\n[Pts: %2]").arg(animalName).arg(scoreStr));
+            cardLabel->setStyleSheet(
+                "background-color: #FFF59D; border: 2px solid #FBC02D; "
+                "border-radius: 6px; font-weight: bold; color: #5D4037; font-size: 11px;"
+                );
+        }
 
         connect(cardLabel, &ClickableCardLabel::cardClicked, this, &CardMarketWidget::onMarketCardClicked);
 
@@ -92,6 +113,16 @@ void CardMarketWidget::onMarketCardClicked(std::size_t index) {
             state != harmonies::core::GameState::WaitingForTurnEndChoice)
         {
             QMessageBox::information(this, "Action Impossible", "Vous ne pouvez pas prendre de carte durant cette phase.");
+            return;
+        }
+
+        const harmonies::model::Player *cp = game->getCurrentPlayer();
+        const std::size_t activeCards =
+            cp->getActiveAnimalCardCount() +
+            (cp->hasUnplacedChosenNatureSpiritCard() ? 1u : 0u);
+        if (activeCards >= 4) {
+            QMessageBox::warning(this, "Limite atteinte",
+                "Vous avez deja 4 cartes.");
             return;
         }
 
