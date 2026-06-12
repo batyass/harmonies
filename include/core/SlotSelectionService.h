@@ -14,5 +14,7 @@ namespace harmonies
         std::vector<model::TokenType> takeTokensFromSlot(model::CentralBoard &board,
                                                          model::TokenBag &bag,
                                                          std::size_t slotIndex);
+
+        void resetSoloMarket(model::CentralBoard &board, model::TokenBag &bag);
     }
 }

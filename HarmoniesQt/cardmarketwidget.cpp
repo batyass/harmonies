@@ -3,6 +3,7 @@
 #include <QHBoxLayout>
 #include <QMessageBox>
 #include <QPixmap>
+#include <QPushButton>
 #include <exception>
 
 namespace
@@ -56,12 +57,19 @@ void CardMarketWidget::updateUI() {
     // Pulling matching data array directly from backend card deck structure
     const std::vector<harmonies::model::AnimalCard>& visibleCards = game->getAnimalCardDeck()->getVisible();
 
+    const bool canReplace = game->canReplaceVisibleAnimalCard();
+
     for (std::size_t i = 0; i < visibleCards.size(); ++i) {
+        QWidget *cardColumn = new QWidget(this);
+        cardColumn->setStyleSheet("border: none; background: transparent;");
+        QVBoxLayout *colLayout = new QVBoxLayout(cardColumn);
+        colLayout->setContentsMargins(0, 0, 0, 0);
+        colLayout->setSpacing(3);
+
         ClickableCardLabel *cardLabel = new ClickableCardLabel(i, this);
         cardLabel->setFixedSize(100, 170);
         cardLabel->setAlignment(Qt::AlignCenter);
 
-        // Fetch real descriptive parameters from backend structures
         QString animalName = QString::fromStdString(visibleCards[i].getName());
 
         const std::vector<int>& scores = visibleCards[i].getSlotValues();
@@ -90,9 +98,21 @@ void CardMarketWidget::updateUI() {
         }
 
         connect(cardLabel, &ClickableCardLabel::cardClicked, this, &CardMarketWidget::onMarketCardClicked);
+        colLayout->addWidget(cardLabel);
 
-        // Insert directly inside the bounded layout
-        cardsLayout->insertWidget(cardsLayout->count() - 1, cardLabel);
+        if (canReplace) {
+            QPushButton *discardBtn = new QPushButton("Defausser", cardColumn);
+            discardBtn->setStyleSheet(
+                "QPushButton { background-color: #EF9A9A; color: #B71C1C; font-weight: bold; "
+                "border-radius: 4px; padding: 2px; font-size: 10px; border: 1px solid #E57373; }"
+                "QPushButton:hover { background-color: #E57373; }");
+            connect(discardBtn, &QPushButton::clicked, this, [this, i]() {
+                onDiscardCardClicked(i);
+            });
+            colLayout->addWidget(discardBtn);
+        }
+
+        cardsLayout->insertWidget(cardsLayout->count() - 1, cardColumn);
     }
 
     if (visibleCards.empty()) {
@@ -116,13 +136,9 @@ void CardMarketWidget::onMarketCardClicked(std::size_t index) {
             return;
         }
 
-        const harmonies::model::Player *cp = game->getCurrentPlayer();
-        const std::size_t activeCards =
-            cp->getActiveAnimalCardCount() +
-            (cp->hasUnplacedChosenNatureSpiritCard() ? 1u : 0u);
-        if (activeCards >= 4) {
-            QMessageBox::warning(this, "Limite atteinte",
-                "Vous avez deja 4 cartes.");
+        if (!game->canTakeVisibleAnimalCard()) {
+            QMessageBox::warning(this, "Action Impossible",
+                "Vous ne pouvez pas prendre de carte animale maintenant.");
             return;
         }
 
@@ -131,11 +147,28 @@ void CardMarketWidget::onMarketCardClicked(std::size_t index) {
             Q_EMIT marketUpdated();
             updateUI();
         } else {
-            QMessageBox::warning(this, "Erreur", "Vous avez deja pris une carte animale durant ce tour.");
+            QMessageBox::warning(this, "Erreur", "Vous ne pouvez pas prendre cette carte animale maintenant.");
         }
     } catch (const std::exception &e) {
         QMessageBox::critical(this, "Erreur du moteur", QString::fromUtf8(e.what()));
     } catch (...) {
         QMessageBox::critical(this, "Erreur du moteur", "Une erreur inattendue est survenue lors de la prise de la carte animale.");
+    }
+}
+
+void CardMarketWidget::onDiscardCardClicked(std::size_t index) {
+    if (!game) return;
+    try {
+        if (game->replaceAnimalCard(index)) {
+            Q_EMIT marketUpdated();
+            updateUI();
+        } else {
+            QMessageBox::warning(this, "Action Impossible",
+                "Vous ne pouvez pas defausser de carte.");
+        }
+    } catch (const std::exception &e) {
+        QMessageBox::critical(this, "Erreur du moteur", QString::fromUtf8(e.what()));
+    } catch (...) {
+        QMessageBox::critical(this, "Erreur du moteur", "Une erreur inattendue est survenue.");
     }
 }

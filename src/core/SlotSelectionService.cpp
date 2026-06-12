@@ -6,6 +6,29 @@ namespace harmonies
 {
     namespace core
     {
+        void resetSoloMarket(model::CentralBoard &board, model::TokenBag &bag)
+        {
+            if (board.getNbSlots() != 3)
+            {
+                return;
+            }
+
+            for (std::size_t i = 0; i < board.getNbSlots(); ++i)
+            {
+                model::TokenSlot *slot = board.getSlot(i);
+                if (slot == nullptr)
+                {
+                    continue;
+                }
+
+                if (!slot->isEmpty())
+                {
+                    slot->takeAll(); // discard without returning to bag
+                }
+                slot->fill(bag.drawTokens(3));
+            }
+        }
+
         std::vector<model::TokenType> takeTokensFromSlot(model::CentralBoard &board,
                                                          model::TokenBag &bag,
                                                          std::size_t slotIndex)
@@ -22,7 +45,16 @@ namespace harmonies
             }
 
             std::vector<model::TokenType> tokens = slot->takeAll();
-            slot->fill(bag.drawTokens(3));
+
+            if (board.getNbSlots() == 3)
+            {
+                // In solo, the other 6 tokens are discarded only at end of turn.
+            }
+            else
+            {
+                slot->fill(bag.drawTokens(3));
+            }
+
             return tokens;
         }
     }
