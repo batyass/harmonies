@@ -22,7 +22,23 @@ namespace harmonies
             }
 
             std::vector<model::TokenType> tokens = slot->takeAll();
-            slot->fill(bag.drawTokens(3));
+
+            if (board.getNbSlots() == 3)
+            {
+                // Solo mode: discard unchosen slots, then refill all slots
+                for (std::size_t i = 0; i < board.getNbSlots(); ++i)
+                {
+                    model::TokenSlot *s = board.getSlot(i);
+                    if (s && !s->isEmpty())
+                        s->takeAll(); // discard without returning to bag
+                    s->fill(bag.drawTokens(3));
+                }
+            }
+            else
+            {
+                slot->fill(bag.drawTokens(3));
+            }
+
             return tokens;
         }
     }
