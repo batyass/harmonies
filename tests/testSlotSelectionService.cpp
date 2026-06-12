@@ -120,6 +120,45 @@ int main()
               failures);
     }
 
+    {
+        CentralBoard board(1);
+        TokenBag bag;
+
+        std::vector<TokenType> chosenSlot = {
+            TokenType::BlueWater,
+            TokenType::GrayStone,
+            TokenType::BrownEarth};
+        std::vector<TokenType> otherSlotA = {
+            TokenType::YellowField,
+            TokenType::YellowField,
+            TokenType::YellowField};
+        std::vector<TokenType> otherSlotB = {
+            TokenType::RedBuilding,
+            TokenType::RedBuilding,
+            TokenType::RedBuilding};
+
+        board.getSlot(0)->fill(chosenSlot);
+        board.getSlot(1)->fill(otherSlotA);
+        board.getSlot(2)->fill(otherSlotB);
+
+        const std::size_t bagBefore = bag.getRemainingCount();
+        std::vector<TokenType> taken = takeTokensFromSlot(board, bag, 0);
+
+        check(taken == chosenSlot,
+              "In solo, taking a slot should still return the chosen tokens in order",
+              failures);
+        check(board.getSlot(0)->isEmpty(),
+              "In solo, the chosen slot should stay empty until end of turn",
+              failures);
+        check(board.getSlot(1)->getTokens() == otherSlotA &&
+                  board.getSlot(2)->getTokens() == otherSlotB,
+              "In solo, the 6 unchosen tokens should remain on the market until end of turn",
+              failures);
+        check(bag.getRemainingCount() == bagBefore,
+              "In solo, taking a slot should not refill the market immediately",
+              failures);
+    }
+
     std::cout << "\nFailures: " << failures << '\n';
     return failures == 0 ? 0 : 1;
 }

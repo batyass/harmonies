@@ -439,10 +439,18 @@ namespace harmonies {
                         std::cout << "  3. Choisir votre carte esprit de la nature\n";
                         std::cout << "  4. Poser un cube animal\n";
                         std::cout << "  5. Poser un cube esprit de la nature\n";
+                        if (game.canReplaceVisibleAnimalCard())
+                        {
+                            std::cout << "  6. Defausser une carte animale visible\n";
+                        }
                     }
                     else
                     {
                         std::cout << "  3. Poser un cube animal\n";
+                        if (game.canReplaceVisibleAnimalCard())
+                        {
+                            std::cout << "  4. Defausser une carte animale visible\n";
+                        }
                     }
 
                     int choice;
@@ -545,6 +553,34 @@ namespace harmonies {
                                 return;
                             }
                             std::cout << "Pose du cube esprit refusee.\n";
+                        }
+                        else if ((game.isNatureSpiritEnabled() && choice == 6) ||
+                                 (!game.isNatureSpiritEnabled() && choice == 4))
+                        {
+                            if (!game.canReplaceVisibleAnimalCard())
+                            {
+                                std::cout << "Defausse indisponible pour le moment.\n";
+                                continue;
+                            }
+
+                            int cardIndex;
+                            displayVisibleAnimalCards(game);
+                            if (!readInt("Index de la carte visible a defausser : ", cardIndex))
+                            {
+                                std::cout << "\nFin de flux (EOF) detectee. Abandon de la saisie.\n";
+                                return;
+                            }
+                            if (cardIndex < 0)
+                            {
+                                std::cout << "Index invalide.\n";
+                                continue;
+                            }
+                            if (game.replaceAnimalCard(static_cast<std::size_t>(cardIndex)))
+                            {
+                                std::cout << "Carte visible defaussee et remplacee.\n";
+                                return;
+                            }
+                            std::cout << "Defausse refusee.\n";
                         }
                         else
                         {

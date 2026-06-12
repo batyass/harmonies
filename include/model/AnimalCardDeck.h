@@ -27,6 +27,9 @@ namespace harmonies
             // Prend la carte visible a l'index donne et la retire des visibles
             AnimalCard takeVisible(size_t index);
 
+            // Mode solo: defausse la carte visible a l'index donne, la remplace par la carte du dessus de la pioche
+            void replaceVisible(size_t index);
+
             const std::vector<AnimalCard> &getVisible() const;
             bool drawPileEmpty() const;
             size_t visibleCount() const;

@@ -68,6 +68,8 @@ namespace harmonies
             const std::vector<model::TokenType> &getPendingTokens() const;
             bool isNatureSpiritEnabled() const;
             bool isFinalRoundTriggered() const;
+            bool canTakeVisibleAnimalCard() const;
+            bool canReplaceVisibleAnimalCard() const;
 
             // Les méthodes retournent l'adresse de l'objet agrégé
             model::CentralBoard *getCentralBoard();
@@ -86,6 +88,9 @@ namespace harmonies
             // Actions de base (squelettes)
             bool takeTokensFromSlot(std::size_t slotIndex);
             bool takeVisibleAnimalCard(std::size_t index);
+            // Mode solo uniquement
+            bool replaceAnimalCard(std::size_t index);
+            
             bool placeAnimalCube(std::size_t cardIndex, const utils::HexCoord &anchor);
             bool chooseNatureSpiritCard(std::size_t index);
             bool placeNatureSpiritCube(const utils::HexCoord &anchor);
