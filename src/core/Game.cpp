@@ -31,7 +31,7 @@ namespace harmonies
         Game::Game(const model::GameConfig &gameConfig, const std::vector<std::string> &playerNames)
             : config(gameConfig),
               tokenBag(),
-              centralBoard(gameConfig.getNbPlayer() == 1 ? 3 : 5),
+              centralBoard(gameConfig.getNbPlayer()),
               animalCardDeck(makeDefaultAnimalCards(), visibleAnimalCardSlots(gameConfig.getNbPlayer())),
               natureSpiritDeck(makeDefaultNatureSpiritCards()),
               turnManager(),
