@@ -218,6 +218,7 @@ namespace harmonies
             animalCardDeck.refill();
             context.pendingTokens.clear();
             context.hasTakenAnimalCard = false;
+            context.hasReplacedAnimalCard = false;
             state = GameState::WaitingForSlotChoice;
             checkEndGame();
         }
@@ -267,6 +268,27 @@ namespace harmonies
             model::AnimalCard takenCard = animalCardDeck.takeVisible(index);
             turnManager->getCurrentPlayer()->getAnimalCards()->addCard(takenCard);
             context.hasTakenAnimalCard = true;
+            return true;
+        }
+
+        bool Game::replaceAnimalCard(std::size_t index)
+        {
+            if (state != GameState::WaitingForTurnEndChoice)
+            {
+                throw std::logic_error("Game::replaceAnimalCard: Action illegale dans la phase actuelle.");
+            }
+
+            if (config.getNbPlayer() != 1)
+                return false;
+
+            if (context.hasTakenAnimalCard || context.hasReplacedAnimalCard)
+                return false;
+
+            if (animalCardDeck.drawPileEmpty())
+                return false;
+
+            animalCardDeck.replaceVisible(index);
+            context.hasReplacedAnimalCard = true;
             return true;
         }
 

@@ -42,6 +42,16 @@ namespace harmonies
             return card;
         }
 
+        void AnimalCardDeck::replaceVisible(size_t index)
+        {
+            if (index >= visible.size())
+                throw std::out_of_range("AnimalCardDeck::replaceVisible: index out of range");
+            if (drawPile.empty())
+                return;
+            visible[index] = drawPile.back();
+            drawPile.pop_back();
+        }
+
         const std::vector<AnimalCard> &AnimalCardDeck::getVisible() const { return visible; }
         bool AnimalCardDeck::drawPileEmpty() const { return drawPile.empty(); }
         size_t AnimalCardDeck::visibleCount() const { return visible.size(); }

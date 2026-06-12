@@ -86,6 +86,9 @@ namespace harmonies
             // Actions de base (squelettes)
             bool takeTokensFromSlot(std::size_t slotIndex);
             bool takeVisibleAnimalCard(std::size_t index);
+            // Mode solo uniquement
+            bool replaceAnimalCard(std::size_t index);
+            
             bool placeAnimalCube(std::size_t cardIndex, const utils::HexCoord &anchor);
             bool chooseNatureSpiritCard(std::size_t index);
             bool placeNatureSpiritCube(const utils::HexCoord &anchor);

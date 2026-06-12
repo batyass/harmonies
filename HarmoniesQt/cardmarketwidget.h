@@ -41,6 +41,7 @@ Q_SIGNALS:
 
 private Q_SLOTS:
     void onMarketCardClicked(std::size_t index);
+    void onDiscardCardClicked(std::size_t index);
 
 public:
     explicit CardMarketWidget(harmonies::core::Game *backendGame, QWidget *parent = nullptr);

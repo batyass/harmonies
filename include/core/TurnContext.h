@@ -11,6 +11,7 @@ namespace harmonies
         {
             std::vector<model::TokenType> pendingTokens;
             bool hasTakenAnimalCard = false;
+            bool hasReplacedAnimalCard = false;
         };
 
     }
