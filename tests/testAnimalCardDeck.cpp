@@ -53,16 +53,27 @@ int main()
           "The draw pile should still contain hidden cards if not all cards are visible",
           failures);
 
-    AnimalCard taken = soloDeck.takeVisible(0);
-    check(soloDeck.visibleCount() == 2,
+    AnimalCardDeck replaceDeck(cards, 3);
+    std::string replacedName = replaceDeck.getVisible()[1].getName();
+    replaceDeck.replaceVisible(1);
+    check(replaceDeck.visibleCount() == 3,
+          "Replacing a visible card should keep the same number of visible cards",
+          failures);
+    check(replaceDeck.getVisible()[1].getName() != replacedName,
+          "Replacing a visible card should draw a different hidden card when one is available",
+          failures);
+
+    AnimalCardDeck refillDeck(cards, 3);
+    AnimalCard taken = refillDeck.takeVisible(0);
+    check(refillDeck.visibleCount() == 2,
           "Taking a visible card should reduce the visible count",
           failures);
     check(!taken.getName().empty(),
           "Taking a visible card should return a valid animal card",
           failures);
 
-    soloDeck.refill();
-    check(soloDeck.visibleCount() == 3,
+    refillDeck.refill();
+    check(refillDeck.visibleCount() == 3,
           "Refill should restore the visible cards up to the configured number of slots",
           failures);
 
@@ -92,6 +103,20 @@ int main()
 
     check(invalidIndexThrew,
           "Taking a card with an invalid visible index should throw",
+          failures);
+
+    bool invalidReplaceIndexThrew = false;
+    try
+    {
+        soloDeck.replaceVisible(10);
+    }
+    catch (const std::out_of_range &)
+    {
+        invalidReplaceIndexThrew = true;
+    }
+
+    check(invalidReplaceIndexThrew,
+          "Replacing a card with an invalid visible index should throw",
           failures);
 
     std::cout << "\nFailures: " << failures << '\n';

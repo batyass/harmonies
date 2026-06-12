@@ -212,8 +212,51 @@ namespace harmonies
             return state == GameState::GameOver;
         }
 
+        bool Game::canTakeVisibleAnimalCard() const
+        {
+            if (state != GameState::WaitingForSlotChoice &&
+                state != GameState::WaitingForPlacement &&
+                state != GameState::WaitingForTurnEndChoice)
+            {
+                return false;
+            }
+
+            if (context.hasTakenAnimalCard || context.hasReplacedAnimalCard)
+            {
+                return false;
+            }
+
+            static constexpr std::size_t MAX_ACTIVE_CARDS = 4;
+            model::Player *cp = turnManager->getCurrentPlayer();
+            if (cp == nullptr)
+            {
+                return false;
+            }
+
+            const std::size_t activeCards =
+                cp->getActiveAnimalCardCount() +
+                (cp->hasUnplacedChosenNatureSpiritCard() ? 1u : 0u);
+
+            return activeCards < MAX_ACTIVE_CARDS && animalCardDeck.visibleCount() > 0;
+        }
+
+        bool Game::canReplaceVisibleAnimalCard() const
+        {
+            return state == GameState::WaitingForTurnEndChoice &&
+                   config.getNbPlayer() == 1 &&
+                   !context.hasTakenAnimalCard &&
+                   !context.hasReplacedAnimalCard &&
+                   !animalCardDeck.drawPileEmpty() &&
+                   animalCardDeck.visibleCount() > 0;
+        }
+
         void Game::finishTurn()
         {
+            if (config.getNbPlayer() == 1)
+            {
+                resetSoloMarket(centralBoard, tokenBag);
+            }
+
             turnManager->nextTurn();
             animalCardDeck.refill();
             context.pendingTokens.clear();
@@ -249,18 +292,7 @@ namespace harmonies
                 throw std::logic_error("Game::takeVisibleAnimalCard: Action illegale dans la phase actuelle.");
             }
 
-            if (context.hasTakenAnimalCard)
-            {
-                return false;
-            }
-
-            static constexpr std::size_t MAX_ACTIVE_CARDS = 4;
-            model::Player *cp = turnManager->getCurrentPlayer();
-            const std::size_t activeCards =
-                cp->getActiveAnimalCardCount() +
-                (cp->hasUnplacedChosenNatureSpiritCard() ? 1u : 0u);
-
-            if (activeCards >= MAX_ACTIVE_CARDS)
+            if (!canTakeVisibleAnimalCard())
             {
                 return false;
             }
@@ -278,13 +310,7 @@ namespace harmonies
                 throw std::logic_error("Game::replaceAnimalCard: Action illegale dans la phase actuelle.");
             }
 
-            if (config.getNbPlayer() != 1)
-                return false;
-
-            if (context.hasTakenAnimalCard || context.hasReplacedAnimalCard)
-                return false;
-
-            if (animalCardDeck.drawPileEmpty())
+            if (!canReplaceVisibleAnimalCard())
                 return false;
 
             animalCardDeck.replaceVisible(index);

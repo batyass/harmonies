@@ -57,9 +57,7 @@ void CardMarketWidget::updateUI() {
     // Pulling matching data array directly from backend card deck structure
     const std::vector<harmonies::model::AnimalCard>& visibleCards = game->getAnimalCardDeck()->getVisible();
 
-    const bool soloMode = (game->getCentralBoard()->getNbSlots() == 3);
-    const bool canReplace = soloMode &&
-                            game->getState() == harmonies::core::GameState::WaitingForTurnEndChoice;
+    const bool canReplace = game->canReplaceVisibleAnimalCard();
 
     for (std::size_t i = 0; i < visibleCards.size(); ++i) {
         QWidget *cardColumn = new QWidget(this);
@@ -138,13 +136,9 @@ void CardMarketWidget::onMarketCardClicked(std::size_t index) {
             return;
         }
 
-        const harmonies::model::Player *cp = game->getCurrentPlayer();
-        const std::size_t activeCards =
-            cp->getActiveAnimalCardCount() +
-            (cp->hasUnplacedChosenNatureSpiritCard() ? 1u : 0u);
-        if (activeCards >= 4) {
-            QMessageBox::warning(this, "Limite atteinte",
-                "Vous avez deja 4 cartes.");
+        if (!game->canTakeVisibleAnimalCard()) {
+            QMessageBox::warning(this, "Action Impossible",
+                "Vous ne pouvez pas prendre de carte animale maintenant.");
             return;
         }
 
@@ -153,7 +147,7 @@ void CardMarketWidget::onMarketCardClicked(std::size_t index) {
             Q_EMIT marketUpdated();
             updateUI();
         } else {
-            QMessageBox::warning(this, "Erreur", "Vous avez deja pris une carte animale durant ce tour.");
+            QMessageBox::warning(this, "Erreur", "Vous ne pouvez pas prendre cette carte animale maintenant.");
         }
     } catch (const std::exception &e) {
         QMessageBox::critical(this, "Erreur du moteur", QString::fromUtf8(e.what()));

@@ -68,6 +68,8 @@ namespace harmonies
             const std::vector<model::TokenType> &getPendingTokens() const;
             bool isNatureSpiritEnabled() const;
             bool isFinalRoundTriggered() const;
+            bool canTakeVisibleAnimalCard() const;
+            bool canReplaceVisibleAnimalCard() const;
 
             // Les méthodes retournent l'adresse de l'objet agrégé
             model::CentralBoard *getCentralBoard();
