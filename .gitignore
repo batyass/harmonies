@@ -27,3 +27,6 @@ qrc_*.cpp
 # Generated test executables
 /tests/*
 !/tests/*.cpp
+HarmoniesQt
+harmonies
+moc_*
