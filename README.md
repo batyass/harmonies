@@ -69,6 +69,17 @@ Conséquences :
 - `model.puml`, `diagrammes.puml` — diagrammes UML (PlantUML)
 - `Rapport_LO21.pdf` — rapport du projet
 
+## Crédits
+
+Projet réalisé en collaboration avec :
+
+- **Clément Chauvy** — [@Clementcvy](https://github.com/Clementcvy) — dépôt d'origine
+- **Neo Gubert** — [@neog21](https://github.com/neog21)
+- **Yassir Bizguirne** — [@batyass](https://github.com/batyass)
+- ainsi qu'un autre contributeur (`peilin.li@etu.utc.fr`)
+
+Dépôt d'origine : [Clementcvy/LO21projet](https://github.com/Clementcvy/LO21projet)
+
 ## Technologies
 
 C++ · Qt · qmake · Makefile · PlantUML
