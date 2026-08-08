@@ -65,9 +65,8 @@ Conséquences :
 
 ## Documentation
 
-- `docs/notes.md` — notes de développement
-- `model.puml`, `diagrammes.puml` — diagrammes UML (PlantUML)
-- `Rapport_LO21.pdf` — rapport du projet
+- [`docs/notes.md`](docs/notes.md) — notes de développement
+- [`model.puml`](model.puml) — diagramme de classes (PlantUML)
 
 ## Crédits
 
